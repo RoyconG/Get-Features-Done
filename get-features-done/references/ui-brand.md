@@ -121,6 +121,17 @@ Always at end of major completions.
 
 ---
 
+## Status Table in Next Up
+
+After the primary "Next Up" command and before "Also available:", include the active feature status table. Call `list-features` to get all features, exclude done features, and render:
+
+- The current feature (the one just acted on) is listed FIRST regardless of default sort order
+- All other active features follow in default sort order
+- Use the same table format as /gfd:status (Feature Name, Status, Next Step columns)
+- Only show if there are 2+ active features (skip if only the current feature or no features remain)
+
+---
+
 ## Error Box
 
 ```

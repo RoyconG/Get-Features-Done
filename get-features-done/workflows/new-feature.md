@@ -194,7 +194,25 @@ Present next step:
 `/gfd:discuss-feature [SLUG]`
 
 <sub>`/clear` first → fresh context window</sub>
+```
 
+**After displaying the primary Next Up command, render the active features status table:**
+
+Call `list-features` to get all features. Filter out done features. If there are 2+ active features, render:
+
+```
+| Feature Name | Status | Next Step |
+|--------------|--------|-----------|
+| **[current-slug-name]** | [status] | [next command] |
+| [other-name] | [status] | [next command] |
+```
+
+- Current feature (SLUG from this workflow) listed first and **bolded**
+- Other active features in default sort order
+- Next Step uses the same status→command mapping as /gfd:status
+- Skip this table if only 1 or 0 active features remain
+
+```
 ───────────────────────────────────────────────────────────────
 
 **Also available:**

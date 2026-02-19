@@ -410,7 +410,7 @@ node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLU
 Check remaining features by scanning `docs/features/` for FEATURE.md files with status not "done":
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs list-features --status not-done
+REMAINING=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs list-features --status not-done)
 ```
 
 **Route based on remaining features:**
@@ -427,8 +427,6 @@ node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs list-features --st
 `/gfd:execute-feature [next-slug]`
 
 <sub>`/clear` first → fresh context window</sub>
-
-───────────────────────────────────────────────────────────────
 ```
 
 **If features are planned (ready to execute):**
@@ -443,8 +441,6 @@ node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs list-features --st
 `/gfd:execute-feature [next-slug]`
 
 <sub>`/clear` first → fresh context window</sub>
-
-───────────────────────────────────────────────────────────────
 ```
 
 **If features are researched (ready for planning):**
@@ -459,9 +455,23 @@ node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs list-features --st
 `/gfd:plan-feature [next-slug]`
 
 <sub>`/clear` first → fresh context window</sub>
-
-───────────────────────────────────────────────────────────────
 ```
+
+**After displaying the primary Next Up command, render the active features status table:**
+
+Reuse the `REMAINING` data from the `list-features --status not-done` call above (do NOT call list-features again). The current feature ([SLUG]) has just moved to "done" so it won't appear. If there are 2+ remaining features, render:
+
+```
+| Feature Name | Status | Next Step |
+|--------------|--------|-----------|
+| **[routed-to-feature-name]** | [status] | [next command] |
+| [other-name] | [status] | [next command] |
+```
+
+- The feature routed to in Next Up is listed first and **bolded**
+- Other remaining features in default sort order
+- Next Step uses the same status→command mapping as /gfd:status
+- Skip this table if only 1 or 0 remaining features
 
 **If all features are done:**
 

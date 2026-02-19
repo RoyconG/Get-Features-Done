@@ -390,7 +390,25 @@ fi
 `/gfd:progress`
 
 <sub>`/clear` first → fresh context window</sub>
+```
 
+**After displaying the primary Next Up command, render the active features status table:**
+
+Call `list-features` to get all features. Filter out done features. If there are 2+ active features, render:
+
+```
+| Feature Name | Status | Next Step |
+|--------------|--------|-----------|
+| [name] | [status] | [next command] |
+| [name] | [status] | [next command] |
+```
+
+- No feature is bolded (map-codebase is not feature-specific)
+- Features in default sort order
+- Next Step uses the same status→command mapping as /gfd:status
+- Skip this table if only 1 or 0 active features remain
+
+```
 ───────────────────────────────────────────────────────────────
 
 **Also available:**
