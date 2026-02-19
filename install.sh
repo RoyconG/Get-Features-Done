@@ -10,7 +10,7 @@ echo "Installing GFD from: ${SCRIPT_DIR}"
 echo "Target: ${CLAUDE_DIR}"
 echo
 
-# 1. Symlink get-features-done/ → repo root
+# 1. Symlink get-features-done/ → repo subdir
 #    This makes ~/.claude/get-features-done/bin/, templates/, workflows/, etc. available
 TARGET="${CLAUDE_DIR}/get-features-done"
 if [ -L "$TARGET" ]; then
@@ -20,10 +20,10 @@ elif [ -d "$TARGET" ]; then
     echo "Backing up existing directory: ${TARGET} → ${TARGET}.bak"
     mv "$TARGET" "${TARGET}.bak"
 fi
-ln -s "$SCRIPT_DIR" "$TARGET"
-echo "Linked: ${TARGET} → ${SCRIPT_DIR}"
+ln -s "${SCRIPT_DIR}/get-features-done" "$TARGET"
+echo "Linked: ${TARGET} → ${SCRIPT_DIR}/get-features-done"
 
-# 2. Symlink commands/gfd/ → repo commands/
+# 2. Symlink commands/gfd/ → repo commands/gfd/
 mkdir -p "${CLAUDE_DIR}/commands"
 TARGET="${CLAUDE_DIR}/commands/gfd"
 if [ -L "$TARGET" ]; then
@@ -31,8 +31,8 @@ if [ -L "$TARGET" ]; then
 elif [ -d "$TARGET" ]; then
     mv "$TARGET" "${TARGET}.bak"
 fi
-ln -s "${SCRIPT_DIR}/commands" "$TARGET"
-echo "Linked: ${TARGET} → ${SCRIPT_DIR}/commands"
+ln -s "${SCRIPT_DIR}/commands/gfd" "$TARGET"
+echo "Linked: ${TARGET} → ${SCRIPT_DIR}/commands/gfd"
 
 # 3. Symlink each agent file
 mkdir -p "${CLAUDE_DIR}/agents"

@@ -4,14 +4,14 @@ A structured feature delivery toolkit for [Claude Code](https://docs.anthropic.c
 
 ## What's Inside
 
-| Directory    | Contents                                         |
-|-------------|--------------------------------------------------|
-| `commands/` | Slash command definitions (`/gfd:*`)             |
-| `agents/`   | Specialized agent definitions (planner, executor, researcher, verifier, codebase-mapper) |
-| `workflows/`| Detailed workflow instructions for each command   |
-| `references/`| Reference docs (git integration, questioning style, UI branding) |
-| `templates/` | Document templates (FEATURE.md, PROJECT.md, state, config, codebase analysis) |
-| `bin/`      | CLI tool (`gfd-tools.cjs`)                       |
+| Directory                      | Contents                                         |
+|-------------------------------|--------------------------------------------------|
+| `commands/gfd/`               | Slash command definitions (`/gfd:*`)             |
+| `agents/`                     | Specialized agent definitions (planner, executor, researcher, verifier, codebase-mapper) |
+| `get-features-done/workflows/`| Detailed workflow instructions for each command   |
+| `get-features-done/references/`| Reference docs (git integration, questioning style, UI branding) |
+| `get-features-done/templates/` | Document templates (FEATURE.md, PROJECT.md, state, config, codebase analysis) |
+| `get-features-done/bin/`      | CLI tool (`gfd-tools.cjs`)                       |
 
 ## Installation
 
@@ -23,8 +23,8 @@ cd ~/Projects/GFD
 
 The install script creates symlinks from `~/.claude/` into this repo:
 
-- `~/.claude/get-features-done/` -> repo root (bin, templates, workflows, references)
-- `~/.claude/commands/gfd/` -> `commands/`
+- `~/.claude/get-features-done/` -> `get-features-done/` (bin, templates, workflows, references)
+- `~/.claude/commands/gfd/` -> `commands/gfd/`
 - `~/.claude/agents/gfd-*.md` -> individual agent files
 
 If you already have files in those locations, they'll be backed up with a `.bak` suffix.
@@ -56,4 +56,4 @@ Feature-level config lives in `docs/features/config.json` (created per-project f
 
 ## Version
 
-See `VERSION` for the current release.
+See `get-features-done/VERSION` for the current release.
