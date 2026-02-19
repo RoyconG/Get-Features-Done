@@ -1,5 +1,5 @@
 <purpose>
-Create a new feature in the GFD project. A feature is a named, independently deliverable slice of value identified by a slug (e.g., user-auth, payment-flow). This workflow validates the slug, gathers feature context through conversation, creates the feature directory and FEATURE.md, and routes to planning.
+Create a new feature in the GFD project. A feature is a named, independently deliverable slice of value identified by a slug (e.g., user-auth, payment-flow). This workflow validates the slug, asks for a one-line description, creates the feature directory and FEATURE.md, and routes to discussion.
 </purpose>
 
 <required_reading>
@@ -86,12 +86,12 @@ Exit.
 
 Feature already exists: docs/features/[SLUG]/
 
-**To fix:** Use a different slug or run /gfd:plan-feature [SLUG] to plan it.
+**To fix:** Use a different slug or run /gfd:discuss-feature [SLUG] to discuss it.
 ```
 
 Exit.
 
-## 3. Gather Feature Context
+## 3. Gather Feature Description
 
 **Display stage banner:**
 
@@ -101,78 +101,11 @@ Exit.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-Ask the user about this feature. Use a conversational approach — follow threads, don't interrogate.
+Ask the user a single question:
 
-**Question 1 — Description:**
-
-Ask inline (freeform):
-
-"What does the **[SLUG]** feature do, and why does it matter?"
+"What does **[SLUG]** do? (one sentence)"
 
 Wait for response before continuing.
-
-**Question 2 — Acceptance Criteria:**
-
-Use AskUserQuestion:
-- header: "Done Looks Like"
-- question: "How will you know [SLUG] is complete? What can a user do when it works?"
-- options:
-  - "Walk me through the user experience" — Describe it conversationally
-  - "I have specific criteria" — I'll list them
-  - "Let me think about this" — I'll describe my goals and you help me derive criteria
-
-Follow up with clarifying questions until you have 3-5 concrete, observable behaviors. Each should be independently verifiable from a user or system perspective.
-
-**Question 3 — Priority:**
-
-Use AskUserQuestion:
-- header: "Priority"
-- question: "How important is [SLUG] relative to other work?"
-- options:
-  - "Critical — blocking other work"
-  - "High — important for current goals"
-  - "Medium — standard priority"
-  - "Low — nice to have"
-
-**Question 4 — Dependencies:**
-
-Use AskUserQuestion:
-- header: "Dependencies"
-- question: "Does [SLUG] depend on other features being done first?"
-- options:
-  - "No dependencies" — This can be worked on independently
-  - "Yes, has dependencies" — I'll name the feature slugs it needs
-  - "Not sure yet" — Leave this empty for now
-
-If "Yes, has dependencies": ask for a comma-separated list of feature slugs.
-
-**Summarize and confirm:**
-
-Present what you captured:
-
-```
-## Feature: [SLUG]
-
-**Description:** [2-3 sentence summary from conversation]
-
-**Acceptance Criteria:**
-- [ ] [Criterion 1]
-- [ ] [Criterion 2]
-- [ ] [Criterion 3]
-
-**Priority:** [high/medium/low/critical]
-**Depends on:** [slugs or "none"]
-```
-
-Use AskUserQuestion:
-- header: "Confirm"
-- question: "Does this capture the [SLUG] feature correctly?"
-- options:
-  - "Looks good — create it" — Proceed
-  - "Adjust description" — Let me refine the description
-  - "Adjust acceptance criteria" — Let me refine the criteria
-
-Loop until "Looks good — create it" selected.
 
 ## 4. Create Feature Directory and FEATURE.md
 
@@ -182,38 +115,34 @@ Create the feature directory:
 mkdir -p docs/features/${SLUG}
 ```
 
-Write `docs/features/${SLUG}/FEATURE.md` using the template from `@/home/conroy/.claude/get-features-done/templates/feature.md`, filled with the user's answers:
+Write `docs/features/${SLUG}/FEATURE.md` using the template from `@/home/conroy/.claude/get-features-done/templates/feature.md`, filled with the user's answer:
 
 ```markdown
 ---
 name: [Derived human-readable name from slug, e.g., "User Authentication" from "user-auth"]
 slug: [SLUG]
-status: backlog
+status: new
 owner: [current git user or "unassigned"]
 assignees: []
 created: [today's date YYYY-MM-DD]
-priority: [critical|high|medium|low]
-depends_on: [array of dependency slugs, or empty array]
+priority: medium
+depends_on: []
 ---
 # [Feature Name]
 
 ## Description
 
-[Description from conversation — 2-3 sentences. What this feature does and why it matters.]
+[One-liner from the user's answer.]
 
 ## Acceptance Criteria
 
-- [ ] [Criterion 1 — observable behavior]
-- [ ] [Criterion 2 — observable behavior]
-- [ ] [Criterion 3 — observable behavior]
+- [ ] [To be defined during /gfd:discuss-feature]
 
 ## Tasks
 
 [Populated during planning. Links to plan files.]
 
 ## Notes
-
-[Any design decisions, constraints, or context captured during this conversation.]
 
 ---
 *Created: [today's date]*
@@ -250,7 +179,7 @@ node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd):
 
 Feature: [SLUG]
 Location: docs/features/[SLUG]/FEATURE.md
-Status: backlog
+Status: new
 ```
 
 Present next step:
@@ -260,9 +189,9 @@ Present next step:
 
 ## ▶ Next Up
 
-**Plan [SLUG]** — create implementation plans
+**Discuss [SLUG]** — refine scope and define acceptance criteria
 
-`/gfd:plan-feature [SLUG]`
+`/gfd:discuss-feature [SLUG]`
 
 <sub>`/clear` first → fresh context window</sub>
 
@@ -270,7 +199,7 @@ Present next step:
 
 **Also available:**
 - `/gfd:new-feature <slug>` — create another feature first
-- `/gfd:progress` — see all features and their status
+- `/gfd:status` — see all features and their status
 
 ───────────────────────────────────────────────────────────────
 ```
@@ -289,13 +218,10 @@ Present next step:
 - [ ] Slug validated (lowercase, alphanumeric, hyphens only)
 - [ ] Project existence verified
 - [ ] Feature uniqueness verified (no duplicate slugs)
-- [ ] Feature description gathered conversationally
-- [ ] 3-5 concrete, observable acceptance criteria captured
-- [ ] Priority captured
-- [ ] Dependencies captured
+- [ ] One-line description gathered
 - [ ] Feature directory created
-- [ ] FEATURE.md written with all fields populated — **committed**
+- [ ] FEATURE.md written with status: new and placeholder acceptance criteria — **committed**
 - [ ] STATE.md updated — **committed**
-- [ ] User knows next step is `/gfd:plan-feature [SLUG]`
+- [ ] User knows next step is `/gfd:discuss-feature [SLUG]`
 
 </success_criteria>

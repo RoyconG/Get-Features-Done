@@ -8,7 +8,7 @@ Template for `docs/features/{slug}/FEATURE.md` — the feature definition docume
 ---
 name: [Feature Name]
 slug: [feature-slug]
-status: backlog
+status: new
 owner: [username]
 assignees: []
 created: YYYY-MM-DD
@@ -45,8 +45,12 @@ depends_on: []
 <guidelines>
 
 **Status Values:**
-- `backlog` — Defined but not yet being worked on
-- `planning` — Being planned (PLAN.md being created)
+- `new` — Created but not yet discussed
+- `discussing` — Scope conversation in progress
+- `discussed` — Scope defined, ready for research
+- `researching` — Research in progress
+- `researched` — Research complete, ready for planning
+- `planning` — Plans being created
 - `planned` — Plans exist, ready for execution
 - `in-progress` — Actively being executed
 - `done` — All acceptance criteria met, verified
@@ -71,12 +75,25 @@ depends_on: []
 
 <evolution>
 
+**After creation:**
+- Status: new
+- Run /gfd:discuss-feature to refine scope
+
+**After discussion:**
+- Status: discussing → discussed
+- Run /gfd:research-feature to investigate implementation
+
+**After research:**
+- Status: researching → researched
+- Run /gfd:plan-feature to create implementation plans
+
 **During planning:**
-- Status: backlog → planning
+- Status: researched → planning
 - Tasks section populated with plan references
 
 **After planning:**
 - Status: planning → planned
+- Run /gfd:execute-feature to implement
 
 **During execution:**
 - Status: planned → in-progress
