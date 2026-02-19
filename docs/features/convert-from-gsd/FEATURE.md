@@ -1,7 +1,7 @@
 ---
 name: Convert From GSD
 slug: convert-from-gsd
-status: backlog
+status: planned
 owner: Conroy
 assignees: []
 created: 2026-02-20
