@@ -27,7 +27,11 @@ Introduces a reworked feature lifecycle with new states (`new` → `discussing` 
 
 ## Tasks
 
-[Populated during planning. Links to plan files.]
+- [01-PLAN.md](01-PLAN.md) — Update gfd-tools.cjs for 9-state lifecycle
+- [02-PLAN.md](02-PLAN.md) — Create /gfd:status command and workflow
+- [03-PLAN.md](03-PLAN.md) — Create /gfd:discuss-feature command and workflow
+- [04-PLAN.md](04-PLAN.md) — Create /gfd:research-feature command and workflow
+- [05-PLAN.md](05-PLAN.md) — Update new-feature, plan-feature, execute-feature, and template
 
 ## Notes
 
