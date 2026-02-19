@@ -19,7 +19,7 @@ must_haves:
     - "A mapping table is presented showing GSD phase name, suggested slug, and computed GFD status"
     - "User can respond to each mapping with accept, rename, or skip before any files are created"
     - "Phases archived in .planning/milestones/ are included alongside active phases"
-    - "Status is derived from disk (plan/summary counts) not ROADMAP.md checkboxes"
+    - "Status is derived from disk artifacts (plans, summaries, research, context) and ROADMAP.md goal presence — not ROADMAP.md checkboxes"
   artifacts:
     - path: "commands/gfd/convert-from-gsd.md"
       provides: "Slash command definition with allowed-tools and workflow reference"
@@ -204,17 +204,21 @@ const phases = $(echo \$PHASES_JSON);
 const roadmap = fs.existsSync('.planning/ROADMAP.md')
   ? fs.readFileSync('.planning/ROADMAP.md', 'utf-8') : '';
 
-function detectStatus(phaseDir, archived) {
+function detectStatus(phaseDir, archived, hasGoal) {
   if (archived) return 'done'; // archived phases are complete by definition
-  if (!fs.existsSync(phaseDir)) return 'backlog';
+  if (!fs.existsSync(phaseDir)) return hasGoal ? 'discussed' : 'new';
   const files = fs.readdirSync(phaseDir);
   const plans = files.filter(f => /-PLAN\.md\$/.test(f));
   const summaries = files.filter(f => /-SUMMARY\.md\$/.test(f));
   const hasVerification = files.some(f => /VERIFICATION\.md\$/.test(f));
-  if (plans.length === 0) return 'backlog';
-  if (plans.length === summaries.length && hasVerification) return 'done';
+  const hasResearch = files.some(f => /RESEARCH\.md\$/.test(f));
+  const hasContext = files.some(f => /CONTEXT\.md\$/.test(f));
+  if (plans.length === summaries.length && plans.length > 0 && hasVerification) return 'done';
   if (summaries.length > 0) return 'in-progress';
-  return 'planned';
+  if (plans.length > 0) return 'planned';
+  if (hasResearch) return 'researched';
+  if (hasContext || hasGoal) return 'discussed';
+  return 'new';
 }
 
 function extractPhaseGoal(phaseNum, phaseName) {
@@ -241,8 +245,8 @@ function extractSuccessCriteria(phaseNum) {
 const mapping = phases.map(p => {
   // Slug: strip numeric prefix (handle decimals like 2.1)
   const slug = p.phaseName.replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-\$/g, '');
-  const status = detectStatus(p.dirPath, p.archived);
   const goal = extractPhaseGoal(p.phaseNum, p.phaseName);
+  const status = detectStatus(p.dirPath, p.archived, !!goal);
   const criteria = extractSuccessCriteria(p.phaseNum);
   return {
     phaseDir: p.dirName,

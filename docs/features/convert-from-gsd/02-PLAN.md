@@ -382,7 +382,7 @@ Migrated [N] GSD phases to GFD features.
 | done   | [N]   |
 | in-progress | [N] |
 | planned | [N] |
-| backlog | [N] |
+| new     | [N] |
 
 Location: docs/features/
 .planning/ has been removed.
@@ -404,7 +404,7 @@ Show next steps:
 **Also available:**
 - `/gfd:map-codebase` — analyze your codebase (recommended for brownfield projects)
 - `/gfd:execute-feature <slug>` — continue work on an in-progress feature
-- `/gfd:plan-feature <slug>` — plan a feature that was in backlog
+- `/gfd:plan-feature <slug>` — plan a feature that needs planning
 
 ───────────────────────────────────────────────────────────────
 ```
@@ -454,7 +454,7 @@ Workflow file contains all 12 steps. Steps 6-12 implement: GFD init, FEATURE.md 
 <verification>
 1. `wc -l get-features-done/workflows/convert-from-gsd.md` — file should be >200 lines
 2. `grep "## 6\.\|## 7\.\|## 8\.\|## 9\.\|## 10\.\|## 11\.\|## 12\." get-features-done/workflows/convert-from-gsd.md` — all 7 new steps present
-3. `grep "done\|in-progress\|planned\|backlog" get-features-done/workflows/convert-from-gsd.md` — GFD status values present
+3. `grep "done\|in-progress\|planned\|new" get-features-done/workflows/convert-from-gsd.md` — GFD status values present
 4. `grep "gsd_phase" get-features-done/workflows/convert-from-gsd.md` — traceability field included in FEATURE.md template
 5. Manually read the workflow end: confirm `</process>`, `<output>`, `<success_criteria>` tags are properly closed
 </verification>

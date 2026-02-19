@@ -33,7 +33,7 @@ A migration tool that scans a project's GSD `.planning/` directory, maps phases 
 
 - This feature targets projects that were previously managed with GSD and are migrating to GFD's feature-driven structure.
 - The key structural change is from `.planning/<phase>/` (numbered, milestone-scoped) to `docs/features/<slug>/` (named, independently deliverable).
-- GSD status mapping: complete → done, in-progress → in-progress, planned → planned, not started → backlog.
+- GSD status mapping: complete → done, in-progress → in-progress, planned → planned, has research → researched, has context/goal → discussed, not started → new.
 
 ---
 *Created: 2026-02-20*

@@ -100,16 +100,17 @@ These are informational. The current `.planning/ROADMAP.md` is the authoritative
 
 From ROADMAP.md analysis (Guild project, 28 phases inspected):
 
-| ROADMAP indicator | Meaning | GFD Status |
-|------------------|---------|------------|
-| `- [x] Phase N:` (in completed milestone) | All plans complete | `done` |
-| `- [x] Phase N:` with "completed YYYY-MM-DD" | Complete | `done` |
-| `- [ ] Phase N:` in current milestone | Not yet started | `backlog` |
-| Phase in progress (has some PLANs but missing SUMMARYs) | Active | `in-progress` |
-| Has PLANs but no SUMMARYs, in current milestone | Planned | `planned` |
-| No PLANs yet | Not started | `backlog` |
+| ROADMAP indicator | Disk artifacts | Meaning | GFD Status |
+|------------------|---------------|---------|------------|
+| `- [x] Phase N:` (in completed milestone) | All plans have summaries + VERIFICATION.md | All plans complete | `done` |
+| `- [x] Phase N:` with "completed YYYY-MM-DD" | Same | Complete | `done` |
+| Phase in progress | Some SUMMARY.md files but not all | Active | `in-progress` |
+| Has PLANs but no SUMMARYs | PLAN.md files present | Planned | `planned` |
+| No PLANs, has RESEARCH.md | RESEARCH.md in phase dir | Researched | `researched` |
+| No PLANs, has CONTEXT.md or ROADMAP Goal | CONTEXT.md or Goal in ROADMAP.md | Discussed | `discussed` |
+| No PLANs, no research, no context, no goal | Empty phase dir | Not started | `new` |
 
-**Status detection algorithm:** Check disk (plan vs summary file counts) for the most reliable status. ROADMAP.md checkbox state corroborates but disk is ground truth.
+**Status detection algorithm:** Check disk artifacts (plan/summary/research/context file presence) for the most reliable status. ROADMAP.md Goal presence indicates the phase was discussed. ROADMAP.md checkbox state corroborates but disk is ground truth.
 
 ## GFD Target Structure
 
@@ -120,7 +121,7 @@ Source: direct inspection of `/var/home/conroy/Projects/GFD/` (HIGH confidence â
 ```yaml
 name: [Human-readable name]
 slug: [feature-slug]
-status: backlog|planning|planned|in-progress|done
+status: new|discussing|discussed|researching|researched|planning|planned|in-progress|done
 owner: [username]
 assignees: []
 created: YYYY-MM-DD
@@ -232,16 +233,20 @@ Algorithm:
 ### Status Detection Per Phase
 
 ```javascript
-function detectPhaseStatus(phaseDir, roadmapStatus) {
-  const planFiles = fs.readdirSync(phaseDir).filter(f => /-PLAN\.md$/.test(f));
-  const summaryFiles = fs.readdirSync(phaseDir).filter(f => /-SUMMARY\.md$/.test(f));
-  const hasVerification = fs.existsSync(path.join(phaseDir, 'VERIFICATION.md'))
-    || fs.readdirSync(phaseDir).some(f => /-VERIFICATION\.md$/.test(f));
+function detectPhaseStatus(phaseDir, hasGoal) {
+  const files = fs.readdirSync(phaseDir);
+  const planFiles = files.filter(f => /-PLAN\.md$/.test(f));
+  const summaryFiles = files.filter(f => /-SUMMARY\.md$/.test(f));
+  const hasVerification = files.some(f => /VERIFICATION\.md$/.test(f));
+  const hasResearch = files.some(f => /RESEARCH\.md$/.test(f));
+  const hasContext = files.some(f => /CONTEXT\.md$/.test(f));
 
-  if (planFiles.length === 0) return 'backlog';
-  if (planFiles.length === summaryFiles.length && hasVerification) return 'done';
+  if (planFiles.length === summaryFiles.length && planFiles.length > 0 && hasVerification) return 'done';
   if (summaryFiles.length > 0) return 'in-progress';
-  return 'planned';
+  if (planFiles.length > 0) return 'planned';
+  if (hasResearch) return 'researched';
+  if (hasContext || hasGoal) return 'discussed';
+  return 'new';
 }
 ```
 
@@ -441,12 +446,17 @@ const plans = files.filter(f => /-PLAN\.md$/.test(f));
 const summaries = files.filter(f => /-SUMMARY\.md$/.test(f));
 const hasVerification = files.some(f => /VERIFICATION\.md$/.test(f));
 
-let status = 'backlog';
+const hasResearch = files.some(f => /RESEARCH\.md$/.test(f));
+const hasContext = files.some(f => /CONTEXT\.md$/.test(f));
+
+let status = 'new';
 if (plans.length > 0 && plans.length === summaries.length && hasVerification) status = 'done';
 else if (summaries.length > 0) status = 'in-progress';
 else if (plans.length > 0) status = 'planned';
+else if (hasResearch) status = 'researched';
+else if (hasContext) status = 'discussed';
 
-console.log(JSON.stringify({status, plans: plans.length, summaries: summaries.length, hasVerification}));
+console.log(JSON.stringify({status, plans: plans.length, summaries: summaries.length, hasVerification, hasResearch, hasContext}));
 "
 ```
 
