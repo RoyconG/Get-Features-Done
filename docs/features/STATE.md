@@ -26,6 +26,7 @@ Progress: ░░░░░░░░░░ 0%
 **By Feature:**
 
 | Feature | Plans | Total | Avg/Plan |
+| status | 04 | 2 | 2 | 2 | 2026-02-20 |
 | status | 03 | 1 | 2 | 2 | 2026-02-20 |
 | status | 02 | 1 | 2 | 2 | 2026-02-20 |
 | status | 01 | 1 | 1 | 1 | 2026-02-20 |
@@ -64,6 +65,8 @@ Resume file: None
 ## Decisions
 
 | Feature | Decision | Rationale |
+| status | Allow researching as valid re-entry status in research-feature workflow to handle interrupted sessions | - |
+| status | Reuse init plan-feature for research-feature (provides researcher_model, has_research, feature content without new init command) | - |
 | status | discussing allows re-entry so interrupted sessions can resume; discussed requires confirmation before overwrite | - |
 | status | done features excluded from table; raw status strings, no symbols or formatting | - |
 | status | status command is display-only with no routing logic, replaces progress command | - |
