@@ -1,0 +1,538 @@
+<purpose>
+Execute all plans for a feature using wave-based parallel execution. Orchestrator stays lean — delegates plan execution to gfd-executor subagents. After all plans complete, spawns gfd-verifier to check against FEATURE.md acceptance criteria.
+</purpose>
+
+<core_principle>
+Orchestrator coordinates, not executes. Each subagent loads its plan and runs tasks. Orchestrator: discover plans → group waves → spawn executors → handle checkpoints → collect results → verify acceptance criteria.
+</core_principle>
+
+<required_reading>
+Read STATE.md before any operation to load project context.
+
+@/home/conroy/.claude/get-features-done/references/ui-brand.md
+</required_reading>
+
+<process>
+
+<step name="initialize" priority="first">
+Parse slug from $ARGUMENTS (first positional argument).
+
+**If no slug provided:**
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║  ERROR                                                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+No feature slug provided.
+
+**To fix:** /gfd:execute-feature <slug>
+```
+
+Exit.
+
+Load all context in one call:
+
+```bash
+INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init execute-feature "${SLUG}" --include feature,state)
+```
+
+Parse JSON for: `executor_model`, `verifier_model`, `commit_docs`, `parallelization`, `feature_found`, `feature_dir`, `feature_slug`, `feature_name`, `feature_status`, `plans`, `incomplete_plans`, `plan_count`, `incomplete_count`, `state_exists`, `project_exists`.
+
+**File contents (from --include):** `feature_content`, `state_content`. These are null if files don't exist.
+
+**If `project_exists` is false:** Error — run `/gfd:new-project` first.
+
+**If `feature_found` is false:** Error — feature directory not found.
+
+**If `plan_count` is 0:**
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║  ERROR                                                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+No plans found for feature: [SLUG]
+
+**To fix:** Run /gfd:plan-feature [SLUG] first.
+```
+
+Exit.
+
+**If `feature_status` is `done`:**
+
+Use AskUserQuestion:
+- header: "Already Done"
+- question: "Feature [SLUG] is marked done. Re-execute it?"
+- options:
+  - "Yes — re-execute" — Run plans again (e.g., after changes)
+  - "No — show progress" — Show me what was already done
+
+If "No": Exit and suggest `/gfd:progress`.
+</step>
+
+<step name="update_status">
+Update FEATURE.md status to "in-progress":
+
+```bash
+sed -i 's/^status: planned$/status: in-progress/' "${feature_dir}/FEATURE.md"
+# Also handle backlog/planning in case user skips the state checks
+sed -i 's/^status: backlog$/status: in-progress/' "${feature_dir}/FEATURE.md"
+sed -i 's/^status: planning$/status: in-progress/' "${feature_dir}/FEATURE.md"
+```
+
+Update STATE.md:
+- Current Position: Feature [SLUG], status "in-progress"
+- Last activity: today's date — "Started executing feature [SLUG]"
+</step>
+
+<step name="discover_and_group_plans">
+Load plan inventory with wave grouping:
+
+```bash
+PLAN_INDEX=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-plan-index "${SLUG}")
+```
+
+Parse JSON for: `slug`, `plans[]` (each with `id`, `wave`, `autonomous`, `objective`, `files_modified`, `task_count`, `has_summary`), `waves` (map of wave number → plan IDs), `incomplete`, `has_checkpoints`.
+
+**Filtering:** Skip plans where `has_summary: true` (already complete). If all filtered: report "All plans already complete" and proceed to verification.
+
+Report the execution plan:
+
+```
+## Execution Plan
+
+**[feature_name]** — [total_plans] plans across [wave_count] waves
+
+| Wave | Plans | What it builds |
+|------|-------|----------------|
+| 1 | 01, 02 | {from plan objectives, 3-8 words} |
+| 2 | 03     | ... |
+```
+</step>
+
+<step name="execute_waves">
+Execute each wave in sequence. Within a wave: parallel if `parallelization.enabled` is true (from config), sequential if false.
+
+**For each wave:**
+
+1. **Describe what's being built (BEFORE spawning):**
+
+   Read each plan's `<objective>`. Extract what's being built and why.
+
+   ```
+   ---
+   ## Wave {N}
+
+   **{Plan ID}: {Plan Name}**
+   {2-3 sentences: what this builds, technical approach, why it matters}
+
+   Spawning {count} executor(s)...
+   ---
+   ```
+
+   - Bad: "Executing authentication plan"
+   - Good: "JWT-based session management — creates token generation, validation middleware, and refresh token rotation. Required before protected routes can enforce authentication."
+
+2. **Display banner:**
+
+   ```
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    GFD ► EXECUTING WAVE {N}
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ```
+
+3. **Spawn gfd-executor agents:**
+
+   Pass paths only — executors read files themselves with their fresh context.
+   This keeps orchestrator context lean.
+
+   ```
+   Task(
+     subagent_type="gfd-executor",
+     model="{executor_model}",
+     run_in_background=true,  (only if parallel wave and multiple plans)
+     prompt="
+       <objective>
+       Execute plan {plan_id} for feature {SLUG} ({feature_name}).
+       Commit each task atomically. Create SUMMARY.md. Update STATE.md.
+       </objective>
+
+       <execution_context>
+       @/home/conroy/.claude/get-features-done/templates/summary.md
+       </execution_context>
+
+       <files_to_read>
+       Read these files at execution start using the Read tool:
+       - Feature: {feature_dir}/FEATURE.md
+       - Plan: {feature_dir}/{plan_file}
+       - State: docs/features/STATE.md
+       - Config: docs/features/config.json
+       </files_to_read>
+
+       <acceptance_criteria>
+       The feature acceptance criteria (from FEATURE.md) for reference:
+       {acceptance_criteria}
+       </acceptance_criteria>
+
+       <success_criteria>
+       - [ ] All tasks in the plan executed
+       - [ ] Each task committed individually with descriptive message
+       - [ ] SUMMARY.md created in plan directory (or alongside plan)
+       - [ ] STATE.md updated with position and any decisions
+       - [ ] Return ## PLAN COMPLETE with summary
+       </success_criteria>
+     "
+   )
+   ```
+
+4. **Wait for all agents in wave to complete.**
+
+5. **Report completion — spot-check claims first:**
+
+   For each plan:
+   - Verify SUMMARY.md exists alongside or in `{feature_dir}/{plan_id}-SUMMARY.md`
+   - Check `git log --oneline --grep="{SLUG}"` returns commits since execution started
+   - Check for `## Self-Check: FAILED` marker in SUMMARY.md
+
+   If ANY spot-check fails: report which plan failed → ask "Retry plan?" or "Continue with remaining waves?"
+
+   If pass:
+   ```
+   ---
+   ## Wave {N} Complete
+
+   **{Plan ID}: {Plan Name}**
+   {What was built — from SUMMARY.md one-liner}
+   {Notable deviations, if any}
+
+   {If more waves: what this enables for next wave}
+   ---
+   ```
+
+6. **Handle failures:**
+
+   **Known Claude Code bug (classifyHandoffIfNeeded):** If an agent reports "failed" with error containing `classifyHandoffIfNeeded is not defined`, this is a Claude Code runtime bug — not a GFD issue. Run the same spot-checks. If spot-checks PASS → treat as **successful**. If spot-checks FAIL → treat as real failure.
+
+   For real failures: report which plan failed → ask "Continue?" or "Stop?" → if continue, dependent plans may also fail. If stop, partial completion report.
+
+7. **Handle checkpoint plans:**
+
+   Plans with `autonomous: false` require user interaction.
+
+   When executor returns a checkpoint:
+
+   ```
+   ╔══════════════════════════════════════════════════════════════╗
+   ║  CHECKPOINT: {Type}                                          ║
+   ╚══════════════════════════════════════════════════════════════╝
+
+   **Plan:** {plan_id} {Plan Name}
+   **Progress:** {N}/{M} tasks complete
+
+   {Checkpoint details from agent return}
+
+   ──────────────────────────────────────────────────────────────
+   → {ACTION PROMPT}
+   ──────────────────────────────────────────────────────────────
+   ```
+
+   Wait for user response, then spawn continuation agent with user's response as context.
+
+8. **Proceed to next wave.**
+</step>
+
+<step name="aggregate_results">
+After all waves complete:
+
+```markdown
+## [feature_name] Execution Complete
+
+**Waves:** {N} | **Plans:** {M}/{total} complete
+
+| Wave | Plans | Status |
+|------|-------|--------|
+| 1 | plan-01, plan-02 | ✓ Complete |
+| CP | plan-03 | ✓ Verified |
+| 2 | plan-04 | ✓ Complete |
+
+### Plan Details
+1. **01**: [one-liner from SUMMARY.md]
+2. **02**: [one-liner from SUMMARY.md]
+
+### Issues Encountered
+[Aggregate from SUMMARYs, or "None"]
+```
+</step>
+
+<step name="verify_feature_goal">
+**If `verifier_enabled` is false (from config):** Skip to update_feature_status.
+
+Verify the feature achieved its acceptance criteria, not just completed tasks.
+
+**Display banner:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GFD ► VERIFYING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+◆ Spawning verifier...
+```
+
+```
+Task(
+  prompt="
+  <objective>
+  Verify feature [SLUG] ([feature_name]) achieves its acceptance criteria.
+  </objective>
+
+  <feature_dir>[feature_dir]</feature_dir>
+
+  <files_to_read>
+  Read at start:
+  - Feature definition: [feature_dir]/FEATURE.md (contains acceptance criteria)
+  - All plan summaries: [feature_dir]/*-SUMMARY.md
+  - State: docs/features/STATE.md
+  </files_to_read>
+
+  <verification_task>
+  For each acceptance criterion in FEATURE.md:
+  1. Verify the criterion is demonstrably met in the codebase
+  2. Check plan summaries confirm the relevant tasks were done
+  3. Run any automated checks if applicable (tests, linting)
+  4. Note any criteria that require human verification
+
+  Write VERIFICATION.md to [feature_dir]/ with:
+  - Status: passed | gaps_found | human_needed
+  - Per-criterion results
+  - Evidence for each passing criterion
+  - Specific gaps for each failing criterion
+  - Human verification items (if any)
+
+  Return ## VERIFICATION PASSED or ## GAPS FOUND or ## HUMAN NEEDED
+  </verification_task>
+  ",
+  subagent_type="gfd-verifier",
+  model="{verifier_model}",
+  description="Verify feature [SLUG]"
+)
+```
+
+**Handle verifier return:**
+
+| Status | Action |
+|--------|--------|
+| `## VERIFICATION PASSED` | → update_feature_status (mark done) |
+| `## HUMAN NEEDED` | Present human-check items, get approval or issue description |
+| `## GAPS FOUND` | Present gap summary, offer `/gfd:plan-feature [SLUG]` for gap closure |
+
+**If HUMAN NEEDED:**
+```
+╔══════════════════════════════════════════════════════════════╗
+║  CHECKPOINT: Verification Required                           ║
+╚══════════════════════════════════════════════════════════════╝
+
+All automated checks passed. {N} items need human testing:
+
+{From VERIFICATION.md human_verification section}
+
+──────────────────────────────────────────────────────────────
+→ Type "approved" or describe issues
+──────────────────────────────────────────────────────────────
+```
+
+If "approved": proceed to update_feature_status.
+If issues described: treat as gaps_found.
+
+**If GAPS FOUND:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GFD ► VERIFICATION — GAPS FOUND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**Score:** {N}/{M} acceptance criteria verified
+**Report:** {feature_dir}/VERIFICATION.md
+
+### What's Missing
+{Gap summaries from VERIFICATION.md}
+
+───────────────────────────────────────────────────────────────
+
+## ▶ Next Up
+
+`/gfd:plan-feature [SLUG]` — create gap-closure plans
+
+───────────────────────────────────────────────────────────────
+```
+
+Do not mark feature as done if gaps exist. Exit.
+</step>
+
+<step name="update_feature_status">
+Mark feature as done:
+
+```bash
+# Update FEATURE.md status
+sed -i 's/^status: in-progress$/status: done/' "${feature_dir}/FEATURE.md"
+
+# Check off acceptance criteria (if all verified)
+# Update the Last updated footer
+```
+
+Update FEATURE.md acceptance criteria checkboxes to checked if all verified.
+</step>
+
+<step name="update_state">
+Update `docs/features/STATE.md`:
+- Current Position: Feature [SLUG] — done
+- Features: increment done count
+- Last activity: today's date — "Completed feature [SLUG]"
+- Update progress bar based on done/total ratio
+
+Calculate and update progress bar:
+```
+Progress: {filled blocks based on done/total}%
+```
+</step>
+
+<step name="commit_planning_docs">
+```bash
+node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): complete feature execution" --files ${feature_dir}/FEATURE.md ${feature_dir}/VERIFICATION.md docs/features/STATE.md
+```
+</step>
+
+<step name="offer_next">
+**Display stage banner:**
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GFD ► FEATURE [SLUG] COMPLETE ✓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Check remaining features by scanning `docs/features/` for FEATURE.md files with status not "done":
+
+```bash
+node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs list-features --status not-done
+```
+
+**Route based on remaining features:**
+
+**If features are in-progress:**
+
+```
+───────────────────────────────────────────────────────────────
+
+## ▶ Next Up
+
+**Continue [next-slug]** — feature in progress
+
+`/gfd:execute-feature [next-slug]`
+
+<sub>`/clear` first → fresh context window</sub>
+
+───────────────────────────────────────────────────────────────
+```
+
+**If features are planned (ready to execute):**
+
+```
+───────────────────────────────────────────────────────────────
+
+## ▶ Next Up
+
+**Execute [next-slug]** — plans ready
+
+`/gfd:execute-feature [next-slug]`
+
+<sub>`/clear` first → fresh context window</sub>
+
+───────────────────────────────────────────────────────────────
+```
+
+**If features are in backlog (need planning):**
+
+```
+───────────────────────────────────────────────────────────────
+
+## ▶ Next Up
+
+**Plan [next-slug]** — feature needs planning
+
+`/gfd:plan-feature [next-slug]`
+
+<sub>`/clear` first → fresh context window</sub>
+
+───────────────────────────────────────────────────────────────
+```
+
+**If all features are done:**
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GFD ► ALL FEATURES COMPLETE ✓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+All {N} features done. Project complete!
+
+───────────────────────────────────────────────────────────────
+
+## ▶ Next Up
+
+**Review project status**
+
+`/gfd:progress`
+
+───────────────────────────────────────────────────────────────
+
+**Also available:**
+- `/gfd:new-feature <slug>` — add more features
+```
+
+**Always append:**
+
+```
+───────────────────────────────────────────────────────────────
+
+**Also available:**
+- `/gfd:progress` — see all features and overall status
+
+───────────────────────────────────────────────────────────────
+```
+</step>
+
+</process>
+
+<context_efficiency>
+Orchestrator: ~10-15% context. Subagents: fresh context each. No polling (Task blocks). No context bleed.
+</context_efficiency>
+
+<failure_handling>
+- **classifyHandoffIfNeeded false failure:** Claude Code bug — spot-check SUMMARY.md and commits. If pass, treat as success.
+- **Agent fails mid-plan:** Missing SUMMARY.md → report, ask user how to proceed.
+- **Dependency chain breaks:** Wave 1 fails → Wave 2 dependents likely fail → user chooses attempt or skip.
+- **All agents in wave fail:** Systemic issue → stop, report for investigation.
+- **Checkpoint unresolvable:** "Skip this plan?" or "Abort execution?" → record partial progress in STATE.md.
+</failure_handling>
+
+<resumption>
+Re-run `/gfd:execute-feature [SLUG]` → discover_and_group_plans finds completed SUMMARYs → skips them → resumes from first incomplete plan → continues wave execution.
+
+STATE.md tracks: last completed plan, current wave, pending checkpoints.
+</resumption>
+
+<success_criteria>
+
+- [ ] Feature slug validated and exists
+- [ ] Plans discovered and grouped into waves
+- [ ] FEATURE.md status updated to "in-progress" before execution
+- [ ] Each wave described before spawning (not just "executing plan X")
+- [ ] Executor agents spawned with feature acceptance criteria as context
+- [ ] Wave completion spot-checked (SUMMARY.md exists, commits present)
+- [ ] gfd-verifier spawned after all plans complete (unless disabled)
+- [ ] Verification passed OR gaps handled with clear next step
+- [ ] FEATURE.md status updated to "done" (only if verification passes)
+- [ ] STATE.md updated with completion — **committed**
+- [ ] User routed to next feature or congratulated if all done
+
+</success_criteria>
