@@ -19,15 +19,25 @@ Parse the JSON array from `features` key. Filter out any feature where `status` 
 Output a plain markdown table:
 
 ```
-| Feature Name | Status |
-|--------------|--------|
-| [name] | [status] |
-| [name] | [status] |
+| Feature Name | Status | Next Step |
+|--------------|--------|-----------|
+| [name] | [status] | [next] |
+| [name] | [status] | [next] |
 ```
 
 Rules:
 - `name` field from each feature object (human-readable name, not slug)
 - `status` field as a raw string — no symbols, no emoji, no formatting
+- `next` is the next /gfd command based on current status:
+  - `new` → `/gfd:discuss-feature <slug>`
+  - `discussing` → (in progress)
+  - `discussed` → `/gfd:research-feature <slug>`
+  - `researching` → (in progress)
+  - `researched` → `/gfd:plan-feature <slug>`
+  - `planning` → (in progress)
+  - `planned` → `/gfd:execute-feature <slug>`
+  - `in-progress` → (in progress)
+- For transient statuses (discussing, researching, planning, in-progress), show "(in progress)" since a workflow is already running
 - Sort order: use the order returned by list-features (already sorted by priority + status)
 - Do NOT include done features
 
@@ -49,7 +59,8 @@ No routing, no next-step suggestions, no progress bars. Display only.
 
 - [ ] list-features called to get feature data
 - [ ] done features excluded from table
-- [ ] Table shows Feature Name and Status columns with raw values
+- [ ] Table shows Feature Name, Status, and Next Step columns
+- [ ] Next Step shows the correct /gfd command (with slug) for actionable statuses, or "(in progress)" for transient ones
 - [ ] Empty state message shown when no active features
 - [ ] No symbols, no progress bar, no routing in output
 
