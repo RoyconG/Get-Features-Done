@@ -68,17 +68,14 @@ Use AskUserQuestion:
   - "Yes — re-execute" — Run plans again (e.g., after changes)
   - "No — show progress" — Show me what was already done
 
-If "No": Exit and suggest `/gfd:progress`.
+If "No": Exit and suggest `/gfd:status`.
 </step>
 
 <step name="update_status">
 Update FEATURE.md status to "in-progress":
 
 ```bash
-sed -i 's/^status: planned$/status: in-progress/' "${feature_dir}/FEATURE.md"
-# Also handle backlog/planning in case user skips the state checks
-sed -i 's/^status: backlog$/status: in-progress/' "${feature_dir}/FEATURE.md"
-sed -i 's/^status: planning$/status: in-progress/' "${feature_dir}/FEATURE.md"
+node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "in-progress"
 ```
 
 Update STATE.md:
@@ -450,7 +447,7 @@ node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs list-features --st
 ───────────────────────────────────────────────────────────────
 ```
 
-**If features are in backlog (need planning):**
+**If features are researched (ready for planning):**
 
 ```
 ───────────────────────────────────────────────────────────────
@@ -481,7 +478,7 @@ All {N} features done. Project complete!
 
 **Review project status**
 
-`/gfd:progress`
+`/gfd:status`
 
 ───────────────────────────────────────────────────────────────
 
@@ -495,7 +492,7 @@ All {N} features done. Project complete!
 ───────────────────────────────────────────────────────────────
 
 **Also available:**
-- `/gfd:progress` — see all features and overall status
+- `/gfd:status` — see all features and overall status
 
 ───────────────────────────────────────────────────────────────
 ```

@@ -58,7 +58,7 @@ Parse JSON for: `researcher_model`, `planner_model`, `checker_model`, `research_
 Feature not found: [SLUG]
 
 **To fix:** Run /gfd:new-feature [SLUG] to create it first.
-         Or run /gfd:progress to see all features.
+         Or run /gfd:status to see all features.
 ```
 
 Exit.
@@ -67,7 +67,11 @@ Exit.
 
 Check `feature_status` from init JSON.
 
-**Valid statuses for planning:** `backlog`, `planning`
+**Valid statuses for planning:** `researched`, `planning` (for re-entry if interrupted)
+
+**If status is `new`, `discussing`, or `discussed`:**
+Show error: "Feature [SLUG] needs research before planning. Run /gfd:discuss-feature [SLUG] then /gfd:research-feature [SLUG] first."
+Exit.
 
 **If status is `in-progress`:**
 
@@ -91,7 +95,7 @@ If "Replan from scratch": Confirm deletion, then continue.
 
 Feature [SLUG] is already done.
 
-**To fix:** Run /gfd:progress to see remaining features.
+**To fix:** Run /gfd:status to see remaining features.
 ```
 
 Exit.
@@ -121,11 +125,10 @@ If "Replan from scratch": Confirm and delete existing PLAN.md files.
 
 ## 4. Update Feature Status to Planning
 
-Update FEATURE.md status field from `backlog` → `planning`:
+Update FEATURE.md status field from `researched` → `planning`:
 
 ```bash
-# Update the status field in FEATURE.md frontmatter
-sed -i 's/^status: backlog$/status: planning/' "${feature_dir}/FEATURE.md"
+node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "planning"
 ```
 
 ## 5. Load Codebase Context
