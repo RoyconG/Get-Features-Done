@@ -62,7 +62,7 @@ completed: 2026-02-20
 
 Each task was committed atomically:
 
-1. **Task 1: Create the status command file** - `8951d75` (feat)
+1. **Task 1: Create the status command file** - `6d9cb09` (feat)
 2. **Task 2: Create the status workflow** - `42eb0c4` (feat)
 
 **Plan metadata:** (docs commit — see below)
