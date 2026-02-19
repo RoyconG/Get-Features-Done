@@ -24,6 +24,14 @@ Remove the progress command from the codebase.
 
 ## Notes
 
+## Decisions
+
+[Key decisions made during planning and execution of this feature.]
+
+## Blockers
+
+[Active blockers affecting this feature. Remove when resolved.]
+
 ---
 *Created: 2026-02-20*
 *Last updated: 2026-02-20*

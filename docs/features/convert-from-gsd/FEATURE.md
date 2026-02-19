@@ -35,6 +35,18 @@ A migration tool that scans a project's GSD `.planning/` directory, maps phases 
 - The key structural change is from `.planning/<phase>/` (numbered, milestone-scoped) to `docs/features/<slug>/` (named, independently deliverable).
 - GSD status mapping: complete → done, in-progress → in-progress, planned → planned, has research → researched, has context/goal → discussed, not started → new.
 
+## Decisions
+
+- gsd_phase field in FEATURE.md frontmatter for traceability back to original GSD phase
+- Delete-last pattern: verify all expected FEATURE.md files exist before rm -rf .planning/
+- ACCEPTED_MAPPINGS shell variable passed from Step 5 to Plan 02 migration execution
+- Archived phases in milestones/*/phases/ auto-marked as done; decimal phase prefixes stripped before slug generation
+- Status detection uses disk artifacts (plan/summary/research counts) not ROADMAP.md checkbox state — disk is ground truth
+
+## Blockers
+
+[Active blockers affecting this feature. Remove when resolved.]
+
 ---
 *Created: 2026-02-20*
 *Last updated: 2026-02-20*

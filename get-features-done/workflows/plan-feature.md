@@ -31,7 +31,7 @@ Exit.
 Load all context in one call (include file contents to avoid redundant reads):
 
 ```bash
-INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature,state,requirements)
+INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature)
 # Large payloads are written to a tmpfile — output starts with @file:/path
 if [[ "$INIT_RAW" == @file:* ]]; then
   INIT_FILE="${INIT_RAW#@file:}"
@@ -44,7 +44,7 @@ fi
 
 Parse JSON for: `researcher_model`, `planner_model`, `checker_model`, `research_enabled`, `plan_checker_enabled`, `commit_docs`, `feature_found`, `feature_dir`, `feature_slug`, `feature_name`, `feature_status`, `feature_priority`, `feature_depends_on`, `has_research`, `has_plans`, `plan_count`, `project_exists`.
 
-**File contents (from --include):** `feature_content`, `state_content`, `requirements_content`. These are null if files don't exist.
+**File contents (from --include):** `feature_content`. Null if file doesn't exist.
 
 **If `project_exists` is false:** Error — run `/gfd:new-project` first.
 
@@ -181,7 +181,6 @@ Answer: "What do I need to know to PLAN this feature well?"
 </feature_context>
 
 <project_context>
-**Requirements:** [requirements_content]
 **Codebase docs:** [codebase context if available]
 </project_context>
 
@@ -220,8 +219,6 @@ All file contents are already loaded via `--include` in step 1 (`@` syntax doesn
 
 ```bash
 FEATURE_CONTENT=$(echo "$INIT" | jq -r '.feature_content // empty')
-STATE_CONTENT=$(echo "$INIT" | jq -r '.state_content // empty')
-REQUIREMENTS_CONTENT=$(echo "$INIT" | jq -r '.requirements_content // empty')
 
 # Load research if it was just written
 RESEARCH_CONTENT=""
@@ -256,13 +253,9 @@ Planner prompt:
 **Acceptance Criteria (MUST be achievable after all plans complete):**
 [acceptance criteria extracted from feature_content]
 
-**Project Requirements:** [requirements_content]
-
 **Research:** [research_content — or "No research available"]
 
 **Codebase context:** [codebase_docs — or "No codebase map available"]
-
-**Project State:** [state_content]
 </planning_context>
 
 <output_location>
@@ -341,9 +334,6 @@ Checker prompt:
 
 **Plans to verify:**
 [plans_content]
-
-**Requirements:**
-[requirements_content]
 </verification_context>
 
 <expected_output>
@@ -432,21 +422,15 @@ Update the Tasks section in FEATURE.md to list the created plans:
 - [02-PLAN.md](02-PLAN.md) — [plan objective]
 ```
 
-## 13. Update STATE.md
-
-Update `docs/features/STATE.md`:
-- Current Position: Feature [SLUG], status "planned"
-- Last activity: today's date — "Planned feature [SLUG] — [N] plans in [M] waves"
-
-## 14. Commit
+## 13. Commit
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): create plan" --files ${feature_dir}/FEATURE.md ${feature_dir}/*-PLAN.md ${feature_dir}/RESEARCH.md docs/features/STATE.md
+node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): create plan" --files ${feature_dir}/FEATURE.md ${feature_dir}/*-PLAN.md ${feature_dir}/RESEARCH.md
 ```
 
 (The RESEARCH.md commit will be a no-op if research was skipped.)
 
-## 15. Present Final Status
+## 14. Present Final Status
 
 Output directly as markdown:
 
@@ -520,7 +504,6 @@ Call `list-features` to get all features. Filter out done features. If there are
 - [ ] Verification passed OR user override OR max iterations with user decision
 - [ ] FEATURE.md status updated to "planned" — **committed**
 - [ ] Tasks section populated with plan references — **committed**
-- [ ] STATE.md updated — **committed**
 - [ ] User knows next step is `/gfd:execute-feature [SLUG]`
 
 </success_criteria>

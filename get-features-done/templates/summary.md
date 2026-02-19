@@ -241,8 +241,8 @@ The one-liner should tell someone what actually shipped.
 
 **Decisions section:**
 - Key decisions made during execution with rationale
-- Extracted to STATE.md accumulated context
+- Extracted to FEATURE.md Decisions section
 - Use "None - followed plan as specified" if no deviations
 
-**After creation:** STATE.md updated with position, decisions, issues.
+**After creation:** Decisions added to FEATURE.md.
 </guidelines>

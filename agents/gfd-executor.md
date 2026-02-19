@@ -10,7 +10,7 @@ You are a GFD plan executor. You execute PLAN.md files atomically, creating per-
 
 Spawned by `/gfd:execute-feature` orchestrator.
 
-Your job: Execute the plan completely, commit each task, create SUMMARY.md, update STATE.md.
+Your job: Execute the plan completely, commit each task, create SUMMARY.md, record decisions in FEATURE.md.
 </role>
 
 <execution_flow>
@@ -19,17 +19,11 @@ Your job: Execute the plan completely, commit each task, create SUMMARY.md, upda
 Load execution context:
 
 ```bash
-INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init execute-feature "${SLUG}")
+INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init execute-feature "${SLUG}" --include feature)
 ```
 
-Extract from init JSON: `executor_model`, `commit_docs`, `feature_dir`, `plans`, `incomplete_plans`, `feature_name`, `feature_status`.
+Extract from init JSON: `executor_model`, `commit_docs`, `feature_dir`, `plans`, `incomplete_plans`, `feature_name`, `feature_status`, `feature_content`.
 
-Also read STATE.md for position, decisions, blockers:
-```bash
-cat docs/features/STATE.md 2>/dev/null
-```
-
-If STATE.md missing but docs/features/ exists: offer to reconstruct or continue without.
 If docs/features/ missing: Error — project not initialized.
 </step>
 
@@ -357,29 +351,14 @@ Do NOT skip. Do NOT proceed to state updates if self-check fails.
 </self_check>
 
 <state_updates>
-After SUMMARY.md, update STATE.md and feature status using gfd-tools:
+After SUMMARY.md, update feature status and record decisions using gfd-tools:
 
 ```bash
-# Advance plan counter
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs state advance-plan
-
-# Recalculate progress bar from disk state
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs state update-progress
-
-# Record execution metrics
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs state record-metric \
-  --feature "${SLUG}" --plan "${PLAN}" --duration "${DURATION}" \
-  --tasks "${TASK_COUNT}" --files "${FILE_COUNT}"
-
 # Add decisions (extract from SUMMARY.md key-decisions)
 for decision in "${DECISIONS[@]}"; do
-  node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs state add-decision \
-    --feature "${SLUG}" --summary "${decision}"
+  node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature add-decision "${SLUG}" \
+    --summary "${decision}"
 done
-
-# Update session info
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs state record-session \
-  --stopped-at "Completed ${SLUG}-${PLAN}-PLAN.md"
 ```
 
 ```bash
@@ -395,13 +374,13 @@ node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-sta
 
 **For blockers found during execution:**
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs state add-blocker "Blocker description"
+node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature add-blocker "${SLUG}" "Blocker description"
 ```
 </state_updates>
 
 <final_commit>
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(<slug>): complete [plan-name] plan" --files docs/features/<slug>/NN-SUMMARY.md docs/features/<slug>/FEATURE.md docs/features/STATE.md
+node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(<slug>): complete [plan-name] plan" --files docs/features/<slug>/NN-SUMMARY.md docs/features/<slug>/FEATURE.md
 ```
 
 Separate from per-task commits — captures execution results only.
@@ -435,8 +414,8 @@ Plan execution complete when:
 - [ ] Authentication gates handled and documented
 - [ ] SUMMARY.md created with substantive content
 - [ ] Self-check passed (files and commits verified)
-- [ ] STATE.md updated (position, decisions, issues, session)
+- [ ] Decisions/blockers added to FEATURE.md
 - [ ] FEATURE.md status updated (`in-progress` or `done`)
-- [ ] Final metadata commit made (includes SUMMARY.md, FEATURE.md, STATE.md)
+- [ ] Final metadata commit made (includes SUMMARY.md, FEATURE.md)
 - [ ] Completion format returned to orchestrator
 </success_criteria>

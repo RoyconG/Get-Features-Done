@@ -166,19 +166,8 @@ For existing codebases:
 
 </brownfield>
 
-<state_reference>
+<project_reference>
 
-STATE.md references PROJECT.md:
+Workflows reference PROJECT.md for core value and project context. FEATURE.md files reference PROJECT.md through the feature directory structure.
 
-```markdown
-## Project Reference
-
-See: docs/features/PROJECT.md (updated [date])
-
-**Core value:** [One-liner from Core Value section]
-**Current focus:** [Current feature name]
-```
-
-This ensures Claude reads current PROJECT.md context.
-
-</state_reference>
+</project_reference>

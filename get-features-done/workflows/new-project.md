@@ -328,17 +328,7 @@ Initialize with any decisions made during questioning:
 
 Do not compress. Capture everything gathered.
 
-## 7. Write STATE.md
-
-Write `docs/features/STATE.md` using the template from `@/home/conroy/.claude/get-features-done/templates/state.md`.
-
-Initialize with:
-- Project Reference pointing to PROJECT.md
-- Current Position: no features yet
-- Empty Accumulated Context sections
-- Today's date as Last session
-
-## 8. Write config.json
+## 7. Write config.json
 
 Write `docs/features/config.json` using the workflow preferences gathered in Step 4.
 
@@ -380,60 +370,15 @@ Write `docs/features/config.json` using the workflow preferences gathered in Ste
 }
 ```
 
-## 9. Write REQUIREMENTS.md
-
-Write `docs/features/REQUIREMENTS.md` using the template from `@/home/conroy/.claude/get-features-done/templates/requirements.md`.
-
-Use AskUserQuestion to gather requirements scope:
-
-- header: "Requirements"
-- question: "What are the main capabilities users need in v1?"
-- options:
-  - "Walk me through it" — I'll describe requirements conversationally
-  - "I have a list ready" — I'll paste my requirements
-  - "Derive from PROJECT.md" — Use what we discussed
-
-For each capability mentioned, ask clarifying questions to make it specific and atomic.
-
-**REQ-ID format:** `[CATEGORY]-[NUMBER]` (AUTH-01, CONTENT-02)
-
-**Requirement quality criteria:**
-
-Good requirements are:
-- **Specific and testable:** "User can reset password via email link" (not "Handle password reset")
-- **User-centric:** "User can X" or "System does Y" (not "System handles Z")
-- **Atomic:** One capability per requirement
-- **Independent:** Minimal dependencies on other requirements
-
-**Present requirements for approval:**
-
-Show every requirement for user confirmation:
-
-```
-## v1 Requirements
-
-### Authentication
-- [ ] **AUTH-01**: User can create account with email/password
-- [ ] **AUTH-02**: User can log in and stay logged in across sessions
-
-[... full list ...]
-
----
-
-Does this capture what you're building? (yes / adjust)
-```
-
-If "adjust": Return to scoping.
-
-## 10. Commit
+## 8. Commit
 
 Commit all artifacts:
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd): initialize project" --files docs/features/PROJECT.md docs/features/STATE.md docs/features/config.json docs/features/REQUIREMENTS.md
+node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd): initialize project" --files docs/features/PROJECT.md docs/features/config.json
 ```
 
-## 11. Done
+## 9. Done
 
 **Display stage banner:**
 
@@ -448,8 +393,6 @@ node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd):
 |----------------|-----------------------------------|
 | Project        | docs/features/PROJECT.md          |
 | Config         | docs/features/config.json         |
-| Requirements   | docs/features/REQUIREMENTS.md     |
-| State          | docs/features/STATE.md            |
 ```
 
 Present completion summary and next step:
@@ -479,9 +422,7 @@ Present completion summary and next step:
 <output>
 
 - `docs/features/PROJECT.md`
-- `docs/features/STATE.md`
 - `docs/features/config.json`
-- `docs/features/REQUIREMENTS.md`
 
 </output>
 
@@ -493,8 +434,6 @@ Present completion summary and next step:
 - [ ] Deep questioning completed (threads followed, not rushed)
 - [ ] PROJECT.md captures full context — **committed**
 - [ ] config.json has mode, depth, parallelization, workflow agents — **committed**
-- [ ] REQUIREMENTS.md created with REQ-IDs — **committed**
-- [ ] STATE.md initialized — **committed**
 - [ ] User knows next step is `/gfd:new-feature <slug>`
 
 **Atomic commits:** Each stage commits its artifacts immediately. If context is lost, artifacts persist.

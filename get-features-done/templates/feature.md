@@ -35,6 +35,14 @@ depends_on: []
 
 [Design decisions, context, constraints specific to this feature.]
 
+## Decisions
+
+[Key decisions made during planning and execution of this feature.]
+
+## Blockers
+
+[Active blockers affecting this feature. Remove when resolved.]
+
 ---
 *Created: [date]*
 *Last updated: [date]*

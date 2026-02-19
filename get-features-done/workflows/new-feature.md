@@ -156,19 +156,13 @@ depends_on: []
 
 Title-case each word, expand common abbreviations naturally.
 
-## 5. Update STATE.md
-
-Read `docs/features/STATE.md` and update:
-- Last activity: today's date — "Created feature [SLUG]"
-- Total feature count (increment)
-
-## 6. Commit
+## 5. Commit
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd): create feature ${SLUG}" --files docs/features/${SLUG}/FEATURE.md docs/features/STATE.md
+node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd): create feature ${SLUG}" --files docs/features/${SLUG}/FEATURE.md
 ```
 
-## 7. Done
+## 6. Done
 
 **Display stage banner:**
 
@@ -227,7 +221,6 @@ Call `list-features` to get all features. Filter out done features. If there are
 <output>
 
 - `docs/features/{slug}/FEATURE.md`
-- Updated `docs/features/STATE.md`
 
 </output>
 
@@ -239,7 +232,6 @@ Call `list-features` to get all features. Filter out done features. If there are
 - [ ] One-line description gathered
 - [ ] Feature directory created
 - [ ] FEATURE.md written with status: new and placeholder acceptance criteria — **committed**
-- [ ] STATE.md updated — **committed**
 - [ ] User knows next step is `/gfd:discuss-feature [SLUG]`
 
 </success_criteria>

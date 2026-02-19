@@ -27,7 +27,7 @@ Exit.
 ## 2. Run Init
 
 ```bash
-INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature,state,requirements)
+INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature)
 if [[ "$INIT_RAW" == @file:* ]]; then
   INIT_FILE="${INIT_RAW#@file:}"
   INIT=$(cat "$INIT_FILE")
@@ -37,7 +37,7 @@ else
 fi
 ```
 
-Parse JSON for: `feature_found`, `feature_dir`, `feature_name`, `feature_status`, `feature_content`, `researcher_model`, `requirements_content`, `has_research`.
+Parse JSON for: `feature_found`, `feature_dir`, `feature_name`, `feature_status`, `feature_content`, `researcher_model`, `has_research`.
 
 **If `feature_found` is false:**
 
@@ -118,7 +118,6 @@ Extract content from init JSON:
 
 ```bash
 FEATURE_CONTENT=$(echo "$INIT" | jq -r '.feature_content // empty')
-REQUIREMENTS_CONTENT=$(echo "$INIT" | jq -r '.requirements_content // empty')
 RESEARCHER_MODEL=$(echo "$INIT" | jq -r '.researcher_model // "sonnet"')
 ```
 
@@ -139,7 +138,6 @@ Answer: "What do I need to know to PLAN this feature well?"
 </feature_context>
 
 <project_context>
-**Requirements:** [requirements_content]
 **Codebase docs:** [codebase_docs — or "No codebase map available"]
 </project_context>
 
@@ -178,18 +176,13 @@ Task(
 node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "researched"
 ```
 
-## 8. Update STATE.md
-
-Update `docs/features/STATE.md`:
-- Last activity: today's date — "Researched feature [SLUG]"
-
-## 9. Commit
+## 8. Commit
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): research feature" --files docs/features/${SLUG}/FEATURE.md docs/features/${SLUG}/RESEARCH.md docs/features/STATE.md
+node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): research feature" --files docs/features/${SLUG}/FEATURE.md docs/features/${SLUG}/RESEARCH.md
 ```
 
-## 10. Done
+## 9. Done
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -247,10 +240,9 @@ Call `list-features` to get all features. Filter out done features. If there are
 - [ ] Slug validated and feature found
 - [ ] Status guard: only proceeds for discussed/researching (with confirm for researched)
 - [ ] Status transitioned to "researching" before spawning researcher
-- [ ] gfd-researcher spawned with feature content and requirements
+- [ ] gfd-researcher spawned with feature content
 - [ ] RESEARCH.md written to feature directory by researcher
 - [ ] Status transitioned to "researched" after researcher completes
-- [ ] STATE.md updated
 - [ ] Committed
 - [ ] User knows next step is /gfd:plan-feature [SLUG]
 

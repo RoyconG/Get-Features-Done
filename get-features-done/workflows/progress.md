@@ -14,7 +14,7 @@ Read all files referenced by the invoking prompt's execution_context before star
 Load progress context (with file contents to avoid redundant reads):
 
 ```bash
-INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init progress --include state,project)
+INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init progress --include project)
 # Large payloads are written to a tmpfile — output starts with @file:/path
 if [[ "$INIT_RAW" == @file:* ]]; then
   INIT_FILE="${INIT_RAW#@file:}"
@@ -25,9 +25,9 @@ else
 fi
 ```
 
-Extract from init JSON: `project_exists`, `state_exists`, `feature_count`, `done_count`.
+Extract from init JSON: `project_exists`, `feature_count`, `done_count`.
 
-**File contents (from --include):** `state_content`, `project_content`. These are null if files don't exist.
+**File contents (from --include):** `project_content`. Null if file doesn't exist.
 
 **If `project_exists` is false:**
 
@@ -35,16 +35,6 @@ Extract from init JSON: `project_exists`, `state_exists`, `feature_count`, `done
 No GFD project found.
 
 Run /gfd:new-project to start a new project.
-```
-
-Exit.
-
-**If `state_exists` is false:**
-
-```
-No STATE.md found. Project may be partially initialized.
-
-Run /gfd:new-project to re-initialize.
 ```
 
 Exit.
@@ -68,23 +58,18 @@ Proceed directly to routing — will hit "no features" route.
 </step>
 
 <step name="recent_activity">
-Gather recent work context from STATE.md:
-
-Use `state_content` from init JSON (already loaded).
-
-Extract from STATE.md:
-- Last activity entry
-- Current focus feature
-- Any recent decisions or blockers
-
-Also find recent SUMMARY.md files for richer context:
+Gather recent work context from git log and SUMMARY.md files:
 
 ```bash
 # Find the 3 most recently modified SUMMARY.md files
-find docs/features -name "*-SUMMARY.md" -newer docs/features/STATE.md 2>/dev/null | head -3
+find docs/features -name "*-SUMMARY.md" -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -3 | cut -d' ' -f2-
 ```
 
 For each found summary, extract the one-liner to show "what we've been working on."
+
+Derive current focus from features with status `in-progress` (from `list-features`).
+
+Derive decisions/blockers by scanning FEATURE.md files for non-empty `## Decisions` and `## Blockers` sections.
 </step>
 
 <step name="report">
@@ -119,16 +104,14 @@ Present the status report:
 ## Current Focus
 Feature: [slug] ([Feature Name])
 Status: [status]
-Last activity: [date] — [what happened from STATE.md]
 
 ## Decisions Made
-- [decision 1 from STATE.md]
-- [decision 2]
+- [decisions from FEATURE.md ## Decisions sections across active features]
 
 (Show "None yet" if empty)
 
 ## Blockers/Concerns
-- [any blockers or concerns from STATE.md]
+- [blockers from FEATURE.md ## Blockers sections across active features]
 
 (Omit section if none)
 ```
@@ -189,7 +172,7 @@ From the features scan:
 
 **Route B: Feature in-progress**
 
-Find the most recently active in-progress feature (from STATE.md current focus or most recent SUMMARY.md).
+Find the most recently active in-progress feature (from most recent SUMMARY.md or first in-progress feature).
 
 ```
 ───────────────────────────────────────────────────────────────
@@ -300,8 +283,8 @@ All {N} features complete! Project is done.
 - [ ] Progress bar generated
 - [ ] Feature table shown with status symbols
 - [ ] By-status counts shown (backlog, planning, planned, in-progress, done)
-- [ ] Recent activity from STATE.md shown
-- [ ] Blockers/concerns surfaced if present
+- [ ] Recent activity from SUMMARY.md files shown
+- [ ] Blockers/concerns surfaced from FEATURE.md files if present
 - [ ] Smart routing: correct next command suggested based on state
 - [ ] Next Up block always present at the end
 

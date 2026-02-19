@@ -40,6 +40,22 @@ Introduces a reworked feature lifecycle with new states (`new` → `discussing` 
 - The `backlog` status is removed from the lifecycle entirely
 - New features start at `new` instead of `backlog`
 
+## Decisions
+
+- Status transitions use feature-update-status instead of sed patterns for validated transitions
+- new-feature asks only slug + one-liner; acceptance criteria deferred to discuss-feature
+- Allow researching as valid re-entry status in research-feature workflow to handle interrupted sessions
+- Reuse init plan-feature for research-feature (provides researcher_model, has_research, feature content without new init command)
+- discussing allows re-entry so interrupted sessions can resume; discussed requires confirmation before overwrite
+- done features excluded from table; raw status strings, no symbols or formatting
+- status command is display-only with no routing logic, replaces progress command
+- new_count replaces backlog_count in init output for consistency with 9-state lifecycle
+- backlog status removed entirely; validStatuses rejects it with a clear error
+
+## Blockers
+
+[Active blockers affecting this feature. Remove when resolved.]
+
 ---
 *Created: 2026-02-20*
 *Last updated: 2026-02-20*

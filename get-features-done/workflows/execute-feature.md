@@ -7,8 +7,6 @@ Orchestrator coordinates, not executes. Each subagent loads its plan and runs ta
 </core_principle>
 
 <required_reading>
-Read STATE.md before any operation to load project context.
-
 @/home/conroy/.claude/get-features-done/references/ui-brand.md
 </required_reading>
 
@@ -34,12 +32,12 @@ Exit.
 Load all context in one call:
 
 ```bash
-INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init execute-feature "${SLUG}" --include feature,state)
+INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init execute-feature "${SLUG}" --include feature)
 ```
 
-Parse JSON for: `executor_model`, `verifier_model`, `commit_docs`, `parallelization`, `feature_found`, `feature_dir`, `feature_slug`, `feature_name`, `feature_status`, `plans`, `incomplete_plans`, `plan_count`, `incomplete_count`, `state_exists`, `project_exists`.
+Parse JSON for: `executor_model`, `verifier_model`, `commit_docs`, `parallelization`, `feature_found`, `feature_dir`, `feature_slug`, `feature_name`, `feature_status`, `plans`, `incomplete_plans`, `plan_count`, `incomplete_count`.
 
-**File contents (from --include):** `feature_content`, `state_content`. These are null if files don't exist.
+**File contents (from --include):** `feature_content`. Null if file doesn't exist.
 
 **If `project_exists` is false:** Error — run `/gfd:new-project` first.
 
@@ -77,10 +75,6 @@ Update FEATURE.md status to "in-progress":
 ```bash
 node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "in-progress"
 ```
-
-Update STATE.md:
-- Current Position: Feature [SLUG], status "in-progress"
-- Last activity: today's date — "Started executing feature [SLUG]"
 </step>
 
 <step name="discover_and_group_plans">
@@ -152,7 +146,7 @@ Execute each wave in sequence. Within a wave: parallel if `parallelization.enabl
      prompt="
        <objective>
        Execute plan {plan_id} for feature {SLUG} ({feature_name}).
-       Commit each task atomically. Create SUMMARY.md. Update STATE.md.
+       Commit each task atomically. Create SUMMARY.md. Record decisions in FEATURE.md.
        </objective>
 
        <execution_context>
@@ -163,7 +157,6 @@ Execute each wave in sequence. Within a wave: parallel if `parallelization.enabl
        Read these files at execution start using the Read tool:
        - Feature: {feature_dir}/FEATURE.md
        - Plan: {feature_dir}/{plan_file}
-       - State: docs/features/STATE.md
        - Config: docs/features/config.json
        </files_to_read>
 
@@ -176,7 +169,7 @@ Execute each wave in sequence. Within a wave: parallel if `parallelization.enabl
        - [ ] All tasks in the plan executed
        - [ ] Each task committed individually with descriptive message
        - [ ] SUMMARY.md created in plan directory (or alongside plan)
-       - [ ] STATE.md updated with position and any decisions
+       - [ ] Decisions/blockers added to FEATURE.md
        - [ ] Return ## PLAN COMPLETE with summary
        </success_criteria>
      "
@@ -289,7 +282,6 @@ Task(
   Read at start:
   - Feature definition: [feature_dir]/FEATURE.md (contains acceptance criteria)
   - All plan summaries: [feature_dir]/*-SUMMARY.md
-  - State: docs/features/STATE.md
   </files_to_read>
 
   <verification_task>
@@ -379,22 +371,9 @@ sed -i 's/^status: in-progress$/status: done/' "${feature_dir}/FEATURE.md"
 Update FEATURE.md acceptance criteria checkboxes to checked if all verified.
 </step>
 
-<step name="update_state">
-Update `docs/features/STATE.md`:
-- Current Position: Feature [SLUG] — done
-- Features: increment done count
-- Last activity: today's date — "Completed feature [SLUG]"
-- Update progress bar based on done/total ratio
-
-Calculate and update progress bar:
-```
-Progress: {filled blocks based on done/total}%
-```
-</step>
-
 <step name="commit_planning_docs">
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): complete feature execution" --files ${feature_dir}/FEATURE.md ${feature_dir}/VERIFICATION.md docs/features/STATE.md
+node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): complete feature execution" --files ${feature_dir}/FEATURE.md ${feature_dir}/VERIFICATION.md
 ```
 </step>
 
@@ -519,13 +498,11 @@ Orchestrator: ~10-15% context. Subagents: fresh context each. No polling (Task b
 - **Agent fails mid-plan:** Missing SUMMARY.md → report, ask user how to proceed.
 - **Dependency chain breaks:** Wave 1 fails → Wave 2 dependents likely fail → user chooses attempt or skip.
 - **All agents in wave fail:** Systemic issue → stop, report for investigation.
-- **Checkpoint unresolvable:** "Skip this plan?" or "Abort execution?" → record partial progress in STATE.md.
+- **Checkpoint unresolvable:** "Skip this plan?" or "Abort execution?" → record partial progress.
 </failure_handling>
 
 <resumption>
 Re-run `/gfd:execute-feature [SLUG]` → discover_and_group_plans finds completed SUMMARYs → skips them → resumes from first incomplete plan → continues wave execution.
-
-STATE.md tracks: last completed plan, current wave, pending checkpoints.
 </resumption>
 
 <success_criteria>
@@ -538,8 +515,7 @@ STATE.md tracks: last completed plan, current wave, pending checkpoints.
 - [ ] Wave completion spot-checked (SUMMARY.md exists, commits present)
 - [ ] gfd-verifier spawned after all plans complete (unless disabled)
 - [ ] Verification passed OR gaps handled with clear next step
-- [ ] FEATURE.md status updated to "done" (only if verification passes)
-- [ ] STATE.md updated with completion — **committed**
+- [ ] FEATURE.md status updated to "done" (only if verification passes) — **committed**
 - [ ] User routed to next feature or congratulated if all done
 
 </success_criteria>

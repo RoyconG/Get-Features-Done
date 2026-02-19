@@ -28,7 +28,7 @@ Exit.
 ## 2. Run Init
 
 ```bash
-INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature,state)
+INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature)
 if [[ "$INIT_RAW" == @file:* ]]; then
   INIT_FILE="${INIT_RAW#@file:}"
   INIT=$(cat "$INIT_FILE")
@@ -192,18 +192,13 @@ Keep the `## Tasks` section as-is (populated during planning).
 node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "discussed"
 ```
 
-## 8. Update STATE.md
-
-Update `docs/features/STATE.md`:
-- Last activity: today's date — "Discussed feature [SLUG]"
-
-## 9. Commit
+## 8. Commit
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): discuss feature scope" --files docs/features/${SLUG}/FEATURE.md docs/features/STATE.md
+node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): discuss feature scope" --files docs/features/${SLUG}/FEATURE.md
 ```
 
-## 10. Done
+## 9. Done
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -265,7 +260,6 @@ Call `list-features` to get all features. Filter out done features. If there are
 - [ ] Confirmation loop until user approves
 - [ ] FEATURE.md rewritten with all gathered content
 - [ ] Status transitioned to "discussed" after FEATURE.md update
-- [ ] STATE.md updated
 - [ ] Committed
 - [ ] User knows next step is /gfd:research-feature [SLUG]
 

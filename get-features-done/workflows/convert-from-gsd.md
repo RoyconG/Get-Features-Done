@@ -287,12 +287,6 @@ If `.planning/PROJECT.md` exists and `docs/features/PROJECT.md` does not exist:
 - Copy `.planning/PROJECT.md` to `docs/features/PROJECT.md`
 - Prepend a note at the top: `> Migrated from GSD. Review and update to match GFD format.`
 
-If `.planning/STATE.md` exists and `docs/features/STATE.md` does not exist:
-- Copy `.planning/STATE.md` to `docs/features/STATE.md`
-
-If `.planning/REQUIREMENTS.md` exists and `docs/features/REQUIREMENTS.md` does not exist:
-- Copy `.planning/REQUIREMENTS.md` to `docs/features/REQUIREMENTS.md`
-
 If `docs/features/config.json` does not exist:
 - Copy from `get-features-done/templates/config.json` as the default config.
 
@@ -572,8 +566,8 @@ Commit all new feature files:
 
 ```bash
 # Gather all new feature files
-FEATURE_FILES=$(find docs/features -name "*.md" -newer docs/features/STATE.md 2>/dev/null | head -100)
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd): migrate from GSD" --files $FEATURE_FILES docs/features/STATE.md
+FEATURE_FILES=$(find docs/features -name "*.md" -mmin -10 2>/dev/null | head -100)
+node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd): migrate from GSD" --files $FEATURE_FILES
 ```
 
 Display completion banner:
@@ -623,7 +617,7 @@ Show next steps:
 - docs/features/<slug>/FEATURE.md for each accepted phase
 - docs/features/<slug>/*.md for all migrated GSD artifacts
 - docs/features/research/ (if .planning/research/ existed)
-- docs/features/PROJECT.md, STATE.md, REQUIREMENTS.md (if not already present)
+- docs/features/PROJECT.md (if not already present)
 - .planning/ is deleted
 </output>
 

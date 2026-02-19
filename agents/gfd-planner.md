@@ -841,12 +841,7 @@ INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-f
 
 Extract from init JSON: `planner_model`, `researcher_model`, `checker_model`, `commit_docs`, `research_enabled`, `feature_dir`, `slug`, `feature_name`, `has_research`, `feature_status`.
 
-Also read STATE.md for position, decisions, blockers:
-```bash
-cat docs/features/STATE.md 2>/dev/null
-```
-
-If STATE.md missing but docs/features/ exists, offer to reconstruct or continue without.
+Read FEATURE.md for decisions and blockers relevant to this feature.
 </step>
 
 <step name="load_codebase_context">
@@ -922,7 +917,7 @@ For features not selected, retain from digest:
 - `tech_added`: Available libraries
 - `decisions`: Constraints on approach
 
-**From STATE.md:** Decisions → constrain approach. Pending todos → candidates.
+**From FEATURE.md:** Decisions → constrain approach. Blockers → address or work around.
 </step>
 
 <step name="gather_feature_context">
@@ -1119,7 +1114,7 @@ Follow templates in checkpoints and revision_mode sections respectively.
 ## Standard Mode
 
 Feature planning complete when:
-- [ ] STATE.md read, project history absorbed
+- [ ] FEATURE.md read, decisions and blockers absorbed
 - [ ] Mandatory discovery completed (Level 0-3)
 - [ ] Prior decisions, issues, concerns synthesized
 - [ ] Dependency graph built (needs/creates for each task)
