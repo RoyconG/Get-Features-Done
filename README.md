@@ -36,19 +36,43 @@ After installation, the following slash commands are available in Claude Code:
 | Command | Description |
 |---------|-------------|
 | `/gfd:new-project` | Initialize a project with `docs/features/` and `PROJECT.md` |
-| `/gfd:new-feature` | Define a new feature with `FEATURE.md` |
+| `/gfd:new-feature` | Define a new feature (slug + one-liner) |
+| `/gfd:discuss-feature` | Refine feature scope through conversation |
+| `/gfd:research-feature` | Research implementation approach |
 | `/gfd:plan-feature` | Create detailed implementation plans for a feature |
 | `/gfd:execute-feature` | Execute plans with atomic commits |
-| `/gfd:progress` | Check project status and route to next action |
+| `/gfd:status` | Show active features with status and next steps |
 | `/gfd:map-codebase` | Analyze codebase with parallel mapper agents |
 
 ## Workflow
 
 1. **`/gfd:new-project`** — Set up project structure and define goals
-2. **`/gfd:new-feature`** — Define a feature with acceptance criteria
-3. **`/gfd:plan-feature`** — Research the approach, then create a step-by-step plan
-4. **`/gfd:execute-feature`** — Execute the plan with atomic commits and verification
-5. **`/gfd:progress`** — Track what's done, what's next
+2. **`/gfd:new-feature`** — Create a feature with a slug and one-line description
+3. **`/gfd:discuss-feature`** — Refine scope and define acceptance criteria
+4. **`/gfd:research-feature`** — Investigate implementation approach
+5. **`/gfd:plan-feature`** — Create a step-by-step implementation plan
+6. **`/gfd:execute-feature`** — Execute the plan with atomic commits and verification
+7. **`/gfd:status`** — See active features and what to do next
+
+## Feature Lifecycle
+
+Each feature progresses through these states:
+
+```
+new → discussing → discussed → researching → researched → planning → planned → in-progress → done
+```
+
+| State | Set by | Next command |
+|-------|--------|--------------|
+| `new` | `/gfd:new-feature` | `/gfd:discuss-feature` |
+| `discussing` | `/gfd:discuss-feature` | (continue discussion) |
+| `discussed` | `/gfd:discuss-feature` | `/gfd:research-feature` |
+| `researching` | `/gfd:research-feature` | (research in progress) |
+| `researched` | `/gfd:research-feature` | `/gfd:plan-feature` |
+| `planning` | `/gfd:plan-feature` | (planning in progress) |
+| `planned` | `/gfd:plan-feature` | `/gfd:execute-feature` |
+| `in-progress` | `/gfd:execute-feature` | (execution in progress) |
+| `done` | `/gfd:execute-feature` | — |
 
 ## Configuration
 
