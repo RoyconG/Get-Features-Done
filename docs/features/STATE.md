@@ -26,6 +26,7 @@ Progress: ███░░░░░░░ 33%
 **By Feature:**
 
 | Feature | Plans | Total | Avg/Plan |
+| convert-from-gsd | 01 | 2 | 2 | 2 | 2026-02-20 |
 | status | 05 | 3 | 2 | 4 | 2026-02-20 |
 | status | 04 | 2 | 2 | 2 | 2026-02-20 |
 | status | 03 | 1 | 2 | 2 | 2026-02-20 |
@@ -66,6 +67,9 @@ Resume file: None
 ## Decisions
 
 | Feature | Decision | Rationale |
+| convert-from-gsd | ACCEPTED_MAPPINGS shell variable passed from Step 5 to Plan 02 migration execution | - |
+| convert-from-gsd | Archived phases in milestones/*/phases/ auto-marked as done; decimal phase prefixes stripped before slug generation | - |
+| convert-from-gsd | Status detection uses disk artifacts (plan/summary/research counts) not ROADMAP.md checkbox state — disk is ground truth | - |
 | status | Status transitions use feature-update-status instead of sed patterns for validated transitions | - |
 | status | new-feature asks only slug + one-liner; acceptance criteria deferred to discuss-feature | - |
 | status | Allow researching as valid re-entry status in research-feature workflow to handle interrupted sessions | - |
