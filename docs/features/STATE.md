@@ -5,14 +5,14 @@
 See: docs/features/PROJECT.md (updated 2026-02-20)
 
 **Core value:** Multiple team members can independently plan and execute features in parallel, with planning docs committed without conflicts.
-**Current focus:** None yet
+**Current focus:** convert-from-gsd
 
 ## Current Position
 
-Feature: none
-Features: 0 of 0
-Status: Ready to create first feature
-Last activity: 2026-02-20 — Project initialized
+Feature: convert-from-gsd (Convert From GSD)
+Features: 0 of 1
+Status: Ready to plan
+Last activity: 2026-02-20 — Created feature convert-from-gsd
 
 Progress: ░░░░░░░░░░ 0%
 
