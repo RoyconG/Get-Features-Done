@@ -9,12 +9,12 @@ See: docs/features/PROJECT.md (updated 2026-02-20)
 
 ## Current Position
 
-Feature: status (Status) — done
-Features: 1 of 3
-Status: done — all 5 plans complete, verified
-Last activity: 2026-02-20 — Created feature cleanup-progress
+Feature: convert-from-gsd (Convert From GSD) — done
+Features: 2 of 3
+Status: done — all 2 plans complete, verified
+Last activity: 2026-02-20 — Completed feature convert-from-gsd
 
-Progress: ███░░░░░░░ 33%
+Progress: ██████░░░░ 67%
 
 ## Performance Metrics
 
