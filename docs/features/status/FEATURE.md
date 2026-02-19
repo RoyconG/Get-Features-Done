@@ -1,7 +1,7 @@
 ---
 name: Status
 slug: status
-status: new
+status: planned
 owner: Conroy
 assignees: []
 created: 2026-02-20
