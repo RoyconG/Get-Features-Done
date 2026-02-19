@@ -26,6 +26,7 @@ Progress: ░░░░░░░░░░ 0%
 **By Feature:**
 
 | Feature | Plans | Total | Avg/Plan |
+| status | 03 | 1 | 2 | 2 | 2026-02-20 |
 | status | 02 | 1 | 2 | 2 | 2026-02-20 |
 | status | 01 | 1 | 1 | 1 | 2026-02-20 |
 |---------|-------|-------|----------|
@@ -63,6 +64,7 @@ Resume file: None
 ## Decisions
 
 | Feature | Decision | Rationale |
+| status | discussing allows re-entry so interrupted sessions can resume; discussed requires confirmation before overwrite | - |
 | status | done features excluded from table; raw status strings, no symbols or formatting | - |
 | status | status command is display-only with no routing logic, replaces progress command | - |
 | status | new_count replaces backlog_count in init output for consistency with 9-state lifecycle | - |
