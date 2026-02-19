@@ -279,7 +279,7 @@ function findFeatureInternal(cwd, slug) {
     found: true,
     slug,
     name: fm.name || slug,
-    status: fm.status || 'backlog',
+    status: fm.status || 'new',
     owner: fm.owner || null,
     assignees: fm.assignees || [],
     priority: fm.priority || 'medium',
@@ -321,7 +321,7 @@ function listFeaturesInternal(cwd) {
 
   return features.sort((a, b) => {
     const priorityOrder = { high: 0, medium: 1, low: 2 };
-    const statusOrder = { 'in-progress': 0, planned: 1, planning: 2, backlog: 3, done: 4 };
+    const statusOrder = { 'in-progress': 0, planned: 1, planning: 2, researched: 3, researching: 4, discussed: 5, discussing: 6, new: 7, done: 8 };
     const sPri = (priorityOrder[a.priority] || 1) - (priorityOrder[b.priority] || 1);
     if (sPri !== 0) return sPri;
     return (statusOrder[a.status] || 3) - (statusOrder[b.status] || 3);
@@ -349,7 +349,11 @@ function cmdListFeatures(cwd, options, raw) {
     count: filtered.length,
     total: features.length,
     by_status: {
-      backlog: features.filter(f => f.status === 'backlog').length,
+      new: features.filter(f => f.status === 'new').length,
+      discussing: features.filter(f => f.status === 'discussing').length,
+      discussed: features.filter(f => f.status === 'discussed').length,
+      researching: features.filter(f => f.status === 'researching').length,
+      researched: features.filter(f => f.status === 'researched').length,
       planning: features.filter(f => f.status === 'planning').length,
       planned: features.filter(f => f.status === 'planned').length,
       'in-progress': features.filter(f => f.status === 'in-progress').length,
@@ -1079,7 +1083,7 @@ function cmdRequirementsMarkComplete(cwd, reqIdsRaw, raw) {
 function cmdFeatureUpdateStatus(cwd, slug, newStatus, raw) {
   if (!slug || !newStatus) error('slug and status required');
 
-  const validStatuses = ['backlog', 'planning', 'planned', 'in-progress', 'done'];
+  const validStatuses = ['new', 'discussing', 'discussed', 'researching', 'researched', 'planning', 'planned', 'in-progress', 'done'];
   if (!validStatuses.includes(newStatus)) {
     error(`Invalid status: ${newStatus}. Valid: ${validStatuses.join(', ')}`);
   }
@@ -1092,7 +1096,7 @@ function cmdFeatureUpdateStatus(cwd, slug, newStatus, raw) {
 
   const content = fs.readFileSync(featureMdPath, 'utf-8');
   const fm = extractFrontmatter(content);
-  const oldStatus = fm.status || 'backlog';
+  const oldStatus = fm.status || 'new';
   fm.status = newStatus;
   const newContent = spliceFrontmatter(content, fm);
   fs.writeFileSync(featureMdPath, newContent, 'utf-8');
@@ -1417,7 +1421,7 @@ function cmdInitProgress(cwd, includes, raw) {
     feature_count: features.length,
     done_count: features.filter(f => f.status === 'done').length,
     in_progress_count: features.filter(f => f.status === 'in-progress').length,
-    backlog_count: features.filter(f => f.status === 'backlog').length,
+    new_count: features.filter(f => f.status === 'new').length,
 
     project_exists: pathExistsInternal(cwd, 'docs/features/PROJECT.md'),
     state_exists: pathExistsInternal(cwd, 'docs/features/STATE.md'),
