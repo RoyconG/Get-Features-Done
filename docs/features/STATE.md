@@ -26,6 +26,7 @@ Progress: ░░░░░░░░░░ 0%
 **By Feature:**
 
 | Feature | Plans | Total | Avg/Plan |
+| status | 05 | 3 | 2 | 4 | 2026-02-20 |
 | status | 04 | 2 | 2 | 2 | 2026-02-20 |
 | status | 03 | 1 | 2 | 2 | 2026-02-20 |
 | status | 02 | 1 | 2 | 2 | 2026-02-20 |
@@ -65,6 +66,8 @@ Resume file: None
 ## Decisions
 
 | Feature | Decision | Rationale |
+| status | Status transitions use feature-update-status instead of sed patterns for validated transitions | - |
+| status | new-feature asks only slug + one-liner; acceptance criteria deferred to discuss-feature | - |
 | status | Allow researching as valid re-entry status in research-feature workflow to handle interrupted sessions | - |
 | status | Reuse init plan-feature for research-feature (provides researcher_model, has_research, feature content without new init command) | - |
 | status | discussing allows re-entry so interrupted sessions can resume; discussed requires confirmation before overwrite | - |
