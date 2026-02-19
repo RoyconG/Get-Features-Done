@@ -11,8 +11,8 @@ See: docs/features/PROJECT.md (updated 2026-02-20)
 
 Feature: status (Status)
 Features: 0 of 3
-Status: Planned — 5 plans in 3 waves
-Last activity: 2026-02-20 — Planned feature status — 5 plans in 3 waves
+Status: in-progress — executing 5 plans in 3 waves
+Last activity: 2026-02-20 — Started executing feature status
 
 Progress: ░░░░░░░░░░ 0%
 
@@ -26,6 +26,7 @@ Progress: ░░░░░░░░░░ 0%
 **By Feature:**
 
 | Feature | Plans | Total | Avg/Plan |
+| status | 01 | 1 | 1 | 1 | 2026-02-20 |
 |---------|-------|-------|----------|
 | - | - | - | - |
 
@@ -57,3 +58,10 @@ None yet.
 Last session: 2026-02-20
 Stopped at: Project initialized
 Resume file: None
+
+## Decisions
+
+| Feature | Decision | Rationale |
+| status | new_count replaces backlog_count in init output for consistency with 9-state lifecycle | - |
+|---------|----------|----------|
+| status | backlog status removed entirely; validStatuses rejects it with a clear error | - |
