@@ -1,7 +1,7 @@
 ---
 name: Convert From GSD
 slug: convert-from-gsd
-status: in-progress
+status: done
 owner: Conroy
 assignees: []
 created: 2026-02-20

@@ -26,6 +26,7 @@ Progress: ███░░░░░░░ 33%
 **By Feature:**
 
 | Feature | Plans | Total | Avg/Plan |
+| convert-from-gsd | 02 | 2 | 1 | 1 | 2026-02-20 |
 | convert-from-gsd | 01 | 2 | 2 | 2 | 2026-02-20 |
 | status | 05 | 3 | 2 | 4 | 2026-02-20 |
 | status | 04 | 2 | 2 | 2 | 2026-02-20 |
@@ -67,6 +68,8 @@ Resume file: None
 ## Decisions
 
 | Feature | Decision | Rationale |
+| convert-from-gsd | gsd_phase field in FEATURE.md frontmatter for traceability back to original GSD phase | - |
+| convert-from-gsd | Delete-last pattern: verify all expected FEATURE.md files exist before rm -rf .planning/ | - |
 | convert-from-gsd | ACCEPTED_MAPPINGS shell variable passed from Step 5 to Plan 02 migration execution | - |
 | convert-from-gsd | Archived phases in milestones/*/phases/ auto-marked as done; decimal phase prefixes stripped before slug generation | - |
 | convert-from-gsd | Status detection uses disk artifacts (plan/summary/research counts) not ROADMAP.md checkbox state — disk is ground truth | - |
