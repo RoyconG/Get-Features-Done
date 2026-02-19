@@ -10,9 +10,9 @@ See: docs/features/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Feature: convert-from-gsd (Convert From GSD)
-Features: 0 of 1
-Status: Ready to plan
-Last activity: 2026-02-20 — Created feature convert-from-gsd
+Features: 0 of 2
+Status: Planned — 2 plans in 2 waves
+Last activity: 2026-02-20 — Created feature status
 
 Progress: ░░░░░░░░░░ 0%
 

@@ -26,7 +26,8 @@ A migration tool that scans a project's GSD `.planning/` directory, maps phases 
 
 ## Tasks
 
-[Populated during planning. Links to plan files.]
+- [01-PLAN.md](01-PLAN.md) — Command file + discovery/review workflow (steps 1-5)
+- [02-PLAN.md](02-PLAN.md) — Migration execution workflow (steps 6-12)
 
 ## Notes
 
