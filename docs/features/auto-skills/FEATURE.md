@@ -1,7 +1,7 @@
 ---
 name: Auto Skills
 slug: auto-skills
-status: in-progress
+status: done
 owner: Conroy
 assignees: []
 created: 2026-02-20
@@ -46,6 +46,13 @@ Add `auto-research` and `auto-plan` commands to the gfd-tools C# CLI that run th
 - None
 
 ## Decisions
+
+### Plan 02 — AutoResearchCommand + AutoPlanCommand (2026-02-20)
+
+- **Async SetAction pattern:** System.CommandLine beta5 does not accept `async pr => { return int; }` lambdas. Commands use `private static async Task<int> RunAsync(...)` extracted method registered via `cmd.SetAction((ParseResult pr, CancellationToken ct) => RunAsync(...))`.
+- **CommitAutoRunMd duplication:** Kept as private static in each command class per existing self-contained command file pattern.
+- **Abort cleanup for AutoPlanCommand:** Deletes partial PLAN.md files before committing AUTO-RUN.md on abort — ensures no partial artifacts are committed.
+- **FEATURE.md status update inline:** Status updated via Regex.Replace directly in the command, not via subprocess call to gfd-tools feature-update-status.
 
 ### Plan 01 — ClaudeService (2026-02-20)
 
