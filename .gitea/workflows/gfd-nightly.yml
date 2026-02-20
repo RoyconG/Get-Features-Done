@@ -37,7 +37,10 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Setup gfd-tools
-        run: chmod +x get-features-done/bin/gfd-tools
+        run: |
+          chmod +x get-features-done/bin/gfd-tools
+          mkdir -p /home/conroy/.claude/agents
+          cp agents/*.md /home/conroy/.claude/agents/
 
       - name: Initialize summary
         run: |
@@ -179,13 +182,11 @@ jobs:
               continue
             fi
 
-            # Skip if open PR exists for ci/<slug> head branch.
-            # Note: --fields head --output simple produces tab-separated output where
-            # the head column shows the branch name. Verify format on target system;
-            # fall back to: tea pulls list --state open --output json | jq -r '.[].head.label'
+            # Skip if open PR exists for ci/<slug> head branch
             PR_EXISTS=$(tea pulls list --state open --fields head --output simple 2>/dev/null \
-              | grep -c "ci/$SLUG" || echo "0")
-            if [ "$PR_EXISTS" -gt "0" ]; then
+              | grep -c "ci/$SLUG" || true)
+            PR_EXISTS="${PR_EXISTS:-0}"
+            if [ "$PR_EXISTS" -gt "0" ] 2>/dev/null; then
               echo "  SKIPPED: open PR for ci/$SLUG already exists" | tee -a /tmp/gfd-nightly-summary.md
               continue
             fi
