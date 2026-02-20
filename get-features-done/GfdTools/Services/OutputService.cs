@@ -8,7 +8,9 @@ public static class Output
 {
     public static void Write(string key, object? value)
     {
-        Console.WriteLine($"{key}={value}");
+        // Ensure booleans are lowercase (C# bool.ToString() returns "True"/"False")
+        var formatted = value is bool b ? (b ? "true" : "false") : value?.ToString() ?? "";
+        Console.WriteLine($"{key}={formatted}");
     }
 
     public static void WriteBool(string key, bool value)
