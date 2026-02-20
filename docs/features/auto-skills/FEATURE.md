@@ -26,7 +26,8 @@ Add `auto-research` and `auto-plan` commands to the gfd-tools C# CLI that run th
 
 ## Tasks
 
-[Populated during planning. Links to plan files.]
+- [01-PLAN.md](01-PLAN.md) — ClaudeService: headless subprocess infrastructure (InvokeHeadless, RunResult, BuildAutoRunMd)
+- [02-PLAN.md](02-PLAN.md) — AutoResearchCommand + AutoPlanCommand + Program.cs registration
 
 ## Notes
 
