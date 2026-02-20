@@ -27,17 +27,15 @@ Exit.
 ## 2. Run Init
 
 ```bash
-INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature)
-if [[ "$INIT_RAW" == @file:* ]]; then
-  INIT_FILE="${INIT_RAW#@file:}"
-  INIT=$(cat "$INIT_FILE")
-  rm -f "$INIT_FILE"
-else
-  INIT="$INIT_RAW"
-fi
+INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init plan-feature "${SLUG}")
 ```
 
-Parse JSON for: `feature_found`, `feature_dir`, `feature_name`, `feature_status`, `feature_content`, `researcher_model`, `has_research`.
+Extract from key=value output: `feature_found`, `feature_dir`, `feature_name`, `feature_status`, `researcher_model`, `has_research` (grep "^key=" | cut -d= -f2-).
+
+Read feature file separately:
+```bash
+cat "docs/features/${SLUG}/FEATURE.md"
+```
 
 **If `feature_found` is false:**
 
@@ -90,7 +88,7 @@ Exit.
 ## 4. Transition to Researching
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "researching"
+dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "researching"
 ```
 
 **Display stage banner:**
@@ -114,11 +112,11 @@ fi
 
 ## 6. Spawn gfd-researcher
 
-Extract content from init JSON:
+Extract content from init output:
 
 ```bash
-FEATURE_CONTENT=$(echo "$INIT" | jq -r '.feature_content // empty')
-RESEARCHER_MODEL=$(echo "$INIT" | jq -r '.researcher_model // "sonnet"')
+RESEARCHER_MODEL=$(echo "$INIT" | grep "^researcher_model=" | cut -d= -f2-)
+FEATURE_CONTENT=$(cat "docs/features/${SLUG}/FEATURE.md")
 ```
 
 Research prompt:
@@ -173,13 +171,13 @@ Task(
 ## 7. Transition to Researched
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "researched"
+dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "researched"
 ```
 
 ## 8. Commit
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): research feature" --files docs/features/${SLUG}/FEATURE.md docs/features/${SLUG}/RESEARCH.md
+git add "docs/features/${SLUG}/FEATURE.md" "docs/features/${SLUG}/RESEARCH.md" && git diff --cached --quiet || git commit -m "docs(${SLUG}): research feature"
 ```
 
 ## 9. Done

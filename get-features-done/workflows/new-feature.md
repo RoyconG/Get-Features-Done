@@ -58,10 +58,10 @@ Exit.
 ## 2. Run Init
 
 ```bash
-INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init new-feature "${SLUG}")
+INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init new-feature "${SLUG}")
 ```
 
-Parse JSON for: `project_exists`, `feature_exists`, `feature_dir`, `commit_docs`, `planner_model`.
+Extract from key=value output: `project_exists`, `feature_exists`, `feature_dir`, `planner_model` (grep "^key=" | cut -d= -f2-).
 
 **If `project_exists` is false:**
 
@@ -159,7 +159,7 @@ Title-case each word, expand common abbreviations naturally.
 ## 5. Commit
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd): create feature ${SLUG}" --files docs/features/${SLUG}/FEATURE.md
+git add "docs/features/${SLUG}/FEATURE.md" && git diff --cached --quiet || git commit -m "docs(gfd): create feature ${SLUG}"
 ```
 
 ## 6. Done

@@ -26,10 +26,10 @@ Documents are reference material for Claude when planning/executing. Always incl
 Load codebase mapping context:
 
 ```bash
-INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init map-codebase)
+INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init map-codebase)
 ```
 
-Extract from init JSON: `mapper_model`, `commit_docs`, `codebase_dir`, `existing_maps`, `has_maps`, `codebase_dir_exists`, `project_exists`.
+Extract from key=value output: `mapper_model`, `codebase_dir`, `has_maps`, `codebase_dir_exists`, `project_exists` (grep "^key=" | cut -d= -f2-).
 
 **If `project_exists` is false AND codebase_dir doesn't exist:**
 
@@ -309,7 +309,7 @@ Continue to commit_codebase_map.
 Commit the codebase map:
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd): map codebase" --files docs/features/codebase/*.md
+git add docs/features/codebase/*.md && git diff --cached --quiet || git commit -m "docs(gfd): map codebase"
 ```
 
 Continue to offer_next.

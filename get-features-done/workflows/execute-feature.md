@@ -32,12 +32,26 @@ Exit.
 Load all context in one call:
 
 ```bash
-INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init execute-feature "${SLUG}" --include feature)
+INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init execute-feature "${SLUG}")
 ```
 
-Parse JSON for: `executor_model`, `verifier_model`, `commit_docs`, `parallelization`, `feature_found`, `feature_dir`, `feature_slug`, `feature_name`, `feature_status`, `plans`, `incomplete_plans`, `plan_count`, `incomplete_count`.
+Extract values from key=value output:
+- `executor_model` (grep "^executor_model=" | cut -d= -f2-)
+- `verifier_model` (grep "^verifier_model=" | cut -d= -f2-)
+- `parallelization` (grep "^parallelization=" | cut -d= -f2-)
+- `feature_found` (grep "^feature_found=" | cut -d= -f2-)
+- `feature_dir` (grep "^feature_dir=" | cut -d= -f2-)
+- `feature_slug` (grep "^feature_slug=" | cut -d= -f2-)
+- `feature_name` (grep "^feature_name=" | cut -d= -f2-)
+- `feature_status` (grep "^feature_status=" | cut -d= -f2-)
+- `plan_count` (grep "^plan_count=" | cut -d= -f2-)
+- `incomplete_count` (grep "^incomplete_count=" | cut -d= -f2-)
+- Each `plans=` line is a plan entry; each `incomplete_plan=` line is an incomplete plan
 
-**File contents (from --include):** `feature_content`. Null if file doesn't exist.
+Read feature file separately:
+```bash
+cat "docs/features/${SLUG}/FEATURE.md"
+```
 
 **If `project_exists` is false:** Error — run `/gfd:new-project` first.
 
@@ -73,7 +87,7 @@ If "No": Exit and suggest `/gfd:status`.
 Update FEATURE.md status to "in-progress":
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "in-progress"
+dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "in-progress"
 ```
 </step>
 
@@ -81,10 +95,10 @@ node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-sta
 Load plan inventory with wave grouping:
 
 ```bash
-PLAN_INDEX=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-plan-index "${SLUG}")
+PLAN_INDEX=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-plan-index "${SLUG}")
 ```
 
-Parse JSON for: `slug`, `plans[]` (each with `id`, `wave`, `autonomous`, `objective`, `files_modified`, `task_count`, `has_summary`), `waves` (map of wave number → plan IDs), `incomplete`, `has_checkpoints`.
+Extract from key=value output: `slug`, repeated `plan=` lines (each with id, wave, autonomous, objective, files_modified, task_count, has_summary), `incomplete=` lines, `has_checkpoints`.
 
 **Filtering:** Skip plans where `has_summary: true` (already complete). If all filtered: report "All plans already complete" and proceed to verification.
 
@@ -362,7 +376,7 @@ Mark feature as done:
 
 ```bash
 # Update FEATURE.md status
-sed -i 's/^status: in-progress$/status: done/' "${feature_dir}/FEATURE.md"
+dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "done"
 
 # Check off acceptance criteria (if all verified)
 # Update the Last updated footer
@@ -373,7 +387,7 @@ Update FEATURE.md acceptance criteria checkboxes to checked if all verified.
 
 <step name="commit_planning_docs">
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): complete feature execution" --files ${feature_dir}/FEATURE.md ${feature_dir}/VERIFICATION.md
+git add "${feature_dir}/FEATURE.md" "${feature_dir}/VERIFICATION.md" && git diff --cached --quiet || git commit -m "docs(${SLUG}): complete feature execution"
 ```
 </step>
 
@@ -389,8 +403,10 @@ node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLU
 Check remaining features by scanning `docs/features/` for FEATURE.md files with status not "done":
 
 ```bash
-REMAINING=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs list-features --status not-done)
+REMAINING=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- list-features --status not-done)
 ```
+
+Extract from key=value output: repeated `feature=` lines with name, status, slug, priority fields.
 
 **Route based on remaining features:**
 

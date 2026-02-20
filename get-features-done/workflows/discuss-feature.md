@@ -94,17 +94,15 @@ Exit.
 ## 2. Run Init
 
 ```bash
-INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature)
-if [[ "$INIT_RAW" == @file:* ]]; then
-  INIT_FILE="${INIT_RAW#@file:}"
-  INIT=$(cat "$INIT_FILE")
-  rm -f "$INIT_FILE"
-else
-  INIT="$INIT_RAW"
-fi
+INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init plan-feature "${SLUG}")
 ```
 
-Parse JSON for: `feature_found`, `feature_dir`, `feature_name`, `feature_status`, `feature_content`.
+Extract from key=value output: `feature_found`, `feature_dir`, `feature_name`, `feature_status` (grep "^key=" | cut -d= -f2-).
+
+Read feature file separately:
+```bash
+cat "docs/features/${SLUG}/FEATURE.md"
+```
 
 **If `feature_found` is false:**
 
@@ -146,7 +144,7 @@ Exit.
 ## 4. Transition to Discussing
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "discussing"
+dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "discussing"
 ```
 
 **Display stage banner:**
@@ -361,13 +359,13 @@ Keep the `## Decisions` and `## Blockers` sections as-is.
 ## 10. Transition to Discussed
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "discussed"
+dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "discussed"
 ```
 
 ## 11. Commit
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): discuss feature scope" --files docs/features/${SLUG}/FEATURE.md
+git add "docs/features/${SLUG}/FEATURE.md" && git diff --cached --quiet || git commit -m "docs(${SLUG}): discuss feature scope"
 ```
 
 ## 12. Done

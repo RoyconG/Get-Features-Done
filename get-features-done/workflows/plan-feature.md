@@ -28,23 +28,22 @@ No feature slug provided.
 
 Exit.
 
-Load all context in one call (include file contents to avoid redundant reads):
+Load all context in one call:
 
 ```bash
-INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature)
-# Large payloads are written to a tmpfile — output starts with @file:/path
-if [[ "$INIT_RAW" == @file:* ]]; then
-  INIT_FILE="${INIT_RAW#@file:}"
-  INIT=$(cat "$INIT_FILE")
-  rm -f "$INIT_FILE"
-else
-  INIT="$INIT_RAW"
-fi
+INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init plan-feature "${SLUG}")
 ```
 
-Parse JSON for: `researcher_model`, `planner_model`, `checker_model`, `research_enabled`, `plan_checker_enabled`, `commit_docs`, `feature_found`, `feature_dir`, `feature_slug`, `feature_name`, `feature_status`, `feature_priority`, `feature_depends_on`, `has_research`, `has_plans`, `plan_count`, `project_exists`.
+Extract from key=value output:
+- `researcher_model`, `planner_model`, `checker_model` (grep "^key=" | cut -d= -f2-)
+- `research_enabled`, `plan_checker_enabled`, `feature_found`, `project_exists` (grep "^key=" | cut -d= -f2-)
+- `feature_dir`, `feature_slug`, `feature_name`, `feature_status`, `feature_priority` (grep "^key=" | cut -d= -f2-)
+- `has_research`, `has_plans`, `plan_count` (grep "^key=" | cut -d= -f2-)
 
-**File contents (from --include):** `feature_content`. Null if file doesn't exist.
+Read feature file separately:
+```bash
+cat "docs/features/${SLUG}/FEATURE.md"
+```
 
 **If `project_exists` is false:** Error — run `/gfd:new-project` first.
 
@@ -128,7 +127,7 @@ If "Replan from scratch": Confirm and delete existing PLAN.md files.
 Update FEATURE.md status field from `researched` → `planning`:
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "planning"
+dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "planning"
 ```
 
 ## 5. Load Codebase Context
@@ -213,12 +212,12 @@ Task(
 - **`## RESEARCH COMPLETE`:** Display confirmation, continue to Step 7.
 - **`## RESEARCH BLOCKED`:** Display blocker, offer: 1) Provide context, 2) Skip research, 3) Abort.
 
-## 7. Load File Contents from INIT
+## 7. Load File Contents
 
-All file contents are already loaded via `--include` in step 1 (`@` syntax doesn't work across Task() boundaries):
+Load feature and research content separately (`@` syntax doesn't work across Task() boundaries):
 
 ```bash
-FEATURE_CONTENT=$(echo "$INIT" | jq -r '.feature_content // empty')
+FEATURE_CONTENT=$(cat "docs/features/${SLUG}/FEATURE.md" 2>/dev/null)
 
 # Load research if it was just written
 RESEARCH_CONTENT=""
@@ -410,7 +409,7 @@ Update FEATURE.md status field from `planning` → `planned` and populate the Ta
 
 ```bash
 # Update status
-sed -i 's/^status: planning$/status: planned/' "${feature_dir}/FEATURE.md"
+dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "planned"
 ```
 
 Update the Tasks section in FEATURE.md to list the created plans:
@@ -425,10 +424,10 @@ Update the Tasks section in FEATURE.md to list the created plans:
 ## 13. Commit
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): create plan" --files ${feature_dir}/FEATURE.md ${feature_dir}/*-PLAN.md ${feature_dir}/RESEARCH.md
+git add "${feature_dir}/FEATURE.md" && git add ${feature_dir}/*-PLAN.md 2>/dev/null; git add "${feature_dir}/RESEARCH.md" 2>/dev/null; git diff --cached --quiet || git commit -m "docs(${SLUG}): create plan"
 ```
 
-(The RESEARCH.md commit will be a no-op if research was skipped.)
+(RESEARCH.md will be a no-op if research was skipped.)
 
 ## 14. Present Final Status
 

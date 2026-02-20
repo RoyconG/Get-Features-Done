@@ -7,10 +7,10 @@ Display a plain table of all active features with their current lifecycle status
 ## 1. Load Features
 
 ```bash
-FEATURES_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs list-features)
+FEATURES_RAW=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- list-features)
 ```
 
-Parse the JSON array from `features` key. Filter out any feature where `status` is `"done"`.
+Extract from key=value output: each feature appears as repeated `feature=` lines. Parse each feature's name, slug, status, priority. Filter out any feature where `status` is `done`.
 
 ## 2. Render Status Table
 

@@ -15,10 +15,10 @@ Read all files referenced by the invoking prompt's execution_context before star
 **MANDATORY FIRST STEP — Execute these checks before ANY user interaction:**
 
 ```bash
-INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init new-project)
+INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init new-project)
 ```
 
-Parse JSON for: `project_exists`, `has_codebase_map`, `has_existing_code`, `is_brownfield`, `needs_codebase_map`, `has_git`, `commit_docs`, `planner_model`, `researcher_model`, `mapper_model`.
+Extract from key=value output: `project_exists`, `has_codebase_map`, `has_existing_code`, `is_brownfield`, `needs_codebase_map`, `has_git`, `planner_model`, `researcher_model`, `mapper_model` (grep "^key=" | cut -d= -f2-).
 
 **If `project_exists` is true:** Show error:
 
@@ -375,7 +375,7 @@ Write `docs/features/config.json` using the workflow preferences gathered in Ste
 Commit all artifacts:
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd): initialize project" --files docs/features/PROJECT.md docs/features/config.json
+git add docs/features/PROJECT.md docs/features/config.json && git diff --cached --quiet || git commit -m "docs(gfd): initialize project"
 ```
 
 ## 9. Done

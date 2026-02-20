@@ -432,7 +432,7 @@ for (const m of mapping) {
 
 **Update frontmatter in all migrated PLAN.md and SUMMARY.md files:**
 
-After copying, update the `phase:` → `feature:` field in each migrated plan and summary file using gfd-tools.cjs:
+After copying, update the `phase:` → `feature:` field in each migrated plan and summary file using the C# tool:
 
 ```bash
 node -e "
@@ -452,7 +452,7 @@ for (const m of mapping) {
     const filePath = path.join(featureDir, file);
     try {
       execSync(
-        \`node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs frontmatter merge \"\${filePath}\" --data '\${JSON.stringify({feature: m.slug})}'\`,
+        \`dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- frontmatter merge \"\${filePath}\" --data '\${JSON.stringify({feature: m.slug})}'\`,
         {stdio: 'inherit'}
       );
       console.log('Updated frontmatter: ' + filePath);
@@ -464,7 +464,7 @@ for (const m of mapping) {
 " ACCEPTED_MAPPINGS="$ACCEPTED_MAPPINGS"
 ```
 
-Note: `gfd-tools.cjs frontmatter merge` adds the `feature:` field. The legacy `phase:` field will remain but is harmless — GFD tools read `feature:` and ignore unknown fields.
+Note: `frontmatter merge` adds the `feature:` field. The legacy `phase:` field will remain but is harmless — GFD tools read `feature:` and ignore unknown fields.
 
 **Update Tasks section in FEATURE.md for features that have plans:**
 
@@ -565,9 +565,9 @@ echo "Deleted .planning/"
 Commit all new feature files:
 
 ```bash
-# Gather all new feature files
+# Gather all new feature files and commit
 FEATURE_FILES=$(find docs/features -name "*.md" -mmin -10 2>/dev/null | head -100)
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd): migrate from GSD" --files $FEATURE_FILES
+git add $FEATURE_FILES && git diff --cached --quiet || git commit -m "docs(gfd): migrate from GSD"
 ```
 
 Display completion banner:
