@@ -62,11 +62,10 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          set -e
           if [ "${{ inputs.type }}" = "research" ]; then
-            ./get-features-done/bin/gfd-tools auto-research "${{ inputs.slug }}"
+            ./get-features-done/bin/gfd-tools auto-research "${{ inputs.slug }}" 2>&1 | tee /tmp/gfd-output.log
           else
-            ./get-features-done/bin/gfd-tools auto-plan "${{ inputs.slug }}"
+            ./get-features-done/bin/gfd-tools auto-plan "${{ inputs.slug }}" 2>&1 | tee /tmp/gfd-output.log
           fi
 
       - name: Commit results
@@ -84,3 +83,15 @@ jobs:
             --base main \
             --head "ci/${{ inputs.slug }}" \
             --description "Automated ${{ inputs.type }} run for feature: ${{ inputs.slug }}"
+
+      - name: Debug output
+        if: always()
+        run: |
+          echo "========== GFD Output =========="
+          cat /tmp/gfd-output.log 2>/dev/null || echo "No output captured"
+          echo "========== AUTO-RUN.md =========="
+          cat "docs/features/${{ inputs.slug }}/AUTO-RUN.md" 2>/dev/null || echo "No AUTO-RUN.md found"
+          echo "========== Git Status =========="
+          git status
+          echo "========== Recent Commits =========="
+          git log --oneline -5
