@@ -1,7 +1,7 @@
 ---
 name: C# Rewrite
 slug: csharp-rewrite
-status: in-progress
+status: done
 owner: Conroy
 assignees: []
 created: 2026-02-20
@@ -16,12 +16,12 @@ Rewrite gfd-tools.cjs as a C# dotnet console app using System.CommandLine 2.0, t
 
 ## Acceptance Criteria
 
-- [ ] C# console app builds and runs via `dotnet run`
-- [ ] All actively-used gfd-tools commands ported (determined by grepping workflows)
-- [ ] Output uses key=value pairs instead of JSON
-- [ ] All GFD workflow and agent files updated to invoke C# tool and parse key=value output
-- [ ] gfd-tools.cjs deleted
-- [ ] Bugs found during porting are fixed, not replicated
+- [x] C# console app builds and runs via `dotnet run`
+- [x] All actively-used gfd-tools commands ported (determined by grepping workflows)
+- [x] Output uses key=value pairs instead of JSON
+- [x] All GFD workflow and agent files updated to invoke C# tool and parse key=value output
+- [x] gfd-tools.cjs deleted
+- [x] Bugs found during porting are fixed, not replicated
 
 ## Tasks
 
@@ -56,4 +56,4 @@ Rewrite gfd-tools.cjs as a C# dotnet console app using System.CommandLine 2.0, t
 
 ---
 *Created: 2026-02-20*
-*Last updated: 2026-02-20*
+*Last updated: 2026-02-20 (completed)*
