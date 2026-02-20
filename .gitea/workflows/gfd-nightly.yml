@@ -1,0 +1,224 @@
+name: GFD Nightly
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # 3 AM UTC daily (configurable by editing this line)
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: 'Feature slug (leave empty for auto-detect)'
+        required: false
+        type: string
+        default: ''
+      type:
+        description: 'Operation type (leave empty for auto-detect)'
+        required: false
+        type: choice
+        options:
+          - ''
+          - research
+          - plan
+
+jobs:
+  orchestrate:
+    runs-on: claude
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITEA_TOKEN }}
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup gfd-tools
+        run: chmod +x get-features-done/bin/gfd-tools
+
+      - name: Initialize summary
+        run: |
+          echo "# GFD Nightly Summary" > /tmp/gfd-nightly-summary.md
+          echo "Run: ${{ gitea.run_number }} | Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> /tmp/gfd-nightly-summary.md
+          echo "" >> /tmp/gfd-nightly-summary.md
+
+      - name: Discover features
+        id: discover
+        run: |
+          # Manual dispatch with specific slug — override auto-detect
+          if [ -n "${{ inputs.slug }}" ]; then
+            SLUG="${{ inputs.slug }}"
+            TYPE="${{ inputs.type }}"
+            # If type not specified, detect from feature status
+            if [ -z "$TYPE" ]; then
+              STATUS=$(./get-features-done/bin/gfd-tools list-features --status discussed \
+                | grep "^feature_slug=$SLUG$" | head -1)
+              if [ -n "$STATUS" ]; then
+                TYPE="research"
+              else
+                TYPE="plan"
+              fi
+            fi
+            echo "pairs=$SLUG:$TYPE" >> "$GITEA_OUTPUT"
+            exit 0
+          fi
+
+          # Auto-detect: discussed → research, researched → plan
+          DISCUSSED=$(./get-features-done/bin/gfd-tools list-features --status discussed \
+            | grep "^feature_slug=" | cut -d= -f2)
+          RESEARCHED=$(./get-features-done/bin/gfd-tools list-features --status researched \
+            | grep "^feature_slug=" | cut -d= -f2)
+
+          PAIRS=""
+          for s in $DISCUSSED; do PAIRS="$PAIRS $s:research"; done
+          for s in $RESEARCHED; do PAIRS="$PAIRS $s:plan"; done
+          PAIRS="${PAIRS# }"  # trim leading space
+
+          echo "pairs=$PAIRS" >> "$GITEA_OUTPUT"
+          echo "Discovered features: $PAIRS" | tee -a /tmp/gfd-nightly-summary.md
+
+      - name: Check initial usage
+        id: usage_guard
+        env:
+          ANTHROPIC_ADMIN_KEY: ${{ secrets.ANTHROPIC_ADMIN_KEY }}
+        run: |
+          THRESHOLD="${{ vars.GFD_USAGE_THRESHOLD || '100000' }}"
+          STOP="false"
+
+          # Only query API if admin key is available
+          if [ -n "$ANTHROPIC_ADMIN_KEY" ]; then
+            NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            HOUR_AGO=$(date -u -d '1 hour ago' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || \
+                       date -u -v-1H +%Y-%m-%dT%H:%M:%SZ)
+            RESPONSE=$(curl -s \
+              "https://api.anthropic.com/v1/organizations/usage_report/messages?starting_at=${HOUR_AGO}&ending_at=${NOW}&bucket_width=1h" \
+              --header "anthropic-version: 2023-06-01" \
+              --header "x-api-key: ${ANTHROPIC_ADMIN_KEY}")
+            OUTPUT_TOKENS=$(echo "$RESPONSE" | jq '[.data[].output_tokens] | add // 0' 2>/dev/null || echo "0")
+            if [ "$OUTPUT_TOKENS" -gt "$THRESHOLD" ]; then
+              echo "Usage threshold exceeded ($OUTPUT_TOKENS > $THRESHOLD tokens/hour). Hard-stopping." | tee -a /tmp/gfd-nightly-summary.md
+              STOP="true"
+            fi
+          else
+            echo "No ANTHROPIC_ADMIN_KEY — usage guard disabled (local budget fallback active in loop)" | tee -a /tmp/gfd-nightly-summary.md
+          fi
+
+          echo "stop=$STOP" >> "$GITEA_OUTPUT"
+
+      - name: Setup tea auth
+        run: |
+          tea login add \
+            --non-interactive \
+            --url "${{ vars.GITEA_URL }}" \
+            --token "${{ secrets.GITEA_TOKEN }}" \
+            --name ci
+
+      - name: Process features
+        if: steps.usage_guard.outputs.stop != 'true' && steps.discover.outputs.pairs != ''
+        env:
+          ANTHROPIC_ADMIN_KEY: ${{ secrets.ANTHROPIC_ADMIN_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+        run: |
+          set +e  # Don't exit on sub-workflow failure — log and continue
+          THRESHOLD="${{ vars.GFD_USAGE_THRESHOLD || '100000' }}"
+          MAX_CONCURRENT="${{ vars.GFD_MAX_CONCURRENT || '1' }}"
+          JOB_COUNT=0
+          HARD_STOP=false
+
+          # Helper: run a single feature in a subshell (invoked with & for concurrency)
+          process_one() {
+            local SLUG="$1"
+            local TYPE="$2"
+            echo "## Feature: $SLUG ($TYPE)" | tee -a /tmp/gfd-nightly-summary.md
+
+            git config user.name "GFD CI"
+            git config user.email "ci@gitea.local"
+            git checkout -B "ci/$SLUG"
+
+            if [ "$TYPE" = "research" ]; then
+              timeout 3600 ./get-features-done/bin/gfd-tools auto-research "$SLUG"
+              RESULT=$?
+            else
+              timeout 3600 ./get-features-done/bin/gfd-tools auto-plan "$SLUG"
+              RESULT=$?
+            fi
+
+            if [ $RESULT -eq 0 ]; then
+              git add -A
+              git diff --cached --quiet || git commit -m "ci($SLUG): auto-$TYPE results"
+              git push origin "ci/$SLUG"
+              tea pulls create \
+                --title "ci($SLUG): auto-$TYPE" \
+                --base main \
+                --head "ci/$SLUG" \
+                --description "Automated $TYPE run for feature: $SLUG"
+              echo "  SUCCESS: PR created for ci/$SLUG" | tee -a /tmp/gfd-nightly-summary.md
+            else
+              echo "  FAILED: gfd-tools exited with code $RESULT" | tee -a /tmp/gfd-nightly-summary.md
+              git checkout main
+              git branch -D "ci/$SLUG" 2>/dev/null || true
+            fi
+            git checkout main
+          }
+
+          for pair in ${{ steps.discover.outputs.pairs }}; do
+            SLUG="${pair%%:*}"
+            TYPE="${pair##*:}"
+
+            # Skip if ci/<slug> branch already exists on remote
+            if git ls-remote --exit-code origin "refs/heads/ci/$SLUG" > /dev/null 2>&1; then
+              echo "  SKIPPED: branch ci/$SLUG already exists" | tee -a /tmp/gfd-nightly-summary.md
+              continue
+            fi
+
+            # Skip if open PR exists for ci/<slug> head branch.
+            # Note: --fields head --output simple produces tab-separated output where
+            # the head column shows the branch name. Verify format on target system;
+            # fall back to: tea pulls list --state open --output json | jq -r '.[].head.label'
+            PR_EXISTS=$(tea pulls list --state open --fields head --output simple 2>/dev/null \
+              | grep -c "ci/$SLUG" || echo "0")
+            if [ "$PR_EXISTS" -gt "0" ]; then
+              echo "  SKIPPED: open PR for ci/$SLUG already exists" | tee -a /tmp/gfd-nightly-summary.md
+              continue
+            fi
+
+            # Re-check usage guard before each dispatch (Admin API only)
+            if [ -n "$ANTHROPIC_ADMIN_KEY" ]; then
+              NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+              HOUR_AGO=$(date -u -d '1 hour ago' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || \
+                         date -u -v-1H +%Y-%m-%dT%H:%M:%SZ)
+              RESPONSE=$(curl -s \
+                "https://api.anthropic.com/v1/organizations/usage_report/messages?starting_at=${HOUR_AGO}&ending_at=${NOW}&bucket_width=1h" \
+                --header "anthropic-version: 2023-06-01" \
+                --header "x-api-key: ${ANTHROPIC_ADMIN_KEY}")
+              OUTPUT_TOKENS=$(echo "$RESPONSE" | jq '[.data[].output_tokens] | add // 0' 2>/dev/null || echo "0")
+              if [ "$OUTPUT_TOKENS" -gt "$THRESHOLD" ]; then
+                echo "HARD STOP: usage threshold exceeded ($OUTPUT_TOKENS tokens). No more dispatches." | tee -a /tmp/gfd-nightly-summary.md
+                HARD_STOP=true
+                break
+              fi
+            fi
+
+            # Concurrency: if at limit, wait for one job to finish before spawning next
+            if [ "$JOB_COUNT" -ge "$MAX_CONCURRENT" ]; then
+              wait -n 2>/dev/null || wait  # wait -n waits for any single job; fallback: wait for all
+              JOB_COUNT=$((JOB_COUNT - 1))
+            fi
+
+            echo "  Dispatching $SLUG ($TYPE) [jobs running: $JOB_COUNT/$MAX_CONCURRENT]..." | tee -a /tmp/gfd-nightly-summary.md
+            process_one "$SLUG" "$TYPE" &
+            JOB_COUNT=$((JOB_COUNT + 1))
+          done
+
+          # Wait for all remaining background jobs to finish
+          wait
+          echo "All features processed." | tee -a /tmp/gfd-nightly-summary.md
+
+      - name: Upload nightly summary
+        if: always()
+        uses: https://github.com/christopherhx/gitea-upload-artifact@v4
+        with:
+          name: gfd-nightly-summary-${{ gitea.run_number }}
+          path: /tmp/gfd-nightly-summary.md
+          retention-days: 30
