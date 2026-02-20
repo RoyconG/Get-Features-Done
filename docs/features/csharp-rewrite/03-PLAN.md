@@ -12,7 +12,6 @@ files_modified:
   - get-features-done/workflows/new-feature.md
   - get-features-done/workflows/new-project.md
   - get-features-done/workflows/plan-feature.md
-  - get-features-done/workflows/progress.md
   - get-features-done/workflows/research-feature.md
   - get-features-done/workflows/status.md
   - agents/gfd-executor.md
@@ -103,12 +102,11 @@ Output: All workflows and agents use the C# tool. gfd-tools.cjs is deleted.
     get-features-done/workflows/new-feature.md
     get-features-done/workflows/new-project.md
     get-features-done/workflows/plan-feature.md
-    get-features-done/workflows/progress.md
     get-features-done/workflows/research-feature.md
     get-features-done/workflows/status.md
   </files>
   <action>
-For each of the 10 workflow files, make these systematic changes:
+For each of the 9 remaining workflow files (progress.md is deleted, not updated), make these systematic changes:
 
 **A. Replace tool invocation path:**
 - Old: `node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs`
@@ -155,7 +153,7 @@ Extract from output: planner_model (grep "^planner_model=" | cut -d= -f2-), comm
 4. **research-feature.md**: `init plan-feature`, `feature-update-status`, replace `gfd-tools.cjs commit` with plain `git add` + `git commit`
 5. **plan-feature.md**: `init plan-feature`, `feature-update-status`, replace `gfd-tools.cjs commit` with plain `git add` + `git commit`
 6. **execute-feature.md**: `init execute-feature`, `feature-plan-index`, `feature-update-status`, `list-features`, replace `gfd-tools.cjs commit` with plain `git add` + `git commit`
-7. **progress.md**: `init progress`, `progress bar`, `list-features`
+7. **progress.md**: DELETE this file — progress feature is being dropped
 8. **status.md**: `list-features`
 9. **map-codebase.md**: `init map-codebase`, replace `gfd-tools.cjs commit` with plain `git add` + `git commit`
 10. **convert-from-gsd.md**: `frontmatter merge`, `feature-update-status`, replace `gfd-tools.cjs commit` with plain `git add` + `git commit`
@@ -219,7 +217,7 @@ Also update line 25 to remove `feature_content` from the "Extract from init" lis
 
 **E. Specific agent reference counts:**
 
-1. **gfd-executor.md**: `init execute-feature --include feature` → drop `--include`, add separate file read; `config-get`; `feature add-decision`; `feature-update-status`; `feature add-blocker`; replace `commit` with plain `git add` + `git commit`
+1. **gfd-executor.md**: `init execute-feature --include feature` → drop `--include`, add separate file read; `config-get`; `feature-update-status`; remove `feature add-decision` refs (Claude uses Edit tool); remove `feature add-blocker` refs (Claude uses Edit tool); replace `commit` with plain `git add` + `git commit`
 2. **gfd-planner.md**: replace `commit` refs with plain git; `init plan-feature`; `history-digest`; `frontmatter validate`; `verify plan-structure`; `feature-update-status`
 3. **gfd-researcher.md**: `init plan-feature`; replace `commit` refs with plain git
 4. **gfd-verifier.md**: `verify artifacts`; `verify key-links`; `summary-extract`; `verify commits`

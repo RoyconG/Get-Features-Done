@@ -48,6 +48,9 @@ Rewrite gfd-tools.cjs as a C# dotnet console app using System.CommandLine 2.0, t
 
 - Drop `commit` command — workflows use plain `git add` + `git commit` instead
 - Drop `commit_docs` config option — docs are always committed
+- Drop `feature add-decision` / `feature add-blocker` — Claude uses Edit tool directly
+- Drop `frontmatter set` — `feature-update-status` covers the common case, Edit tool handles rest
+- Drop `progress bar` and `init progress` — progress feature being dropped; delete progress.md workflow
 
 ## Blockers
 

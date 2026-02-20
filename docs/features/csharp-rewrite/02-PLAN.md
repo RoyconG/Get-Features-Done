@@ -19,7 +19,7 @@ acceptance_criteria:
 
 must_haves:
   truths:
-    - "All 6 init subcommands produce correct key=value output"
+    - "All 5 init subcommands produce correct key=value output (init progress dropped)"
     - "verify plan-structure validates plan XML and frontmatter"
     - "verify commits checks git commit hashes"
     - "verify artifacts checks must_haves artifact paths exist (NEW command)"
@@ -54,7 +54,7 @@ must_haves:
 ---
 
 <objective>
-Implement the remaining commands: all 6 init subcommands, verify commands (including 3 NEW commands that are bugs in gfd-tools.cjs), history-digest, summary-extract, and frontmatter validate.
+Implement the remaining commands: all 5 init subcommands, verify commands (including 3 NEW commands that are bugs in gfd-tools.cjs), history-digest, summary-extract, and frontmatter validate.
 
 Purpose: Complete the C# tool with full command parity (plus bug fixes). After this plan, every actively-used command works.
 Output: All commands implemented and tested. Full parity with gfd-tools.cjs plus 3 new commands.
@@ -80,7 +80,7 @@ Output: All commands implemented and tested. Full parity with gfd-tools.cjs plus
     get-features-done/GfdTools/Program.cs
   </files>
   <action>
-Port all 6 init subcommands from gfd-tools.cjs. Each init command returns context for a specific workflow. All output via OutputService as key=value pairs.
+Port all 5 init subcommands from gfd-tools.cjs. Each init command returns context for a specific workflow. All output via OutputService as key=value pairs. Do NOT port `init progress` — the progress feature is being dropped.
 
 IMPORTANT: Drop the `--include` flag entirely. The JS version uses `--include feature` to embed file contents in output. The C# port uses key=value which cannot represent multiline values. Per RESEARCH.md recommendation: omit file contents from init output. Workflows will read files separately.
 
@@ -99,15 +99,11 @@ IMPORTANT: Drop the `--include` flag entirely. The JS version uses `--include fe
    - Output: `executor_model=`, `verifier_model=`, `parallelization=`, `verifier_enabled=`, `feature_found=`, `feature_dir=`, `slug=`, `feature_name=`, `feature_status=`, `plan_count=`, `incomplete_count=`, `config_exists=`
    - Plans and summaries as repeated keys: `plan=01-PLAN.md`, `plan=02-PLAN.md`, etc. `summary=01-SUMMARY.md`, etc. `incomplete_plan=01`, etc.
 
-5. **`init progress`** — port `cmdInitProgress` (lines 1191-1222):
-   - Output: `executor_model=`, `planner_model=`, `feature_count=`, `done_count=`, `in_progress_count=`, `new_count=`, `project_exists=`
-   - Per-feature: use repeated key pattern `feature_slug=`, `feature_name=`, `feature_status=` (grouped per feature).
-
-6. **`init map-codebase`** — port `cmdInitMapCodebase` (lines 1224-1243):
+5. **`init map-codebase`** — port `cmdInitMapCodebase` (lines 1224-1243):
    - Output: `mapper_model=`, `search_gitignored=`, `parallelization=`, `codebase_dir=`, `has_maps=`, `features_dir_exists=`, `codebase_dir_exists=`
    - Existing maps as repeated key: `existing_map=ARCHITECTURE.md`, etc.
 
-7. Update `Program.cs` to wire init subcommands. Replace any placeholder actions with real implementations.
+6. Update `Program.cs` to wire init subcommands. Replace any placeholder actions with real implementations.
   </action>
   <verify>
 Test each init command:
@@ -116,7 +112,7 @@ Test each init command:
 - `dotnet run --project get-features-done/GfdTools/ -- init new-project` — should detect existing code
 - `dotnet run --project get-features-done/GfdTools/ -- init map-codebase` — should show codebase dir status
   </verify>
-  <done>All 6 init subcommands produce correct key=value output matching gfd-tools.cjs behavior (minus --include file content embedding which is intentionally dropped).</done>
+  <done>All 5 init subcommands produce correct key=value output matching gfd-tools.cjs behavior (minus --include file content embedding which is intentionally dropped). `init progress` intentionally not ported — progress feature is being dropped.</done>
 </task>
 
 <task type="auto">
@@ -190,7 +186,7 @@ Test the commands:
 </verification>
 
 <success_criteria>
-- All 6 init subcommands work correctly
+- All 5 init subcommands work correctly (init progress dropped)
 - All verify subcommands work (including 2 new ones)
 - frontmatter validate works (new command)
 - history-digest and summary-extract work

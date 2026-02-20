@@ -16,12 +16,10 @@ files_modified:
   - get-features-done/GfdTools/Models/FeatureInfo.cs
   - get-features-done/GfdTools/Models/Config.cs
   - get-features-done/GfdTools/Commands/ConfigGetCommand.cs
-  - get-features-done/GfdTools/Commands/FeatureCommands.cs
   - get-features-done/GfdTools/Commands/FeatureUpdateStatusCommand.cs
   - get-features-done/GfdTools/Commands/FeaturePlanIndexCommand.cs
   - get-features-done/GfdTools/Commands/ListFeaturesCommand.cs
   - get-features-done/GfdTools/Commands/FrontmatterCommands.cs
-  - get-features-done/GfdTools/Commands/ProgressCommand.cs
 autonomous: false
 acceptance_criteria:
   - "C# console app builds and runs via `dotnet run`"
@@ -66,10 +64,10 @@ must_haves:
 ---
 
 <objective>
-Create the C# console app project with core services and the first batch of commands: config-get, feature-update-status, list-features, feature-plan-index, feature add-decision/add-blocker, frontmatter get/set/merge, and progress bar.
+Create the C# console app project with core services and the first batch of commands: config-get, feature-update-status, list-features, feature-plan-index, frontmatter get/merge.
 
 Purpose: Establish the full project structure, all shared services, and the simpler commands so Plan 02 can focus on the more complex init and verify commands.
-Output: A compilable C# project at get-features-done/GfdTools/ with ~11 working commands.
+Output: A compilable C# project at get-features-done/GfdTools/ with ~7 working commands.
 </objective>
 
 <execution_context>
@@ -162,12 +160,10 @@ Run `dotnet run --project get-features-done/GfdTools/ -- --help` — must show c
   <name>Task 3: Implement first batch of commands</name>
   <files>
     get-features-done/GfdTools/Commands/ConfigGetCommand.cs
-    get-features-done/GfdTools/Commands/FeatureCommands.cs
     get-features-done/GfdTools/Commands/FeatureUpdateStatusCommand.cs
     get-features-done/GfdTools/Commands/FeaturePlanIndexCommand.cs
     get-features-done/GfdTools/Commands/ListFeaturesCommand.cs
     get-features-done/GfdTools/Commands/FrontmatterCommands.cs
-    get-features-done/GfdTools/Commands/ProgressCommand.cs
     get-features-done/GfdTools/Program.cs
   </files>
   <action>
@@ -178,52 +174,40 @@ Implement each command by porting the corresponding JS function from gfd-tools.c
    - If key provided: output `key=value`. If no key: output all config fields as key=value pairs.
    - Do NOT output `commit_docs` — that config option is removed.
 
-2. **FeatureCommands.cs** — port `cmdFeatureAddDecision` and `cmdFeatureAddBlocker` (lines 822-890):
-   - `feature add-decision <slug> --summary <text> [--rationale <text>]`
-   - `feature add-blocker <slug> <text>`
-   - Both modify FEATURE.md by appending to Decisions/Blockers section
-   - Output: `added=true/false`
-
-3. **FeatureUpdateStatusCommand.cs** — port `cmdFeatureUpdateStatus` (lines 894-916):
+2. **FeatureUpdateStatusCommand.cs** — port `cmdFeatureUpdateStatus` (lines 894-916):
    - Arguments: `slug`, `status`
    - Validate status against allowed list
    - Output: `updated=true/false`, `old_status=`, `new_status=`
 
-4. **FeaturePlanIndexCommand.cs** — port `cmdFeaturePlanIndex` (lines 365-419):
+3. **FeaturePlanIndexCommand.cs** — port `cmdFeaturePlanIndex` (lines 365-419):
    - Argument: `slug`
    - Read each plan's frontmatter, determine completion status
    - Output: `slug=`, `plan_count=`, `complete_count=`, then for each plan: `plan_id=`, `plan_file=`, `plan_type=`, `plan_wave=`, `plan_status=`, `plan_autonomous=`. Group wave info.
 
-5. **ListFeaturesCommand.cs** — port `cmdListFeatures` (lines 341-363):
+4. **ListFeaturesCommand.cs** — port `cmdListFeatures` (lines 341-363):
    - Option: `--status` (string, optional filter)
    - Output: `count=`, `total=`, then per-feature: `feature_slug=`, `feature_name=`, `feature_status=`, `feature_owner=`, `feature_priority=`. Also `by_status_new=`, `by_status_planned=`, etc.
 
-6. **FrontmatterCommands.cs** — port `cmdFrontmatterGet`, `cmdFrontmatterSet`, `cmdFrontmatterMerge` (lines 544-585):
+5. **FrontmatterCommands.cs** — port `cmdFrontmatterGet` and `cmdFrontmatterMerge` (lines 544-585):
    - `frontmatter get <file> [--field <name>]`
-   - `frontmatter set <file> --field <name> --value <val>`
    - `frontmatter merge <file> --data <json>`
    - Output: field values as key=value pairs
+   - Do NOT port `frontmatter set` — `feature-update-status` handles the common case, Edit tool handles the rest.
    - Do NOT port `frontmatter validate` here — that goes in Plan 02 as a new command.
 
-7. **ProgressCommand.cs** — port `cmdProgressRender` for format=bar only (lines 940-945):
-   - `progress bar`
-   - Output: `bar=[...] N/M features (X%)`, `percent=`, `completed=`, `total=`
-   - Use Unicode block characters same as JS.
+6. Update `Program.cs` to wire all these commands with proper argument/option definitions. Remove placeholder actions for commands implemented here.
 
-8. Update `Program.cs` to wire all these commands with proper argument/option definitions. Remove placeholder actions for commands implemented here.
-
-9. Run `dotnet build` to verify. Test each command:
+7. Run `dotnet build` to verify. Test each command:
     - `dotnet run --project get-features-done/GfdTools/ -- list-features`
     - `dotnet run --project get-features-done/GfdTools/ -- config-get model_profile`
     - `dotnet run --project get-features-done/GfdTools/ -- frontmatter get docs/features/csharp-rewrite/FEATURE.md`
-    - `dotnet run --project get-features-done/GfdTools/ -- progress bar`
   </action>
   <verify>
-Run all four test commands above and confirm key=value output format. No JSON in stdout.
+Run all three test commands above and confirm key=value output format. No JSON in stdout.
 `dotnet run --project get-features-done/GfdTools/ -- list-features` should show csharp-rewrite feature.
 `dotnet run --project get-features-done/GfdTools/ -- frontmatter get docs/features/csharp-rewrite/FEATURE.md --field status` should output `status=planning`.
   </verify>
-  <done>All 7 command groups (config-get, feature add-decision/add-blocker, feature-update-status, feature-plan-index, list-features, frontmatter get/set/merge, progress bar) produce key=value output matching the behavior of gfd-tools.cjs equivalents. The `commit` command is intentionally not ported — workflows use plain `git add`/`git commit` instead.</done>
+  <done>All 5 command groups (config-get, feature-update-status, feature-plan-index, list-features, frontmatter get/merge) produce key=value output. Dropped commands: commit (plain git), feature add-decision/add-blocker (Claude Edit tool), frontmatter set (feature-update-status covers it), progress bar (dropped feature).</done>
 </task>
 
 </tasks>
@@ -234,13 +218,12 @@ Run all four test commands above and confirm key=value output format. No JSON in
 - `dotnet run --project get-features-done/GfdTools/ -- list-features` outputs key=value pairs (no JSON)
 - `dotnet run --project get-features-done/GfdTools/ -- frontmatter get docs/features/csharp-rewrite/FEATURE.md` returns frontmatter fields as key=value
 - `dotnet run --project get-features-done/GfdTools/ -- config-get` returns config values
-- `dotnet run --project get-features-done/GfdTools/ -- progress bar` returns progress bar
 </verification>
 
 <success_criteria>
 - C# project compiles targeting net10.0 with System.CommandLine 2.0.3
 - All services (Output, Config, Git, Frontmatter, Feature) are implemented
-- All 7 command groups produce correct key=value output (commit command dropped — use plain git)
+- All 5 command groups produce correct key=value output
 - Frontmatter parser uses index-based loop (not indexOf)
 - Git operations use ArgumentList (not string concatenation)
 </success_criteria>
