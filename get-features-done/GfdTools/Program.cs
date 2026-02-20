@@ -32,6 +32,12 @@ rootCommand.Add(HistoryDigestCommand.Create(cwd));
 // ─── summary-extract ─────────────────────────────────────────────────────────
 rootCommand.Add(SummaryExtractCommand.Create(cwd));
 
+// ─── auto-research ───────────────────────────────────────────────────────────
+rootCommand.Add(AutoResearchCommand.Create(cwd));
+
+// ─── auto-plan ───────────────────────────────────────────────────────────────
+rootCommand.Add(AutoPlanCommand.Create(cwd));
+
 // ─── resolve-model ───────────────────────────────────────────────────────────
 var resolveModelCmd = new Command("resolve-model") { Description = "Resolve model tier for an agent" };
 var resolveModelArg = new Argument<string>("agent-name") { Description = "Agent name (e.g. gfd-executor)" };
