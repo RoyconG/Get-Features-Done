@@ -1,7 +1,7 @@
 ---
 name: Auto Skills
 slug: auto-skills
-status: researched
+status: planned
 owner: Conroy
 assignees: []
 created: 2026-02-20
