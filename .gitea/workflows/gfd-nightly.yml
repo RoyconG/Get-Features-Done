@@ -222,10 +222,9 @@ jobs:
           wait
           echo "All features processed." | tee -a /tmp/gfd-nightly-summary.md
 
-      - name: Upload nightly summary
+      - name: Print nightly summary
         if: always()
-        uses: https://github.com/christopherhx/gitea-upload-artifact@v4
-        with:
-          name: gfd-nightly-summary-${{ gitea.run_number }}
-          path: /tmp/gfd-nightly-summary.md
-          retention-days: 30
+        run: |
+          echo "=========================================="
+          cat /tmp/gfd-nightly-summary.md 2>/dev/null || echo "No summary generated"
+          echo "=========================================="
