@@ -29,7 +29,7 @@ must_haves:
     - "summary-extract returns summary fields as key=value"
   artifacts:
     - path: "get-features-done/GfdTools/Commands/InitCommands.cs"
-      provides: "All 6 init subcommands"
+      provides: "All 5 init subcommands"
       min_lines: 150
     - path: "get-features-done/GfdTools/Commands/VerifyCommands.cs"
       provides: "verify plan-structure, commits, artifacts, key-links"
