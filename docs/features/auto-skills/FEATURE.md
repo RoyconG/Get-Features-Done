@@ -16,13 +16,13 @@ Add `auto-research` and `auto-plan` commands to the gfd-tools C# CLI that run th
 
 ## Acceptance Criteria
 
-- [ ] `gfd-tools auto-research <slug>` runs the research workflow headlessly and produces RESEARCH.md
-- [ ] `gfd-tools auto-plan <slug>` runs the planning workflow headlessly and produces PLAN.md files
-- [ ] Both commands abort cleanly on ambiguous decision points (e.g., feature already researched, plans already exist, checker fails 3x) without making destructive choices
-- [ ] On abort, partial progress is discarded but an AUTO-RUN.md status file is committed explaining what happened
-- [ ] On success, normal artifacts are committed plus an AUTO-RUN.md summarizing the run (duration, what was produced)
-- [ ] Max-turns is configurable (with a sensible default) to prevent runaway token spend
-- [ ] No `AskUserQuestion` calls in auto workflows — all interaction stripped, decisions logged to status file
+- [x] `gfd-tools auto-research <slug>` runs the research workflow headlessly and produces RESEARCH.md
+- [x] `gfd-tools auto-plan <slug>` runs the planning workflow headlessly and produces PLAN.md files
+- [x] Both commands abort cleanly on ambiguous decision points (e.g., feature already researched, plans already exist, checker fails 3x) without making destructive choices
+- [x] On abort, partial progress is discarded but an AUTO-RUN.md status file is committed explaining what happened
+- [x] On success, normal artifacts are committed plus an AUTO-RUN.md summarizing the run (duration, what was produced)
+- [x] Max-turns is configurable (with a sensible default) to prevent runaway token spend
+- [x] No `AskUserQuestion` calls in auto workflows — all interaction stripped, decisions logged to status file
 
 ## Tasks
 
