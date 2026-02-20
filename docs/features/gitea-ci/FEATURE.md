@@ -1,7 +1,7 @@
 ---
 name: Gitea CI
 slug: gitea-ci
-status: in-progress
+status: done
 owner: Conroy
 assignees: []
 created: 2026-02-20
@@ -55,6 +55,13 @@ Gitea Actions workflows that run overnight on a cron schedule to autonomously pr
 - None
 
 ## Decisions
+
+### Plan 02 — Orchestrator workflow (2026-02-20)
+- **Inline bash instead of workflow_call dispatch:** Gitea Actions does not support dynamic workflow dispatch at runtime — gfd-tools runs inline in a bash loop rather than via workflow_call
+- **Background jobs for concurrency:** `process_one "$SLUG" "$TYPE" &` with `wait -n` drain; GFD_MAX_CONCURRENT variable (default 1) controls parallelism
+- **Dual usage guard:** Initial check before loop + per-feature re-check prevents both pre-run and mid-run overage
+- **GITEA_OUTPUT (not GITHUB_OUTPUT):** Gitea Actions equivalent for step output passing
+- **git ls-remote --exit-code for branch existence:** Exits non-zero if branch absent — no extra parsing needed
 
 ### Plan 01 — Sub-workflow execution (2026-02-20)
 - **actions/checkout with token:** Used `token: ${{ secrets.GITEA_TOKEN }}` so git credential helper is configured automatically, preventing auth errors on `git push` (Gitea Pitfall 6)
