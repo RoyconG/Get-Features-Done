@@ -1,0 +1,72 @@
+name: GFD Process Feature
+
+on:
+  workflow_call:
+    inputs:
+      slug:
+        required: true
+        type: string
+      type:
+        required: true
+        type: string
+
+jobs:
+  process:
+    runs-on: claude
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITEA_TOKEN }}
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup gfd-tools
+        run: chmod +x get-features-done/bin/gfd-tools
+
+      - name: Setup tea auth
+        run: |
+          tea login add \
+            --non-interactive \
+            --url "${{ vars.GITEA_URL }}" \
+            --token "${{ secrets.GITEA_TOKEN }}" \
+            --name ci
+
+      - name: Configure git
+        run: |
+          git config user.name "GFD CI"
+          git config user.email "ci@gitea.local"
+
+      - name: Create feature branch
+        run: git checkout -B "ci/${{ inputs.slug }}"
+
+      - name: Run GFD auto operation
+        id: run_gfd
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          set -e
+          if [ "${{ inputs.type }}" = "research" ]; then
+            ./get-features-done/bin/gfd-tools auto-research "${{ inputs.slug }}"
+          else
+            ./get-features-done/bin/gfd-tools auto-plan "${{ inputs.slug }}"
+          fi
+
+      - name: Commit results
+        run: |
+          git add -A
+          git diff --cached --quiet || git commit -m "ci(${{ inputs.slug }}): auto-${{ inputs.type }} results"
+
+      - name: Push branch
+        run: git push origin "ci/${{ inputs.slug }}"
+
+      - name: Create PR
+        run: |
+          tea pulls create \
+            --title "ci(${{ inputs.slug }}): auto-${{ inputs.type }}" \
+            --base main \
+            --head "ci/${{ inputs.slug }}" \
+            --description "Automated ${{ inputs.type }} run for feature: ${{ inputs.slug }}"
