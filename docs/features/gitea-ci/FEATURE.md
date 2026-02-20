@@ -1,7 +1,7 @@
 ---
 name: Gitea CI
 slug: gitea-ci
-status: planned
+status: in-progress
 owner: Conroy
 assignees: []
 created: 2026-02-20
@@ -56,7 +56,13 @@ Gitea Actions workflows that run overnight on a cron schedule to autonomously pr
 
 ## Decisions
 
-[Key decisions made during planning and execution of this feature.]
+### Plan 01 — Sub-workflow execution (2026-02-20)
+- **actions/checkout with token:** Used `token: ${{ secrets.GITEA_TOKEN }}` so git credential helper is configured automatically, preventing auth errors on `git push` (Gitea Pitfall 6)
+- **tea login in-workflow:** Run `tea login add --non-interactive` as a workflow step rather than pre-configuring on the runner, making the workflow portable across runner instances
+- **set -e in run_gfd step:** Ensures non-zero gfd-tools exit propagates as step failure; job failure is the orchestrator's signal that this feature failed
+- **git diff --cached --quiet || git commit:** Avoids failing if gfd-tools already committed results; idempotent commit step
+- **git checkout -B:** Capital B for idempotent branch creation (creates or resets existing branch)
+- **No continue-on-error:** Unsupported in Gitea Actions — job failure is intentionally the failure signal
 
 ## Blockers
 
