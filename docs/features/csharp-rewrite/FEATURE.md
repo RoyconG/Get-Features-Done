@@ -1,7 +1,7 @@
 ---
 name: C# Rewrite
 slug: csharp-rewrite
-status: researched
+status: planned
 owner: Conroy
 assignees: []
 created: 2026-02-20
