@@ -16,16 +16,16 @@ Gitea Actions workflows that run overnight on a cron schedule to autonomously pr
 
 ## Acceptance Criteria
 
-- [ ] Orchestrator workflow runs on a cron schedule (configurable, default ~3 AM) and via manual `workflow_dispatch` with optional slug + type (research/plan) parameters
-- [ ] Orchestrator auto-detects eligible features: `discussed` → research, `researched` → plan
-- [ ] Sub-workflows run `gfd-tools auto-research` or `gfd-tools auto-plan` for each dispatched feature
-- [ ] Configurable max concurrent sub-workflows (default 1)
-- [ ] Each feature's results are committed to a per-feature branch (`ci/<slug>`) with an auto-created PR
-- [ ] Features with existing unmerged branches/PRs are skipped
-- [ ] Orchestrator monitors Claude API usage and hard-stops (no new dispatches) when threshold is hit
-- [ ] Sub-workflow failures don't block other features — orchestrator continues with the next
-- [ ] Workflow setup step installs .NET 10 and gfd-tools on the `claude` runner
-- [ ] Nightly run summary uploaded as a Gitea Actions workflow artifact
+- [x] Orchestrator workflow runs on a cron schedule (configurable, default ~3 AM) and via manual `workflow_dispatch` with optional slug + type (research/plan) parameters
+- [x] Orchestrator auto-detects eligible features: `discussed` → research, `researched` → plan
+- [x] Sub-workflows run `gfd-tools auto-research` or `gfd-tools auto-plan` for each dispatched feature
+- [x] Configurable max concurrent sub-workflows (default 1)
+- [x] Each feature's results are committed to a per-feature branch (`ci/<slug>`) with an auto-created PR
+- [x] Features with existing unmerged branches/PRs are skipped
+- [x] Orchestrator monitors Claude API usage and hard-stops (no new dispatches) when threshold is hit
+- [x] Sub-workflow failures don't block other features — orchestrator continues with the next
+- [x] Workflow setup step installs .NET 10 and gfd-tools on the `claude` runner
+- [x] Nightly run summary uploaded as a Gitea Actions workflow artifact
 
 ## Tasks
 
@@ -77,4 +77,4 @@ Gitea Actions workflows that run overnight on a cron schedule to autonomously pr
 
 ---
 *Created: 2026-02-20*
-*Last updated: 2026-02-20*
+*Last updated: 2026-02-20 (execution complete)*
