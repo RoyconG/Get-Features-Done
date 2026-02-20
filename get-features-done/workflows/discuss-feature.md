@@ -94,7 +94,7 @@ Exit.
 ## 2. Run Init
 
 ```bash
-INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init plan-feature "${SLUG}")
+INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init plan-feature "${SLUG}")
 ```
 
 Extract from key=value output: `feature_found`, `feature_dir`, `feature_name`, `feature_status` (grep "^key=" | cut -d= -f2-).
@@ -144,7 +144,7 @@ Exit.
 ## 4. Transition to Discussing
 
 ```bash
-dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "discussing"
+/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "discussing"
 ```
 
 **Display stage banner:**
@@ -359,7 +359,7 @@ Keep the `## Decisions` and `## Blockers` sections as-is.
 ## 10. Transition to Discussed
 
 ```bash
-dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "discussed"
+/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "discussed"
 ```
 
 ## 11. Commit

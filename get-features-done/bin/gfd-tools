@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Wrapper script for GFD Tools C# CLI
+# Resolves symlinks to avoid .NET's symlink path bug with dotnet run --project
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")/GfdTools"
+exec dotnet run --project "$PROJECT_DIR" -- "$@"

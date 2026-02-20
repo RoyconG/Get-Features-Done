@@ -32,7 +32,7 @@ Exit.
 Load all context in one call:
 
 ```bash
-INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init execute-feature "${SLUG}")
+INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init execute-feature "${SLUG}")
 ```
 
 Extract values from key=value output:
@@ -87,7 +87,7 @@ If "No": Exit and suggest `/gfd:status`.
 Update FEATURE.md status to "in-progress":
 
 ```bash
-dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "in-progress"
+/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "in-progress"
 ```
 </step>
 
@@ -95,7 +95,7 @@ dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature
 Load plan inventory with wave grouping:
 
 ```bash
-PLAN_INDEX=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-plan-index "${SLUG}")
+PLAN_INDEX=$(/home/conroy/.claude/get-features-done/bin/gfd-tools feature-plan-index "${SLUG}")
 ```
 
 Extract from key=value output: `slug`, repeated `plan=` lines (each with id, wave, autonomous, objective, files_modified, task_count, has_summary), `incomplete=` lines, `has_checkpoints`.
@@ -376,7 +376,7 @@ Mark feature as done:
 
 ```bash
 # Update FEATURE.md status
-dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "done"
+/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "done"
 
 # Check off acceptance criteria (if all verified)
 # Update the Last updated footer
@@ -403,7 +403,7 @@ git add "${feature_dir}/FEATURE.md" "${feature_dir}/VERIFICATION.md" && git diff
 Check remaining features by scanning `docs/features/` for FEATURE.md files with status not "done":
 
 ```bash
-REMAINING=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- list-features --status not-done)
+REMAINING=$(/home/conroy/.claude/get-features-done/bin/gfd-tools list-features --status not-done)
 ```
 
 Extract from key=value output: repeated `feature=` lines with name, status, slug, priority fields.

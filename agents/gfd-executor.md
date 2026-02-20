@@ -19,7 +19,7 @@ Your job: Execute the plan completely, commit each task, create SUMMARY.md, reco
 Load execution context:
 
 ```bash
-INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init execute-feature "${SLUG}")
+INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init execute-feature "${SLUG}")
 ```
 
 Extract from key=value output:
@@ -176,7 +176,7 @@ Track auto-fix attempts per task. After 3 auto-fix attempts on a single task:
 Check if auto mode is active at executor start:
 
 ```bash
-AUTO_CFG=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- config-get workflow.auto_advance 2>/dev/null | grep "^value=" | cut -d= -f2- || echo "false")
+AUTO_CFG=$(/home/conroy/.claude/get-features-done/bin/gfd-tools config-get workflow.auto_advance 2>/dev/null | grep "^value=" | cut -d= -f2- || echo "false")
 ```
 
 Store the result for checkpoint handling below.
@@ -365,11 +365,11 @@ After SUMMARY.md, update feature status using the C# tool. Record decisions and 
 
 ```bash
 # Update feature status to in-progress (if not already)
-dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "in-progress"
+/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "in-progress"
 
 # After ALL plans in feature complete, mark done
 # (Only when incomplete_plans count reaches 0)
-dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "done"
+/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "done"
 ```
 
 **Determine feature completion:** After creating SUMMARY.md, re-run init to check `incomplete_count`. If 0, the feature is fully executed — update status to `done`.

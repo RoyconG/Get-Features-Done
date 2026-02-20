@@ -27,7 +27,7 @@ Exit.
 ## 2. Run Init
 
 ```bash
-INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init plan-feature "${SLUG}")
+INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init plan-feature "${SLUG}")
 ```
 
 Extract from key=value output: `feature_found`, `feature_dir`, `feature_name`, `feature_status`, `researcher_model`, `has_research` (grep "^key=" | cut -d= -f2-).
@@ -88,7 +88,7 @@ Exit.
 ## 4. Transition to Researching
 
 ```bash
-dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "researching"
+/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "researching"
 ```
 
 **Display stage banner:**
@@ -171,7 +171,7 @@ Task(
 ## 7. Transition to Researched
 
 ```bash
-dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "researched"
+/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "researched"
 ```
 
 ## 8. Commit

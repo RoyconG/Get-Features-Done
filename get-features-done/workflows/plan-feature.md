@@ -31,7 +31,7 @@ Exit.
 Load all context in one call:
 
 ```bash
-INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init plan-feature "${SLUG}")
+INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init plan-feature "${SLUG}")
 ```
 
 Extract from key=value output:
@@ -127,7 +127,7 @@ If "Replan from scratch": Confirm and delete existing PLAN.md files.
 Update FEATURE.md status field from `researched` → `planning`:
 
 ```bash
-dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "planning"
+/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "planning"
 ```
 
 ## 5. Load Codebase Context
@@ -409,7 +409,7 @@ Update FEATURE.md status field from `planning` → `planned` and populate the Ta
 
 ```bash
 # Update status
-dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "planned"
+/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "planned"
 ```
 
 Update the Tasks section in FEATURE.md to list the created plans:

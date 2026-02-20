@@ -15,7 +15,7 @@ Read all files referenced by the invoking prompt's execution_context before star
 **MANDATORY FIRST STEP — Execute these checks before ANY user interaction:**
 
 ```bash
-INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init new-project)
+INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init new-project)
 ```
 
 Extract from key=value output: `project_exists`, `has_codebase_map`, `has_existing_code`, `is_brownfield`, `needs_codebase_map`, `has_git`, `planner_model`, `researcher_model`, `mapper_model` (grep "^key=" | cut -d= -f2-).

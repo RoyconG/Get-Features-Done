@@ -836,7 +836,7 @@ git add docs/features/$SLUG/*-PLAN.md && git diff --cached --quiet || git commit
 Load feature context:
 
 ```bash
-INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init plan-feature "${SLUG}")
+INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init plan-feature "${SLUG}")
 ```
 
 Extract from key=value output: `planner_model`, `researcher_model`, `checker_model`, `research_enabled`, `feature_dir`, `slug`, `feature_name`, `has_research`, `feature_status` (grep "^key=" | cut -d= -f2-).
@@ -887,7 +887,7 @@ Apply discovery level protocol (see discovery_levels section).
 
 **Step 1 — Generate digest index:**
 ```bash
-dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- history-digest
+/home/conroy/.claude/get-features-done/bin/gfd-tools history-digest
 ```
 
 **Step 2 — Select relevant features (typically 2-4):**
@@ -1003,7 +1003,7 @@ Include all frontmatter fields.
 Validate each created PLAN.md using gfd-tools:
 
 ```bash
-VALID=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- frontmatter validate "$PLAN_PATH" --schema plan)
+VALID=$(/home/conroy/.claude/get-features-done/bin/gfd-tools frontmatter validate "$PLAN_PATH" --schema plan)
 ```
 
 Extract from key=value output: `valid` (grep "^valid=" | cut -d= -f2-), `missing` (repeated `missing=` lines).
@@ -1016,7 +1016,7 @@ Required plan frontmatter fields:
 Also validate plan structure:
 
 ```bash
-STRUCTURE=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- verify plan-structure "$PLAN_PATH")
+STRUCTURE=$(/home/conroy/.claude/get-features-done/bin/gfd-tools verify plan-structure "$PLAN_PATH")
 ```
 
 Extract from key=value output: `valid` (grep "^valid=" | cut -d= -f2-), `task_count`, repeated `error=` and `warning=` lines.
@@ -1031,13 +1031,13 @@ Extract from key=value output: `valid` (grep "^valid=" | cut -d= -f2-), `task_co
 Update FEATURE.md status to reflect planning in progress:
 
 ```bash
-dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "planning"
+/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "planning"
 ```
 
 After plans are written and validated, update to planned:
 
 ```bash
-dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "planned"
+/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "planned"
 ```
 </step>
 

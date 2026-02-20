@@ -452,7 +452,7 @@ for (const m of mapping) {
     const filePath = path.join(featureDir, file);
     try {
       execSync(
-        \`dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- frontmatter merge \"\${filePath}\" --data '\${JSON.stringify({feature: m.slug})}'\`,
+        \`/home/conroy/.claude/get-features-done/bin/gfd-tools frontmatter merge \"\${filePath}\" --data '\${JSON.stringify({feature: m.slug})}'\`,
         {stdio: 'inherit'}
       );
       console.log('Updated frontmatter: ' + filePath);

@@ -58,7 +58,7 @@ Exit.
 ## 2. Run Init
 
 ```bash
-INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init new-feature "${SLUG}")
+INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init new-feature "${SLUG}")
 ```
 
 Extract from key=value output: `project_exists`, `feature_exists`, `feature_dir`, `planner_model` (grep "^key=" | cut -d= -f2-).

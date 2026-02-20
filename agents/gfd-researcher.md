@@ -560,7 +560,7 @@ Determine mode based on what orchestrator provides:
 
 **Feature mode setup:**
 ```bash
-INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init plan-feature "${SLUG}")
+INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init plan-feature "${SLUG}")
 ```
 
 Extract from key=value output: `feature_dir`, `slug`, `feature_name` (grep "^key=" | cut -d= -f2-).
