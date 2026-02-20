@@ -15,6 +15,10 @@ files_modified:
   - get-features-done/workflows/progress.md
   - get-features-done/workflows/research-feature.md
   - get-features-done/workflows/status.md
+  - agents/gfd-executor.md
+  - agents/gfd-planner.md
+  - agents/gfd-researcher.md
+  - agents/gfd-verifier.md
 autonomous: true
 acceptance_criteria:
   - "All GFD workflow and agent files updated to invoke C# tool and parse key=value output"
@@ -23,10 +27,11 @@ acceptance_criteria:
 must_haves:
   truths:
     - "Every workflow file invokes dotnet run --project instead of node gfd-tools.cjs"
-    - "Every workflow parses key=value output instead of JSON"
-    - "No workflow references --raw or --include flags"
+    - "Every agent file invokes dotnet run --project instead of node gfd-tools.cjs"
+    - "Every workflow and agent parses key=value output instead of JSON"
+    - "No workflow or agent references --raw or --include flags"
     - "gfd-tools.cjs no longer exists"
-    - "All workflows function correctly with the C# tool"
+    - "All workflows and agents function correctly with the C# tool"
   artifacts:
     - path: "get-features-done/workflows/execute-feature.md"
       provides: "Updated execute-feature workflow"
@@ -37,6 +42,18 @@ must_haves:
     - path: "get-features-done/workflows/new-project.md"
       provides: "Updated new-project workflow"
       contains: "dotnet run --project"
+    - path: "agents/gfd-executor.md"
+      provides: "Updated executor agent"
+      contains: "dotnet run --project"
+    - path: "agents/gfd-planner.md"
+      provides: "Updated planner agent"
+      contains: "dotnet run --project"
+    - path: "agents/gfd-researcher.md"
+      provides: "Updated researcher agent"
+      contains: "dotnet run --project"
+    - path: "agents/gfd-verifier.md"
+      provides: "Updated verifier agent"
+      contains: "dotnet run --project"
   key_links:
     - from: "get-features-done/workflows/execute-feature.md"
       to: "get-features-done/GfdTools/Program.cs"
@@ -46,13 +63,21 @@ must_haves:
       to: "get-features-done/GfdTools/Program.cs"
       via: "dotnet run --project invocation"
       pattern: "dotnet run --project"
+    - from: "agents/gfd-executor.md"
+      to: "get-features-done/GfdTools/Program.cs"
+      via: "dotnet run --project invocation"
+      pattern: "dotnet run --project"
+    - from: "agents/gfd-planner.md"
+      to: "get-features-done/GfdTools/Program.cs"
+      via: "dotnet run --project invocation"
+      pattern: "dotnet run --project"
 ---
 
 <objective>
-Update all 10 GFD workflow files to invoke the C# tool instead of gfd-tools.cjs, parse key=value output instead of JSON, and delete gfd-tools.cjs.
+Update all 10 GFD workflow files and 4 agent files to invoke the C# tool instead of gfd-tools.cjs, parse key=value output instead of JSON, and delete gfd-tools.cjs.
 
 Purpose: Complete the migration by switching all consumers to the new tool and removing the old one.
-Output: All workflows use the C# tool. gfd-tools.cjs is deleted.
+Output: All workflows and agents use the C# tool. gfd-tools.cjs is deleted.
 </objective>
 
 <execution_context>
@@ -147,7 +172,64 @@ Grep all workflow files for `--include` — must return 0 matches.
 </task>
 
 <task type="auto">
-  <name>Task 2: Delete gfd-tools.cjs and verify clean state</name>
+  <name>Task 2: Update all agent files to use C# tool</name>
+  <files>
+    agents/gfd-executor.md
+    agents/gfd-planner.md
+    agents/gfd-researcher.md
+    agents/gfd-verifier.md
+  </files>
+  <action>
+For each of the 4 agent files, apply the same substitution patterns as the workflow files:
+
+**A. Replace tool invocation path (all 4 files):**
+- Old: `node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs`
+- New: `dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ --`
+
+**B. Replace JSON parsing with key=value extraction (all 4 files):**
+- Where agents say "Extract from init JSON:" or "Parse JSON for:", replace with key=value extraction using `grep "^key=" | cut -d= -f2-`.
+
+**C. Remove --include flag and add separate file reads:**
+
+CRITICAL — **agents/gfd-executor.md line 22** currently reads:
+```
+INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init execute-feature "${SLUG}" --include feature)
+```
+The `--include feature` flag causes the init command to embed `feature_content` in the output. The executor's line 25 then extracts `feature_content` from the init result.
+
+Replace with:
+```
+INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init execute-feature "${SLUG}")
+```
+And immediately after, add a separate read instruction:
+```
+# Feature content no longer embedded in init output — read separately:
+cat docs/features/$SLUG/FEATURE.md
+```
+Also update line 25 to remove `feature_content` from the "Extract from init" list, since it is now obtained via the separate file read above.
+
+**D. Remove --raw flag usage (if any).**
+
+**E. Specific agent reference counts:**
+
+1. **gfd-executor.md** (8 refs): `init execute-feature --include feature` (line 22), `config-get` (line 169), `feature add-decision` (line 359), `feature-update-status` (lines 366, 370), `feature add-blocker` (line 377), `commit` (line 383)
+2. **gfd-planner.md** (8 refs): `commit` (line 800), `init plan-feature` (line 839), `history-digest` (line 890), `frontmatter validate` (line 1006), `verify plan-structure` (line 1019), `feature-update-status` (lines 1034, 1040), `commit` (line 1046)
+3. **gfd-researcher.md** (3 refs): `init plan-feature` (line 563), `commit` (lines 641, 646)
+4. **gfd-verifier.md** (4 refs): `verify artifacts` (line 133), `verify key-links` (line 182), `summary-extract` (line 236), `verify commits` (line 241)
+
+Read each file, find all occurrences of `gfd-tools.cjs`, update invocation and parsing patterns. The agent files are at `agents/` in the repo root (symlinked from `~/.claude/agents/`).
+  </action>
+  <verify>
+`grep -r "gfd-tools.cjs" agents/` — must return 0 results.
+`grep -r "dotnet run --project" agents/` — must return 22+ matches.
+`grep -r "\-\-include" agents/` — must return 0 results (for gfd-tools flags specifically).
+Confirm agents/gfd-executor.md no longer references `--include feature` and has a separate `cat docs/features/$SLUG/FEATURE.md` instruction after the init call.
+  </verify>
+  <done>All 4 agent files updated. Zero references to gfd-tools.cjs remain. gfd-executor.md reads FEATURE.md separately instead of using --include. All invocations use dotnet run --project with key=value extraction.</done>
+</task>
+
+<task type="auto">
+  <name>Task 3: Delete gfd-tools.cjs and verify clean state</name>
   <files>
     get-features-done/bin/gfd-tools.cjs
   </files>
@@ -162,33 +244,38 @@ Grep all workflow files for `--include` — must return 0 matches.
    - `dotnet run --project get-features-done/GfdTools/ -- commit "test" --files /dev/null` — test commit flow (will report nothing to commit, which is correct)
    - `dotnet run --project get-features-done/GfdTools/ -- frontmatter get docs/features/csharp-rewrite/FEATURE.md` — must work
 
-3. Grep entire get-features-done/ directory for any remaining references to `gfd-tools.cjs` (excluding git history). Any remaining references are bugs — fix them.
+3. Grep BOTH `get-features-done/` AND `agents/` for any remaining references to `gfd-tools.cjs` (excluding git history). Any remaining references are bugs — fix them:
+   - `grep -r "gfd-tools.cjs" get-features-done/ agents/` — must return 0 results.
 
 4. Check if `get-features-done/bin/` directory is now empty. If so, consider removing it (or leave it if other files exist there).
   </action>
   <verify>
 `ls get-features-done/bin/gfd-tools.cjs` — must fail (file deleted).
-`grep -r "gfd-tools.cjs" get-features-done/` — must return 0 results.
+`grep -r "gfd-tools.cjs" get-features-done/ agents/` — must return 0 results.
 `dotnet run --project get-features-done/GfdTools/ -- init plan-feature csharp-rewrite` — must succeed with key=value output.
   </verify>
-  <done>gfd-tools.cjs is deleted. No references to it remain in workflows or any other file. The C# tool is the sole CLI tool for GFD operations.</done>
+  <done>gfd-tools.cjs is deleted. No references to it remain in workflows, agents, or any other file. The C# tool is the sole CLI tool for GFD operations.</done>
 </task>
 
 </tasks>
 
 <verification>
 - Zero occurrences of `gfd-tools.cjs` in any workflow or agent file
-- Zero occurrences of `--raw` in workflow files
-- Zero occurrences of `--include` in workflow files
+- Zero occurrences of `--raw` in workflow or agent files
+- Zero occurrences of `--include` in workflow or agent files (for gfd-tools flags)
 - All workflow files contain `dotnet run --project` invocations
+- All agent files contain `dotnet run --project` invocations
+- gfd-executor.md reads FEATURE.md separately after init (no --include feature)
 - gfd-tools.cjs does not exist on disk
-- C# tool handles all commands that workflows invoke
+- C# tool handles all commands that workflows and agents invoke
 </verification>
 
 <success_criteria>
 - All 10 workflow files use `dotnet run --project` with key=value parsing
+- All 4 agent files use `dotnet run --project` with key=value parsing
+- gfd-executor.md obtains feature content via separate file read, not --include
 - gfd-tools.cjs is deleted
-- No broken references remain
+- No broken references remain in workflows or agents
 - End-to-end: a workflow can invoke the C# tool and parse its output
 </success_criteria>
 
