@@ -85,6 +85,58 @@ public static class FrontmatterCommands
         });
         cmd.Add(mergeCmd);
 
+        // frontmatter validate <file> --schema <name>
+        var validateCmd = new Command("validate") { Description = "Validate frontmatter fields against a schema" };
+        var validateFileArg = new Argument<string>("file") { Description = "Path to markdown file" };
+        var validateSchemaOpt = new Option<string>("--schema") { Description = "Schema name (e.g. plan)", Required = true };
+        validateCmd.Add(validateFileArg);
+        validateCmd.Add(validateSchemaOpt);
+        validateCmd.SetAction(pr =>
+        {
+            var filePath = pr.GetValue(validateFileArg)!;
+            var schema = pr.GetValue(validateSchemaOpt)!;
+
+            var fullPath = Path.IsPathRooted(filePath) ? filePath : Path.Combine(cwd, filePath);
+            if (!File.Exists(fullPath))
+                return Output.Fail($"File not found: {filePath}");
+
+            var content = File.ReadAllText(fullPath);
+            var fm = FrontmatterService.Extract(content);
+
+            // Schema definitions
+            var schemaFields = schema switch
+            {
+                "plan" => new[] { "feature", "plan", "type", "wave", "depends_on", "files_modified", "autonomous" },
+                "summary" => new[] { "feature", "plan", "subsystem", "tags", "provides" },
+                "feature" => new[] { "name", "slug", "status" },
+                _ => Array.Empty<string>()
+            };
+
+            if (schemaFields.Length == 0)
+            {
+                Console.Error.WriteLine($"Unknown schema: {schema}. Available: plan, summary, feature");
+                return 1;
+            }
+
+            var missing = new List<string>();
+            var present = new List<string>();
+
+            foreach (var field in schemaFields)
+            {
+                if (fm.ContainsKey(field))
+                    present.Add(field);
+                else
+                    missing.Add(field);
+            }
+
+            Output.WriteBool("valid", missing.Count == 0);
+            Output.Write("schema", schema);
+            Output.WriteList("missing", missing);
+            Output.WriteList("present", present);
+            return 0;
+        });
+        cmd.Add(validateCmd);
+
         return cmd;
     }
 
