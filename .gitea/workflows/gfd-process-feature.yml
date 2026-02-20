@@ -35,7 +35,6 @@ jobs:
       - name: Setup tea auth
         run: |
           tea login add \
-            --non-interactive \
             --url "${{ vars.GITEA_URL }}" \
             --token "${{ secrets.GITEA_TOKEN }}" \
             --name ci
