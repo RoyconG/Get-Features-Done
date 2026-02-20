@@ -34,7 +34,10 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Setup gfd-tools
-        run: chmod +x get-features-done/bin/gfd-tools
+        run: |
+          chmod +x get-features-done/bin/gfd-tools
+          echo "dotnet version: $(dotnet --version)"
+          echo "gfd-tools test: $(./get-features-done/bin/gfd-tools --help 2>&1 | head -3 || echo 'FAILED')"
 
       - name: Initialize summary
         run: |
@@ -45,6 +48,7 @@ jobs:
       - name: Discover features
         id: discover
         run: |
+          set -x  # Debug: trace all commands
           # Manual dispatch with specific slug — override auto-detect
           if [ -n "${{ inputs.slug }}" ]; then
             SLUG="${{ inputs.slug }}"
@@ -104,6 +108,11 @@ jobs:
           fi
 
           echo "stop=$STOP" >> "$GITEA_OUTPUT"
+
+      - name: Install tea CLI
+        run: |
+          curl -sL https://dl.gitea.com/tea/0.10.1/tea-0.10.1-linux-amd64 -o /usr/local/bin/tea
+          chmod +x /usr/local/bin/tea
 
       - name: Setup tea auth
         run: |

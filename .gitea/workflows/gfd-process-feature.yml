@@ -27,6 +27,11 @@ jobs:
       - name: Setup gfd-tools
         run: chmod +x get-features-done/bin/gfd-tools
 
+      - name: Install tea CLI
+        run: |
+          curl -sL https://dl.gitea.com/tea/0.10.1/tea-0.10.1-linux-amd64 -o /usr/local/bin/tea
+          chmod +x /usr/local/bin/tea
+
       - name: Setup tea auth
         run: |
           tea login add \
