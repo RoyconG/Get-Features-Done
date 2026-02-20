@@ -149,16 +149,23 @@ Extract from output: planner_model (grep "^planner_model=" | cut -d= -f2-), comm
 
 **E. Specific workflow updates:**
 
-1. **new-project.md** (2 refs): `init new-project`, `commit`
-2. **new-feature.md** (2 refs): `init new-feature`, `commit`
-3. **discuss-feature.md** (4 refs): `init plan-feature` (used for discuss too), `feature-update-status`, `commit`
-4. **research-feature.md** (4 refs): `init plan-feature`, `feature-update-status`, `commit`
-5. **plan-feature.md** (3 refs): `init plan-feature`, `feature-update-status`, `commit`
-6. **execute-feature.md** (5 refs): `init execute-feature`, `feature-plan-index`, `feature-update-status`, `list-features`, `commit`
-7. **progress.md** (3 refs): `init progress`, `progress bar`, `list-features`
-8. **status.md** (1 ref): `list-features`
-9. **map-codebase.md** (2 refs): `init map-codebase`, `commit`
-10. **convert-from-gsd.md** (4 refs): `frontmatter merge`, `feature-update-status`, `commit`
+1. **new-project.md**: `init new-project`, replace `gfd-tools.cjs commit` with plain `git add` + `git commit`
+2. **new-feature.md**: `init new-feature`, replace `gfd-tools.cjs commit` with plain `git add` + `git commit`
+3. **discuss-feature.md**: `init plan-feature` (used for discuss too), `feature-update-status`, replace `gfd-tools.cjs commit` with plain `git add` + `git commit`
+4. **research-feature.md**: `init plan-feature`, `feature-update-status`, replace `gfd-tools.cjs commit` with plain `git add` + `git commit`
+5. **plan-feature.md**: `init plan-feature`, `feature-update-status`, replace `gfd-tools.cjs commit` with plain `git add` + `git commit`
+6. **execute-feature.md**: `init execute-feature`, `feature-plan-index`, `feature-update-status`, `list-features`, replace `gfd-tools.cjs commit` with plain `git add` + `git commit`
+7. **progress.md**: `init progress`, `progress bar`, `list-features`
+8. **status.md**: `list-features`
+9. **map-codebase.md**: `init map-codebase`, replace `gfd-tools.cjs commit` with plain `git add` + `git commit`
+10. **convert-from-gsd.md**: `frontmatter merge`, `feature-update-status`, replace `gfd-tools.cjs commit` with plain `git add` + `git commit`
+
+**F. Replace `commit` command with plain git:**
+The `commit` command is NOT ported to the C# tool. Replace all `gfd-tools.cjs commit "msg" --files file1 file2` invocations with plain git:
+```bash
+git add file1 file2 && git diff --cached --quiet || git commit -m "msg"
+```
+Also remove any `commit_docs` config checks — docs are always committed.
 
 Read each file, find all occurrences of `gfd-tools.cjs`, update invocation and parsing patterns.
   </action>
@@ -212,10 +219,10 @@ Also update line 25 to remove `feature_content` from the "Extract from init" lis
 
 **E. Specific agent reference counts:**
 
-1. **gfd-executor.md** (8 refs): `init execute-feature --include feature` (line 22), `config-get` (line 169), `feature add-decision` (line 359), `feature-update-status` (lines 366, 370), `feature add-blocker` (line 377), `commit` (line 383)
-2. **gfd-planner.md** (8 refs): `commit` (line 800), `init plan-feature` (line 839), `history-digest` (line 890), `frontmatter validate` (line 1006), `verify plan-structure` (line 1019), `feature-update-status` (lines 1034, 1040), `commit` (line 1046)
-3. **gfd-researcher.md** (3 refs): `init plan-feature` (line 563), `commit` (lines 641, 646)
-4. **gfd-verifier.md** (4 refs): `verify artifacts` (line 133), `verify key-links` (line 182), `summary-extract` (line 236), `verify commits` (line 241)
+1. **gfd-executor.md**: `init execute-feature --include feature` → drop `--include`, add separate file read; `config-get`; `feature add-decision`; `feature-update-status`; `feature add-blocker`; replace `commit` with plain `git add` + `git commit`
+2. **gfd-planner.md**: replace `commit` refs with plain git; `init plan-feature`; `history-digest`; `frontmatter validate`; `verify plan-structure`; `feature-update-status`
+3. **gfd-researcher.md**: `init plan-feature`; replace `commit` refs with plain git
+4. **gfd-verifier.md**: `verify artifacts`; `verify key-links`; `summary-extract`; `verify commits`
 
 Read each file, find all occurrences of `gfd-tools.cjs`, update invocation and parsing patterns. The agent files are at `agents/` in the repo root (symlinked from `~/.claude/agents/`).
   </action>
@@ -241,7 +248,6 @@ Confirm agents/gfd-executor.md no longer references `--include feature` and has 
    - `dotnet run --project get-features-done/GfdTools/ -- --help` — must show all commands
    - `dotnet run --project get-features-done/GfdTools/ -- init plan-feature csharp-rewrite` — must work
    - `dotnet run --project get-features-done/GfdTools/ -- list-features` — must work
-   - `dotnet run --project get-features-done/GfdTools/ -- commit "test" --files /dev/null` — test commit flow (will report nothing to commit, which is correct)
    - `dotnet run --project get-features-done/GfdTools/ -- frontmatter get docs/features/csharp-rewrite/FEATURE.md` — must work
 
 3. Grep BOTH `get-features-done/` AND `agents/` for any remaining references to `gfd-tools.cjs` (excluding git history). Any remaining references are bugs — fix them:

@@ -46,6 +46,9 @@ Rewrite gfd-tools.cjs as a C# dotnet console app using System.CommandLine 2.0, t
 
 ## Decisions
 
+- Drop `commit` command — workflows use plain `git add` + `git commit` instead
+- Drop `commit_docs` config option — docs are always committed
+
 ## Blockers
 
 ---

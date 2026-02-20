@@ -85,26 +85,26 @@ Port all 6 init subcommands from gfd-tools.cjs. Each init command returns contex
 IMPORTANT: Drop the `--include` flag entirely. The JS version uses `--include feature` to embed file contents in output. The C# port uses key=value which cannot represent multiline values. Per RESEARCH.md recommendation: omit file contents from init output. Workflows will read files separately.
 
 1. **`init new-project`** — port `cmdInitNewProject` (lines 1060-1090):
-   - Output: `researcher_model=`, `commit_docs=`, `project_exists=`, `has_codebase_map=`, `features_dir_exists=`, `has_existing_code=`, `has_package_file=`, `is_brownfield=`, `needs_codebase_map=`, `has_git=`
+   - Output: `researcher_model=`, `project_exists=`, `has_codebase_map=`, `features_dir_exists=`, `has_existing_code=`, `has_package_file=`, `is_brownfield=`, `needs_codebase_map=`, `has_git=`
    - For `has_existing_code`: use `find` command same as JS, or use Directory.EnumerateFiles with extensions filter.
 
 2. **`init new-feature <slug>`** — port `cmdInitNewFeature` (lines 1092-1108):
-   - Output: `commit_docs=`, `slug=`, `feature_exists=`, `existing_status=`, `features_dir_exists=`, `feature_dir=`, `feature_md=`, `project_exists=`
+   - Output: `slug=`, `feature_exists=`, `existing_status=`, `features_dir_exists=`, `feature_dir=`, `feature_md=`, `project_exists=`
 
 3. **`init plan-feature <slug>`** — port `cmdInitPlanFeature` (lines 1110-1150):
-   - Output: `researcher_model=`, `planner_model=`, `checker_model=`, `research_enabled=`, `plan_checker_enabled=`, `commit_docs=`, `feature_found=`, `feature_dir=`, `slug=`, `feature_name=`, `feature_status=`, `has_research=`, `has_plans=`, `plan_count=`, `features_dir_exists=`
+   - Output: `researcher_model=`, `planner_model=`, `checker_model=`, `research_enabled=`, `plan_checker_enabled=`, `feature_found=`, `feature_dir=`, `slug=`, `feature_name=`, `feature_status=`, `has_research=`, `has_plans=`, `plan_count=`, `features_dir_exists=`
    - Do NOT include `feature_content` or `research_content` (dropped `--include`).
 
 4. **`init execute-feature <slug>`** — port `cmdInitExecuteFeature` (lines 1152-1189):
-   - Output: `executor_model=`, `verifier_model=`, `commit_docs=`, `parallelization=`, `verifier_enabled=`, `feature_found=`, `feature_dir=`, `slug=`, `feature_name=`, `feature_status=`, `plan_count=`, `incomplete_count=`, `config_exists=`
+   - Output: `executor_model=`, `verifier_model=`, `parallelization=`, `verifier_enabled=`, `feature_found=`, `feature_dir=`, `slug=`, `feature_name=`, `feature_status=`, `plan_count=`, `incomplete_count=`, `config_exists=`
    - Plans and summaries as repeated keys: `plan=01-PLAN.md`, `plan=02-PLAN.md`, etc. `summary=01-SUMMARY.md`, etc. `incomplete_plan=01`, etc.
 
 5. **`init progress`** — port `cmdInitProgress` (lines 1191-1222):
-   - Output: `executor_model=`, `planner_model=`, `commit_docs=`, `feature_count=`, `done_count=`, `in_progress_count=`, `new_count=`, `project_exists=`
+   - Output: `executor_model=`, `planner_model=`, `feature_count=`, `done_count=`, `in_progress_count=`, `new_count=`, `project_exists=`
    - Per-feature: use repeated key pattern `feature_slug=`, `feature_name=`, `feature_status=` (grouped per feature).
 
 6. **`init map-codebase`** — port `cmdInitMapCodebase` (lines 1224-1243):
-   - Output: `mapper_model=`, `commit_docs=`, `search_gitignored=`, `parallelization=`, `codebase_dir=`, `has_maps=`, `features_dir_exists=`, `codebase_dir_exists=`
+   - Output: `mapper_model=`, `search_gitignored=`, `parallelization=`, `codebase_dir=`, `has_maps=`, `features_dir_exists=`, `codebase_dir_exists=`
    - Existing maps as repeated key: `existing_map=ARCHITECTURE.md`, etc.
 
 7. Update `Program.cs` to wire init subcommands. Replace any placeholder actions with real implementations.
