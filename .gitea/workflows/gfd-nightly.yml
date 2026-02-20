@@ -34,10 +34,7 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Setup gfd-tools
-        run: |
-          chmod +x get-features-done/bin/gfd-tools
-          echo "dotnet version: $(dotnet --version)"
-          echo "gfd-tools test: $(./get-features-done/bin/gfd-tools --help 2>&1 | head -3 || echo 'FAILED')"
+        run: chmod +x get-features-done/bin/gfd-tools
 
       - name: Initialize summary
         run: |
@@ -48,7 +45,6 @@ jobs:
       - name: Discover features
         id: discover
         run: |
-          set -x  # Debug: trace all commands
           # Manual dispatch with specific slug — override auto-detect
           if [ -n "${{ inputs.slug }}" ]; then
             SLUG="${{ inputs.slug }}"
@@ -56,7 +52,7 @@ jobs:
             # If type not specified, detect from feature status
             if [ -z "$TYPE" ]; then
               STATUS=$(./get-features-done/bin/gfd-tools list-features --status discussed \
-                | grep "^feature_slug=$SLUG$" | head -1)
+                | grep "^feature_slug=$SLUG$" | head -1 || true)
               if [ -n "$STATUS" ]; then
                 TYPE="research"
               else
@@ -69,9 +65,9 @@ jobs:
 
           # Auto-detect: discussed → research, researched → plan
           DISCUSSED=$(./get-features-done/bin/gfd-tools list-features --status discussed \
-            | grep "^feature_slug=" | cut -d= -f2)
+            | grep "^feature_slug=" | cut -d= -f2 || true)
           RESEARCHED=$(./get-features-done/bin/gfd-tools list-features --status researched \
-            | grep "^feature_slug=" | cut -d= -f2)
+            | grep "^feature_slug=" | cut -d= -f2 || true)
 
           PAIRS=""
           for s in $DISCUSSED; do PAIRS="$PAIRS $s:research"; done
