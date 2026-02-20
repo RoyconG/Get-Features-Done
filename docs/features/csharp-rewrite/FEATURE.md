@@ -12,15 +12,16 @@ depends_on: []
 
 ## Description
 
-Rewrite gfd-tools.cjs as a C# dotnet console app using System.CommandLine 2.0. The tool is invoked by GFD agents and outputs JSON to stdout. Only actively-used commands will be ported — dead code in the .cjs is skipped. Once the C# version has full parity with active commands, the .cjs file is deleted and all workflow files are updated to use dotnet run.
+Rewrite gfd-tools.cjs as a C# dotnet console app using System.CommandLine 2.0, targeting .NET 10. Output uses key=value pairs (one per line) instead of JSON to minimize token usage. Only actively-used commands are ported — determined by grepping workflow/agent files. The .cjs file is deleted once parity is confirmed and all workflow/agent files are updated to invoke the C# tool.
 
 ## Acceptance Criteria
 
 - [ ] C# console app builds and runs via `dotnet run`
-- [ ] All actively-used gfd-tools commands are ported with identical JSON output
-- [ ] All GFD workflow and agent files updated to invoke the C# tool instead of node
-- [ ] gfd-tools.cjs is deleted
-- [ ] Agents can invoke the tool and parse its JSON output without changes to their logic
+- [ ] All actively-used gfd-tools commands ported (determined by grepping workflows)
+- [ ] Output uses key=value pairs instead of JSON
+- [ ] All GFD workflow and agent files updated to invoke C# tool and parse key=value output
+- [ ] gfd-tools.cjs deleted
+- [ ] Bugs found during porting are fixed, not replicated
 
 ## Tasks
 
@@ -28,7 +29,18 @@ Rewrite gfd-tools.cjs as a C# dotnet console app using System.CommandLine 2.0. T
 
 ## Notes
 
-Using System.CommandLine 2.0 (Microsoft first-party, GA Nov 2025). stdout = JSON for agent consumption, stderr = diagnostics. Target latest stable .NET.
+**Implementation Decisions:**
+- Command parity: Grep workflows/agents to find active commands; skip dead code
+- Verification: Claude's discretion on approach
+- Project location: get-features-done/GfdTools/ (alongside current .cjs)
+- Code layout: Single project — Commands/, Models/, Services/ folders
+- .NET version: .NET 10
+- Invocation: `dotnet run --project` (caches build after first run)
+- Wrapper script: Claude's discretion on whether to use a shell wrapper for shorter invocations
+- Output format: key=value pairs, one per line (not JSON — saves tokens)
+- Lists in output: Claude's discretion (repeated keys vs comma-separated)
+- Error reporting: Claude's discretion (stderr+exit code vs error= key)
+- Bug handling: Fix bugs found during porting rather than replicating them
 
 ## Decisions
 
