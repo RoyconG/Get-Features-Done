@@ -560,10 +560,10 @@ Determine mode based on what orchestrator provides:
 
 **Feature mode setup:**
 ```bash
-INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}")
+INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init plan-feature "${SLUG}")
 ```
 
-Extract: `feature_dir`, `slug`, `feature_name`, `commit_docs`.
+Extract from key=value output: `feature_dir`, `slug`, `feature_name` (grep "^key=" | cut -d= -f2-).
 
 Then read FEATURE.md:
 ```bash
@@ -638,12 +638,12 @@ Run pre-submission checklist (see verification_protocol).
 ## Step 7: Commit Research
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs($SLUG): research feature domain" --files "docs/features/$SLUG/RESEARCH.md"
+git add "docs/features/$SLUG/RESEARCH.md" && git diff --cached --quiet || git commit -m "docs($SLUG): research feature domain"
 ```
 
 For project mode:
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd): project research" --files docs/features/research/
+git add docs/features/research/ && git diff --cached --quiet || git commit -m "docs(gfd): project research"
 ```
 
 ## Step 8: Return Structured Result

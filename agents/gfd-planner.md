@@ -797,7 +797,7 @@ Group by plan, dimension, severity.
 ### Step 6: Commit
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs($SLUG): revise plans based on checker feedback" --files docs/features/$SLUG/*-PLAN.md
+git add docs/features/$SLUG/*-PLAN.md && git diff --cached --quiet || git commit -m "docs($SLUG): revise plans based on checker feedback"
 ```
 
 ### Step 7: Return Revision Summary
@@ -836,10 +836,10 @@ node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs($SLUG
 Load feature context:
 
 ```bash
-INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}")
+INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init plan-feature "${SLUG}")
 ```
 
-Extract from init JSON: `planner_model`, `researcher_model`, `checker_model`, `commit_docs`, `research_enabled`, `feature_dir`, `slug`, `feature_name`, `has_research`, `feature_status`.
+Extract from key=value output: `planner_model`, `researcher_model`, `checker_model`, `research_enabled`, `feature_dir`, `slug`, `feature_name`, `has_research`, `feature_status` (grep "^key=" | cut -d= -f2-).
 
 Read FEATURE.md for decisions and blockers relevant to this feature.
 </step>
@@ -887,7 +887,7 @@ Apply discovery level protocol (see discovery_levels section).
 
 **Step 1 — Generate digest index:**
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs history-digest
+dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- history-digest
 ```
 
 **Step 2 — Select relevant features (typically 2-4):**
@@ -1003,10 +1003,10 @@ Include all frontmatter fields.
 Validate each created PLAN.md using gfd-tools:
 
 ```bash
-VALID=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs frontmatter validate "$PLAN_PATH" --schema plan)
+VALID=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- frontmatter validate "$PLAN_PATH" --schema plan)
 ```
 
-Returns JSON: `{ valid, missing, present, schema }`
+Extract from key=value output: `valid` (grep "^valid=" | cut -d= -f2-), `missing` (repeated `missing=` lines).
 
 **If `valid=false`:** Fix missing required fields before proceeding.
 
@@ -1016,10 +1016,10 @@ Required plan frontmatter fields:
 Also validate plan structure:
 
 ```bash
-STRUCTURE=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs verify plan-structure "$PLAN_PATH")
+STRUCTURE=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- verify plan-structure "$PLAN_PATH")
 ```
 
-Returns JSON: `{ valid, errors, warnings, task_count, tasks }`
+Extract from key=value output: `valid` (grep "^valid=" | cut -d= -f2-), `task_count`, repeated `error=` and `warning=` lines.
 
 **If errors exist:** Fix before committing:
 - Missing `<name>` in task → add name element
@@ -1031,19 +1031,19 @@ Returns JSON: `{ valid, errors, warnings, task_count, tasks }`
 Update FEATURE.md status to reflect planning in progress:
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "planning"
+dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "planning"
 ```
 
 After plans are written and validated, update to planned:
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "planned"
+dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "planned"
 ```
 </step>
 
 <step name="git_commit">
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs($SLUG): create feature plan" --files docs/features/$SLUG/*-PLAN.md docs/features/$SLUG/FEATURE.md
+git add docs/features/$SLUG/*-PLAN.md docs/features/$SLUG/FEATURE.md && git diff --cached --quiet || git commit -m "docs($SLUG): create feature plan"
 ```
 </step>
 

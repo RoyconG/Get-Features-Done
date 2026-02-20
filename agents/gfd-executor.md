@@ -19,10 +19,20 @@ Your job: Execute the plan completely, commit each task, create SUMMARY.md, reco
 Load execution context:
 
 ```bash
-INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init execute-feature "${SLUG}" --include feature)
+INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init execute-feature "${SLUG}")
 ```
 
-Extract from init JSON: `executor_model`, `commit_docs`, `feature_dir`, `plans`, `incomplete_plans`, `feature_name`, `feature_status`, `feature_content`.
+Extract from key=value output:
+- `executor_model` (grep "^executor_model=" | cut -d= -f2-)
+- `feature_dir` (grep "^feature_dir=" | cut -d= -f2-)
+- `feature_name` (grep "^feature_name=" | cut -d= -f2-)
+- `feature_status` (grep "^feature_status=" | cut -d= -f2-)
+- Each `plan=` line is a plan entry; each `incomplete_plan=` line is an incomplete plan
+
+Feature content no longer embedded in init output — read separately:
+```bash
+cat "docs/features/${SLUG}/FEATURE.md"
+```
 
 If docs/features/ missing: Error — project not initialized.
 </step>
@@ -166,7 +176,7 @@ Track auto-fix attempts per task. After 3 auto-fix attempts on a single task:
 Check if auto mode is active at executor start:
 
 ```bash
-AUTO_CFG=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs config-get workflow.auto_advance 2>/dev/null || echo "false")
+AUTO_CFG=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- config-get workflow.auto_advance 2>/dev/null | grep "^value=" | cut -d= -f2- || echo "false")
 ```
 
 Store the result for checkpoint handling below.
@@ -351,36 +361,25 @@ Do NOT skip. Do NOT proceed to state updates if self-check fails.
 </self_check>
 
 <state_updates>
-After SUMMARY.md, update feature status and record decisions using gfd-tools:
-
-```bash
-# Add decisions (extract from SUMMARY.md key-decisions)
-for decision in "${DECISIONS[@]}"; do
-  node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature add-decision "${SLUG}" \
-    --summary "${decision}"
-done
-```
+After SUMMARY.md, update feature status using the C# tool. Record decisions and blockers directly in FEATURE.md using the Edit tool.
 
 ```bash
 # Update feature status to in-progress (if not already)
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "in-progress"
+dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "in-progress"
 
 # After ALL plans in feature complete, mark done
 # (Only when incomplete_plans count reaches 0)
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "done"
+dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- feature-update-status "${SLUG}" "done"
 ```
 
 **Determine feature completion:** After creating SUMMARY.md, re-run init to check `incomplete_count`. If 0, the feature is fully executed — update status to `done`.
 
-**For blockers found during execution:**
-```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature add-blocker "${SLUG}" "Blocker description"
-```
+**For decisions and blockers:** Use the Edit tool to add entries directly to the `## Decisions` and `## Blockers` sections of `docs/features/${SLUG}/FEATURE.md`.
 </state_updates>
 
 <final_commit>
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(<slug>): complete [plan-name] plan" --files docs/features/<slug>/NN-SUMMARY.md docs/features/<slug>/FEATURE.md
+git add "docs/features/<slug>/NN-SUMMARY.md" "docs/features/<slug>/FEATURE.md" && git diff --cached --quiet || git commit -m "docs(<slug>): complete [plan-name] plan"
 ```
 
 Separate from per-task commits — captures execution results only.
