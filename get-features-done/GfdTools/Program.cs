@@ -206,39 +206,7 @@ summaryExtractCmd.SetAction(pr =>
 rootCommand.Add(summaryExtractCmd);
 
 // ─── init ─────────────────────────────────────────────────────────────────────
-var initCmd = new Command("init") { Description = "Initialize a workflow context" };
-rootCommand.Add(initCmd);
-
-// init new-project (Plan 02)
-var initNewProjectCmd = new Command("new-project") { Description = "Initialize new project context" };
-initNewProjectCmd.SetAction(pr => Output.Fail("not yet implemented"));
-initCmd.Add(initNewProjectCmd);
-
-// init new-feature (Plan 02)
-var initNewFeatureCmd = new Command("new-feature") { Description = "Initialize new feature context" };
-var initNewFeatureSlug = new Argument<string>("slug") { Description = "Feature slug" };
-initNewFeatureCmd.Add(initNewFeatureSlug);
-initNewFeatureCmd.SetAction(pr => Output.Fail("not yet implemented"));
-initCmd.Add(initNewFeatureCmd);
-
-// init plan-feature (Plan 02)
-var initPlanFeatureCmd = new Command("plan-feature") { Description = "Initialize plan-feature context" };
-var initPlanFeatureSlug = new Argument<string>("slug") { Description = "Feature slug" };
-initPlanFeatureCmd.Add(initPlanFeatureSlug);
-initPlanFeatureCmd.SetAction(pr => Output.Fail("not yet implemented"));
-initCmd.Add(initPlanFeatureCmd);
-
-// init execute-feature (Plan 02)
-var initExecuteFeatureCmd = new Command("execute-feature") { Description = "Initialize execute-feature context" };
-var initExecuteFeatureSlug = new Argument<string>("slug") { Description = "Feature slug" };
-initExecuteFeatureCmd.Add(initExecuteFeatureSlug);
-initExecuteFeatureCmd.SetAction(pr => Output.Fail("not yet implemented"));
-initCmd.Add(initExecuteFeatureCmd);
-
-// init map-codebase (Plan 02)
-var initMapCodebaseCmd = new Command("map-codebase") { Description = "Initialize map-codebase context" };
-initMapCodebaseCmd.SetAction(pr => Output.Fail("not yet implemented"));
-initCmd.Add(initMapCodebaseCmd);
+rootCommand.Add(InitCommands.Create(cwd));
 
 // ─── verify ───────────────────────────────────────────────────────────────────
 var verifyCmd = new Command("verify") { Description = "Run verification checks" };
