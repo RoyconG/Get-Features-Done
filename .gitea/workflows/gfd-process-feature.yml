@@ -4,14 +4,19 @@ env:
   GITEA_INTERNAL_URL: http://192.168.8.109:3000
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       slug:
+        description: 'Feature slug to process'
         required: true
         type: string
       type:
+        description: 'Operation type'
         required: true
-        type: string
+        type: choice
+        options:
+          - research
+          - plan
 
 jobs:
   process:
@@ -28,7 +33,10 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Setup gfd-tools
-        run: chmod +x get-features-done/bin/gfd-tools
+        run: |
+          chmod +x get-features-done/bin/gfd-tools
+          mkdir -p /home/conroy/.claude/agents
+          cp agents/*.md /home/conroy/.claude/agents/
 
       - name: Install tea CLI
         run: |
@@ -51,7 +59,6 @@ jobs:
         run: git checkout -B "ci/${{ inputs.slug }}"
 
       - name: Run GFD auto operation
-        id: run_gfd
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
