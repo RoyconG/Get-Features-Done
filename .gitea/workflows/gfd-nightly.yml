@@ -1,5 +1,8 @@
 name: GFD Nightly
 
+env:
+  GITEA_INTERNAL_URL: http://192.168.8.109:3000
+
 on:
   schedule:
     - cron: '0 3 * * *'   # 3 AM UTC daily (configurable by editing this line)
@@ -113,7 +116,7 @@ jobs:
       - name: Setup tea auth
         run: |
           tea login add \
-            --url "${{ vars.GITEA_INTERNAL_URL }}" \
+            --url "$GITEA_INTERNAL_URL" \
             --token "${{ secrets.GITEA_TOKEN }}" \
             --name ci
 

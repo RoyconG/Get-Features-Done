@@ -1,5 +1,8 @@
 name: GFD Process Feature
 
+env:
+  GITEA_INTERNAL_URL: http://192.168.8.109:3000
+
 on:
   workflow_call:
     inputs:
@@ -35,7 +38,7 @@ jobs:
       - name: Setup tea auth
         run: |
           tea login add \
-            --url "${{ vars.GITEA_INTERNAL_URL }}" \
+            --url "$GITEA_INTERNAL_URL" \
             --token "${{ secrets.GITEA_TOKEN }}" \
             --name ci
 
