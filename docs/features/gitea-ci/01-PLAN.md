@@ -152,7 +152,7 @@ Append the remaining steps to the `process` job in `.gitea/workflows/gfd-process
 6. **Create feature branch:**
 ```yaml
 - name: Create feature branch
-  run: git checkout -b "ci/${{ inputs.slug }}"
+  run: git checkout -B "ci/${{ inputs.slug }}"
 ```
 
 7. **Run GFD auto operation** (the core step):

@@ -38,7 +38,7 @@ must_haves:
     - "Manual dispatch with slug overrides auto-detect and processes only that feature"
     - "Orchestrator skips features that have an existing ci/<slug> branch or open PR"
     - "Orchestrator checks usage before dispatching each feature and stops if threshold exceeded"
-    - "Orchestrator calls sub-workflow (gfd-process-feature.yml) per feature via workflow_call"
+    - "Orchestrator calls gfd-tools auto-research or auto-plan inline per feature (not via workflow_call — dynamic dispatch is unsupported in Gitea)"
     - "Orchestrator logs sub-workflow failures but continues to next feature"
     - "Nightly summary markdown is written to /tmp/gfd-nightly-summary.md and uploaded as artifact"
   artifacts:
@@ -47,9 +47,9 @@ must_haves:
       contains: "schedule"
   key_links:
     - from: ".gitea/workflows/gfd-nightly.yml"
-      to: ".gitea/workflows/gfd-process-feature.yml"
-      via: "uses: ./.gitea/workflows/gfd-process-feature.yml"
-      pattern: "gfd-process-feature"
+      to: "gfd-tools auto-research / auto-plan"
+      via: "inline bash in process loop with ANTHROPIC_API_KEY env var"
+      pattern: "auto-research|auto-plan"
     - from: ".gitea/workflows/gfd-nightly.yml"
       to: "gfd-tools list-features"
       via: "bash step parsing key=value output"
@@ -64,6 +64,8 @@ must_haves:
 Create the orchestrator workflow that runs nightly (and on demand), discovers eligible features, guards against API overuse, dispatches the sub-workflow per feature, and uploads a summary artifact.
 
 Purpose: This is the scheduler and coordinator. It ties together feature discovery, usage monitoring, sub-workflow invocation, and result reporting into a single autonomous nightly run.
+
+Pre-requisite: The `auto-skills` feature must be merged before this workflow is functional. The `gfd-tools auto-research` and `gfd-tools auto-plan` commands are added by auto-skills. The workflow files created here can be committed beforehand, but nightly runs will fail until auto-skills is merged and gfd-tools includes those commands.
 
 Output: `.gitea/workflows/gfd-nightly.yml`
 </objective>
@@ -183,6 +185,8 @@ Steps:
 ```
 
 Note: `GITEA_OUTPUT` is the Gitea Actions equivalent of `GITHUB_OUTPUT`.
+
+Note on `list-features --status`: `gfd-tools list-features` already exists and supports the `--status` filter. This is NOT a dependency on auto-skills — `list-features` is part of the existing gfd-tools binary. The auto-skills dependency applies only to `auto-research` and `auto-plan` commands (used in Task 2). Executor should verify `./get-features-done/bin/gfd-tools list-features --status discussed` produces `feature_slug=` key=value lines before assuming the output format.
   </action>
   <verify>
 `python3 -c "import yaml; yaml.safe_load(open('.gitea/workflows/gfd-nightly.yml'))"` exits 0.
@@ -198,7 +202,7 @@ File contains `schedule` and `workflow_dispatch` triggers. File contains `workfl
   <name>Task 2: Add usage guard, per-feature dispatch loop, and artifact upload</name>
   <files>.gitea/workflows/gfd-nightly.yml</files>
   <action>
-Append the remaining steps to the `orchestrate` job in `.gitea/workflows/gfd-nightly.yml`.
+Append the remaining steps to the `orchestrate` job in `.gitea/workflows/gfd-nightly.yml`. Add them in the following order — this is the final step order, not a "insert before" instruction:
 
 **6. Usage guard check (initial):**
 ```yaml
@@ -231,21 +235,76 @@ Append the remaining steps to the `orchestrate` job in `.gitea/workflows/gfd-nig
     echo "stop=$STOP" >> "$GITEA_OUTPUT"
 ```
 
-**7. Process features loop** (sequential, max_concurrent=1 by default; dynamic matrix is broken in Gitea — use bash loop):
+**7. Setup tea auth** (must appear before the process features step so tea is authenticated when the loop runs):
+```yaml
+- name: Setup tea auth
+  run: |
+    tea login add \
+      --non-interactive \
+      --url "${{ vars.GITEA_URL }}" \
+      --token "${{ secrets.GITEA_TOKEN }}" \
+      --name ci
+```
+
+**8. Process features loop** (background-job concurrency controlled by `vars.GFD_MAX_CONCURRENT`, default 1; dynamic matrix is broken in Gitea — use bash background jobs):
+
+Note on `tea pulls list` output format: `--fields head --output simple` is expected to produce tab-separated rows where the head column shows the branch name. **Executor must verify this format on the target system** before relying on it. If the format differs, fall back to: `tea pulls list --state open --output json | jq -r '.[].head.label' | grep -c "ci/$SLUG"`
+
+Note: `GFD_MAX_CONCURRENT=1` (default) means at most one background job runs at a time — effectively sequential but implemented via the job counter. Set to 2 or 3 to allow parallel processing. `wait -n` (bash 4.3+) waits for the next background job to finish; if unavailable, `wait` waits for all (conservative fallback).
+
 ```yaml
 - name: Process features
   if: steps.usage_guard.outputs.stop != 'true' && steps.discover.outputs.pairs != ''
   env:
     ANTHROPIC_ADMIN_KEY: ${{ secrets.ANTHROPIC_ADMIN_KEY }}
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
   run: |
     set +e  # Don't exit on sub-workflow failure — log and continue
     THRESHOLD="${{ vars.GFD_USAGE_THRESHOLD || '100000' }}"
-    LOCAL_TOKENS=0
+    MAX_CONCURRENT="${{ vars.GFD_MAX_CONCURRENT || '1' }}"
+    JOB_COUNT=0
+    HARD_STOP=false
+
+    # Helper: run a single feature in a subshell (invoked with & for concurrency)
+    process_one() {
+      local SLUG="$1"
+      local TYPE="$2"
+      echo "## Feature: $SLUG ($TYPE)" | tee -a /tmp/gfd-nightly-summary.md
+
+      git config user.name "GFD CI"
+      git config user.email "ci@gitea.local"
+      git checkout -B "ci/$SLUG"
+
+      if [ "$TYPE" = "research" ]; then
+        timeout 3600 ./get-features-done/bin/gfd-tools auto-research "$SLUG"
+        RESULT=$?
+      else
+        timeout 3600 ./get-features-done/bin/gfd-tools auto-plan "$SLUG"
+        RESULT=$?
+      fi
+
+      if [ $RESULT -eq 0 ]; then
+        git add -A
+        git diff --cached --quiet || git commit -m "ci($SLUG): auto-$TYPE results"
+        git push origin "ci/$SLUG"
+        tea pulls create \
+          --title "ci($SLUG): auto-$TYPE" \
+          --base main \
+          --head "ci/$SLUG" \
+          --description "Automated $TYPE run for feature: $SLUG"
+        echo "  SUCCESS: PR created for ci/$SLUG" | tee -a /tmp/gfd-nightly-summary.md
+      else
+        echo "  FAILED: gfd-tools exited with code $RESULT" | tee -a /tmp/gfd-nightly-summary.md
+        git checkout main
+        git branch -D "ci/$SLUG" 2>/dev/null || true
+      fi
+      git checkout main
+    }
 
     for pair in ${{ steps.discover.outputs.pairs }}; do
       SLUG="${pair%%:*}"
       TYPE="${pair##*:}"
-      echo "## Feature: $SLUG ($TYPE)" | tee -a /tmp/gfd-nightly-summary.md
 
       # Skip if ci/<slug> branch already exists on remote
       if git ls-remote --exit-code origin "refs/heads/ci/$SLUG" > /dev/null 2>&1; then
@@ -253,7 +312,10 @@ Append the remaining steps to the `orchestrate` job in `.gitea/workflows/gfd-nig
         continue
       fi
 
-      # Skip if open PR exists for ci/<slug> head branch
+      # Skip if open PR exists for ci/<slug> head branch.
+      # Note: --fields head --output simple produces tab-separated output where
+      # the head column shows the branch name. Verify format on target system;
+      # fall back to: tea pulls list --state open --output json | jq -r '.[].head.label'
       PR_EXISTS=$(tea pulls list --state open --fields head --output simple 2>/dev/null \
         | grep -c "ci/$SLUG" || echo "0")
       if [ "$PR_EXISTS" -gt "0" ]; then
@@ -273,65 +335,25 @@ Append the remaining steps to the `orchestrate` job in `.gitea/workflows/gfd-nig
         OUTPUT_TOKENS=$(echo "$RESPONSE" | jq '[.data[].output_tokens] | add // 0' 2>/dev/null || echo "0")
         if [ "$OUTPUT_TOKENS" -gt "$THRESHOLD" ]; then
           echo "HARD STOP: usage threshold exceeded ($OUTPUT_TOKENS tokens). No more dispatches." | tee -a /tmp/gfd-nightly-summary.md
+          HARD_STOP=true
           break
         fi
       fi
 
-      echo "  Dispatching $SLUG ($TYPE)..." | tee -a /tmp/gfd-nightly-summary.md
+      # Concurrency: if at limit, wait for one job to finish before spawning next
+      if [ "$JOB_COUNT" -ge "$MAX_CONCURRENT" ]; then
+        wait -n 2>/dev/null || wait  # wait -n waits for any single job; fallback: wait for all
+        JOB_COUNT=$((JOB_COUNT - 1))
+      fi
+
+      echo "  Dispatching $SLUG ($TYPE) [jobs running: $JOB_COUNT/$MAX_CONCURRENT]..." | tee -a /tmp/gfd-nightly-summary.md
+      process_one "$SLUG" "$TYPE" &
+      JOB_COUNT=$((JOB_COUNT + 1))
     done
-```
 
-Note: The loop calls the sub-workflow logic via `uses:` at the job level in Gitea. However, since `workflow_call` jobs must be declared statically (one job per `uses:`), and we need a dynamic loop, the practical approach for `max_concurrent=1` is to **inline the sub-workflow logic** into this bash loop rather than calling `uses:`. This avoids the dynamic matrix limitation entirely.
-
-**Replace the loop body with inline sub-workflow logic** — instead of dispatching, call gfd-tools directly in the loop (the sub-workflow file is still valuable for manual invocation):
-
-```bash
-      # Run gfd-tools inline (equivalent to sub-workflow logic)
-      # This avoids dynamic workflow_call limitation in Gitea
-      git config user.name "GFD CI"
-      git config user.email "ci@gitea.local"
-      git checkout -b "ci/$SLUG"
-
-      if [ "$TYPE" = "research" ]; then
-        ANTHROPIC_API_KEY="${{ secrets.ANTHROPIC_API_KEY }}" \
-          timeout 3600 ./get-features-done/bin/gfd-tools auto-research "$SLUG"
-        RESULT=$?
-      else
-        ANTHROPIC_API_KEY="${{ secrets.ANTHROPIC_API_KEY }}" \
-          timeout 3600 ./get-features-done/bin/gfd-tools auto-plan "$SLUG"
-        RESULT=$?
-      fi
-
-      if [ $RESULT -eq 0 ]; then
-        git add -A
-        git diff --cached --quiet || git commit -m "ci($SLUG): auto-$TYPE results"
-        git push origin "ci/$SLUG"
-        tea pulls create \
-          --title "ci($SLUG): auto-$TYPE" \
-          --base main \
-          --head "ci/$SLUG" \
-          --description "Automated $TYPE run for feature: $SLUG"
-        echo "  SUCCESS: PR created for ci/$SLUG" | tee -a /tmp/gfd-nightly-summary.md
-      else
-        echo "  FAILED: gfd-tools exited with code $RESULT" | tee -a /tmp/gfd-nightly-summary.md
-        git checkout main
-        git branch -D "ci/$SLUG" 2>/dev/null || true
-      fi
-      # Return to main before next iteration
-      git checkout main
-```
-
-Write the step with the full loop including both the skip checks and inline processing logic above.
-
-**8. Setup tea auth** — add this step BEFORE the process features step (insert after usage guard check):
-```yaml
-- name: Setup tea auth
-  run: |
-    tea login add \
-      --non-interactive \
-      --url "${{ vars.GITEA_URL }}" \
-      --token "${{ secrets.GITEA_TOKEN }}" \
-      --name ci
+    # Wait for all remaining background jobs to finish
+    wait
+    echo "All features processed." | tee -a /tmp/gfd-nightly-summary.md
 ```
 
 **9. Upload summary artifact** (must use `if: always()` so it runs even if prior steps failed):
@@ -345,24 +367,24 @@ Write the step with the full loop including both the skip checks and inline proc
     retention-days: 30
 ```
 
-Final step order in the job:
+Final step order in the job (write them in this exact order):
 1. actions/checkout@v4
 2. Setup .NET 10
 3. Setup gfd-tools
 4. Initialize summary
 5. Discover features
 6. Check initial usage
-7. Setup tea auth
-8. Process features (loop with inline logic)
+7. Setup tea auth  ← must appear before process features so tea is authenticated when loop runs
+8. Process features (loop with background-job concurrency)
 9. Upload nightly summary (if: always())
   </action>
   <verify>
 `python3 -c "import yaml; yaml.safe_load(open('.gitea/workflows/gfd-nightly.yml'))"` exits 0.
 
-File contains `gitea-upload-artifact` in artifact upload step. File contains `if: always()` on upload step. File contains `git ls-remote --exit-code origin` for branch check. File contains `tea pulls list` for PR check. File contains `HARD STOP` string indicating usage guard break. File contains `timeout 3600` on gfd-tools calls. File contains `RESULT=$?` and conditional on result for failure handling. File contains `git checkout main` at end of loop for branch reset.
+File contains `gitea-upload-artifact` in artifact upload step. File contains `if: always()` on upload step. File contains `git ls-remote --exit-code origin` for branch check. File contains `tea pulls list` for PR check. File contains `HARD STOP` string indicating usage guard break. File contains `timeout 3600` on gfd-tools calls. File contains `RESULT=$?` and conditional on result for failure handling. File contains `git checkout main` at end of loop for branch reset. File contains `GFD_MAX_CONCURRENT` and `wait -n` for concurrency. File contains `git checkout -B` (force-create branch).
   </verify>
   <done>
-`.gitea/workflows/gfd-nightly.yml` is complete with valid YAML. The orchestrator: triggers on cron (3 AM) and workflow_dispatch, discovers features via gfd-tools, checks usage before and between dispatches, skips features with existing branches/PRs, runs auto-research or auto-plan inline (with failure handling that continues to next feature), and uploads a nightly summary artifact.
+`.gitea/workflows/gfd-nightly.yml` is complete with valid YAML. The orchestrator: triggers on cron (3 AM) and workflow_dispatch, discovers features via gfd-tools, checks usage before and between dispatches, skips features with existing branches/PRs, runs auto-research or auto-plan inline with background-job concurrency (controlled by `GFD_MAX_CONCURRENT`, default 1) with failure handling that continues to next feature, and uploads a nightly summary artifact.
   </done>
 </task>
 
@@ -381,10 +403,13 @@ File contains `gitea-upload-artifact` in artifact upload step. File contains `if
 - Grep for `HARD STOP` (usage guard break) in gfd-nightly.yml
 - Grep for `RESULT=$?` and `if [ $RESULT -eq 0 ]` (failure handling) in gfd-nightly.yml
 - Grep for `if: always()` on upload step in gfd-nightly.yml
+- Grep for `GFD_MAX_CONCURRENT` in gfd-nightly.yml (concurrency variable)
+- Grep for `wait -n` in gfd-nightly.yml (background job concurrency control)
+- Grep for `git checkout -B` in gfd-process-feature.yml (force-create branch, handles re-runs)
 </verification>
 
 <success_criteria>
-Both workflow files exist with valid YAML. The orchestrator (gfd-nightly.yml) runs on cron + workflow_dispatch, auto-detects eligible features, respects the usage guard, skips features with existing branches/PRs, processes features sequentially with per-feature failure isolation, and uploads a nightly summary artifact. The sub-workflow (gfd-process-feature.yml) is a reusable workflow for manual invocation of individual features.
+Both workflow files exist with valid YAML. The orchestrator (gfd-nightly.yml) runs on cron + workflow_dispatch, auto-detects eligible features, respects the usage guard, skips features with existing branches/PRs, processes features with configurable concurrency (GFD_MAX_CONCURRENT, default 1) using background jobs and `wait -n`, isolates per-feature failures so the loop continues, and uploads a nightly summary artifact. The sub-workflow (gfd-process-feature.yml) is a reusable workflow for manual invocation of individual features.
 </success_criteria>
 
 <output>
