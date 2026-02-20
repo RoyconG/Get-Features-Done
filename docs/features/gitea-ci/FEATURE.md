@@ -1,7 +1,7 @@
 ---
 name: Gitea CI
 slug: gitea-ci
-status: researched
+status: planned
 owner: Conroy
 assignees: []
 created: 2026-02-20
