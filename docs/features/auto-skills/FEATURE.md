@@ -1,7 +1,7 @@
 ---
 name: Auto Skills
 slug: auto-skills
-status: planned
+status: in-progress
 owner: Conroy
 assignees: []
 created: 2026-02-20
@@ -47,7 +47,12 @@ Add `auto-research` and `auto-plan` commands to the gfd-tools C# CLI that run th
 
 ## Decisions
 
-[Key decisions made during planning and execution of this feature.]
+### Plan 01 — ClaudeService (2026-02-20)
+
+- **Prompt delivery via stdin:** Prompt passed via `process.StandardInput.Write()` + `Close()` rather than as a CLI argument. Avoids shell arg length limits for large research/plan prompts that include full FEATURE.md content and codebase docs.
+- **Per-tool --allowedTools:** Each tool added with separate `ArgumentList.Add("--allowedTools")` + `ArgumentList.Add(tool)` pair, not comma-joined. Matches claude CLI's expected argument format.
+- **Dual success signals:** `InvokeHeadless()` checks for both `## RESEARCH COMPLETE` and `## PLANNING COMPLETE` — single service handles both auto commands.
+- **Max-turns dual detection:** Checks stderr for "max turns" (case-insensitive) AND stdout for "max-turns" to handle both signal paths documented in the research pitfalls.
 
 ## Blockers
 
