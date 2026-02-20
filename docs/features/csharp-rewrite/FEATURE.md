@@ -25,7 +25,9 @@ Rewrite gfd-tools.cjs as a C# dotnet console app using System.CommandLine 2.0, t
 
 ## Tasks
 
-[Populated during planning. Links to plan files.]
+- [01-PLAN.md](01-PLAN.md) — Project scaffold, core services, first batch of commands
+- [02-PLAN.md](02-PLAN.md) — Init commands, verify commands, history-digest, summary-extract, frontmatter validate
+- [03-PLAN.md](03-PLAN.md) — Update all workflow and agent files, delete gfd-tools.cjs
 
 ## Notes
 
