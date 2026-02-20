@@ -61,6 +61,7 @@ jobs:
       - name: Run GFD auto operation
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ "${{ inputs.type }}" = "research" ]; then
             ./get-features-done/bin/gfd-tools auto-research "${{ inputs.slug }}" 2>&1 | tee /tmp/gfd-output.log
