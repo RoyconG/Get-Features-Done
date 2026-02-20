@@ -29,7 +29,8 @@ Gitea Actions workflows that run overnight on a cron schedule to autonomously pr
 
 ## Tasks
 
-[Populated during planning. Links to plan files.]
+- [01-PLAN.md](01-PLAN.md) — Sub-workflow: per-feature processing unit (workflow_call)
+- [02-PLAN.md](02-PLAN.md) — Orchestrator: cron + dispatch + usage guard + artifact upload
 
 ## Notes
 
