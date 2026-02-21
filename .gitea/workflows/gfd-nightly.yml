@@ -45,7 +45,7 @@ jobs:
         env:
           GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
         run: |
-          REPO="conroy-gitea/Get-Features-Done"
+          REPO="${{ github.repository }}"
           WORKFLOW="gfd-process-feature.yml"
           DISPATCHED=0
           SKIPPED=0

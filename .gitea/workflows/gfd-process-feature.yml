@@ -42,8 +42,8 @@ jobs:
       - name: Setup gfd-tools
         run: |
           chmod +x get-features-done/bin/gfd-tools
-          mkdir -p /home/conroy/.claude/agents
-          cp agents/*.md /home/conroy/.claude/agents/
+          mkdir -p "$HOME/.claude/agents"
+          cp agents/*.md "$HOME/.claude/agents/"
 
       - name: Configure git
         run: |
@@ -82,7 +82,7 @@ jobs:
               "base": "main",
               "body": "Automated ${{ inputs.type }} run for feature: ${{ inputs.slug }}"
             }' \
-            "$GITEA_INTERNAL_URL/api/v1/repos/conroy-gitea/Get-Features-Done/pulls")
+            "$GITEA_INTERNAL_URL/api/v1/repos/${{ github.repository }}/pulls")
           HTTP_CODE=$(echo "$RESPONSE" | tail -1)
           BODY=$(echo "$RESPONSE" | sed '$d')
           echo "HTTP $HTTP_CODE"
