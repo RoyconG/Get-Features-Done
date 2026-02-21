@@ -7,20 +7,6 @@ on:
   schedule:
     - cron: '0 3 * * *'   # 3 AM UTC daily
   workflow_dispatch:
-    inputs:
-      slug:
-        description: 'Feature slug (leave empty for auto-detect)'
-        required: false
-        type: string
-        default: ''
-      type:
-        description: 'Operation type (leave empty for auto-detect)'
-        required: false
-        type: choice
-        options:
-          - ''
-          - research
-          - plan
 
 jobs:
   orchestrate:
@@ -96,26 +82,14 @@ jobs:
             fi
           }
 
-          # Manual dispatch with specific slug
-          if [ -n "${{ inputs.slug }}" ]; then
-            SLUG="${{ inputs.slug }}"
-            TYPE="${{ inputs.type }}"
-            if [ -z "$TYPE" ]; then
-              STATUS=$(./get-features-done/bin/gfd-tools list-features --status discussed \
-                | grep "^feature_slug=$SLUG$" | head -1 || true)
-              if [ -n "$STATUS" ]; then TYPE="research"; else TYPE="plan"; fi
-            fi
-            dispatch "$SLUG" "$TYPE"
-          else
-            # Auto-detect: discussed → research, researched → plan
-            DISCUSSED=$(./get-features-done/bin/gfd-tools list-features --status discussed \
-              | grep "^feature_slug=" | cut -d= -f2 || true)
-            RESEARCHED=$(./get-features-done/bin/gfd-tools list-features --status researched \
-              | grep "^feature_slug=" | cut -d= -f2 || true)
+          # Auto-detect: discussed → research, researched → plan
+          DISCUSSED=$(./get-features-done/bin/gfd-tools list-features --status discussed \
+            | grep "^feature_slug=" | cut -d= -f2 || true)
+          RESEARCHED=$(./get-features-done/bin/gfd-tools list-features --status researched \
+            | grep "^feature_slug=" | cut -d= -f2 || true)
 
-            for s in $DISCUSSED; do dispatch "$s" "research"; done
-            for s in $RESEARCHED; do dispatch "$s" "plan"; done
-          fi
+          for s in $DISCUSSED; do dispatch "$s" "research"; done
+          for s in $RESEARCHED; do dispatch "$s" "plan"; done
 
           echo ""
           echo "==============================="
