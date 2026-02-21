@@ -50,7 +50,7 @@ public static class AutoResearchCommand
         }
 
         // Step 2 — Assemble the research prompt
-        var agentMd = File.ReadAllText("/home/conroy/.claude/agents/gfd-researcher.md");
+        var agentMd = File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".claude/agents/gfd-researcher.md"));
         var featureMdPath = Path.Combine(cwd, featureInfo.Directory, "FEATURE.md");
         var featureMdContent = File.ReadAllText(featureMdPath);
 

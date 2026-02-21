@@ -52,7 +52,7 @@ public static class AutoPlanCommand
         // Warn but don't abort if no RESEARCH.md (planning can proceed without research)
 
         // Step 2 — Assemble the planning prompt
-        var agentMd = File.ReadAllText("/home/conroy/.claude/agents/gfd-planner.md");
+        var agentMd = File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".claude/agents/gfd-planner.md"));
         var featureMdPath = Path.Combine(cwd, featureInfo.Directory, "FEATURE.md");
         var featureMdContent = File.ReadAllText(featureMdPath);
 
