@@ -21,6 +21,10 @@ on:
           - research
           - plan
 
+concurrency:
+  group: gfd-process-${{ inputs.slug }}
+  cancel-in-progress: true
+
 jobs:
   process:
     runs-on: claude

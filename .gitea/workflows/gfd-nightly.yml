@@ -8,6 +8,10 @@ on:
     - cron: '0 3 * * *'   # 3 AM UTC daily
   workflow_dispatch:
 
+concurrency:
+  group: gfd-nightly
+  cancel-in-progress: true
+
 jobs:
   orchestrate:
     runs-on: ubuntu-latest
