@@ -8,7 +8,7 @@ env:
 
 on:
   schedule:
-    - cron: '0 3 * * *'   # 3 AM UTC daily
+    - cron: '15,45 3-7 * * *'   # Every 30 mins from 3:15 AM to 7:45 AM UTC
   workflow_dispatch:
 
 concurrency:
