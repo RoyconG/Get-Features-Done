@@ -88,12 +88,16 @@ jobs:
 
       - name: Create PR
         run: |
-          tea pulls create \
-            --repo "conroy-gitea/Get-Features-Done" \
-            --title "ci(${{ inputs.slug }}): auto-${{ inputs.type }}" \
-            --base main \
-            --head "ci/${{ inputs.slug }}" \
-            --description "Automated ${{ inputs.type }} run for feature: ${{ inputs.slug }}"
+          curl -sf -X POST \
+            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "title": "ci(${{ inputs.slug }}): auto-${{ inputs.type }}",
+              "head": "ci/${{ inputs.slug }}",
+              "base": "main",
+              "body": "Automated ${{ inputs.type }} run for feature: ${{ inputs.slug }}"
+            }' \
+            "$GITEA_INTERNAL_URL/api/v1/repos/conroy-gitea/Get-Features-Done/pulls"
 
       - name: Debug output
         if: always()
