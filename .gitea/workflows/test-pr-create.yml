@@ -13,11 +13,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITEA_TOKEN }}
+          token: ${{ secrets.CREATE_PR_TOKEN }}
 
       - name: Diagnose repo API
         run: |
-          TOKEN="${{ secrets.GITEA_TOKEN }}"
+          TOKEN="${{ secrets.CREATE_PR_TOKEN }}"
           echo "=== Authenticated user ==="
           curl -s -H "Authorization: token $TOKEN" "$GITEA_INTERNAL_URL/api/v1/user" | head -c 300
           echo ""

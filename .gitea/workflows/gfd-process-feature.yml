@@ -92,7 +92,7 @@ jobs:
       - name: Create PR
         run: |
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+            -H "Authorization: token ${{ secrets.CREATE_PR_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
               "title": "ci(${{ inputs.slug }}): auto-${{ inputs.type }}",
