@@ -30,14 +30,13 @@ Rules:
 - `status` field as a raw string — no symbols, no emoji, no formatting
 - `next` is the next /gfd command based on current status:
   - `new` → `/gfd:discuss-feature <slug>`
-  - `discussing` → (in progress)
+  - `discussing` → `/gfd:discuss-feature <slug>`
   - `discussed` → `/gfd:research-feature <slug>`
-  - `researching` → (in progress)
+  - `researching` → `/gfd:research-feature <slug>`
   - `researched` → `/gfd:plan-feature <slug>`
-  - `planning` → (in progress)
+  - `planning` → `/gfd:plan-feature <slug>`
   - `planned` → `/gfd:execute-feature <slug>`
-  - `in-progress` → (in progress)
-- For transient statuses (discussing, researching, planning, in-progress), show "(in progress)" since a workflow is already running
+  - `in-progress` → `/gfd:execute-feature <slug>`
 - Sort order: use the order returned by list-features (already sorted by priority + status)
 - Do NOT include done features
 
@@ -60,7 +59,7 @@ No routing, no next-step suggestions, no progress bars. Display only.
 - [ ] list-features called to get feature data
 - [ ] done features excluded from table
 - [ ] Table shows Feature Name, Status, and Next Step columns
-- [ ] Next Step shows the correct /gfd command (with slug) for actionable statuses, or "(in progress)" for transient ones
+- [ ] Next Step shows the correct /gfd command (with slug) for every status
 - [ ] Empty state message shown when no active features
 - [ ] No symbols, no progress bar, no routing in output
 
