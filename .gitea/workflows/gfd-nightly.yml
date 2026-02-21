@@ -30,6 +30,14 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      - name: Debug workspace
+        run: |
+          echo "PWD: $(pwd)"
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          ls -la
+          ls -la get-features-done/bin/ 2>/dev/null || echo "get-features-done/bin/ not found"
+          ls -la bin/ 2>/dev/null || echo "bin/ not found"
+
       - name: Setup gfd-tools
         run: chmod +x get-features-done/bin/gfd-tools
 
