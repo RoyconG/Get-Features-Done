@@ -2,6 +2,9 @@ name: GFD Nightly
 
 env:
   GITEA_INTERNAL_URL: http://192.168.8.109:3000
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
 on:
   schedule:
