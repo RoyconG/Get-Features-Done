@@ -79,6 +79,7 @@ jobs:
       - name: Create PR
         run: |
           tea pulls create \
+            --repo "conroy-gitea/Get-Features-Done" \
             --title "ci(${{ inputs.slug }}): auto-${{ inputs.type }}" \
             --base main \
             --head "ci/${{ inputs.slug }}" \
