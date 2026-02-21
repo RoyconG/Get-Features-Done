@@ -1,0 +1,58 @@
+name: Test PR Creation
+
+env:
+  GITEA_INTERNAL_URL: http://192.168.8.109:3000
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-pr:
+    runs-on: claude
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITEA_TOKEN }}
+
+      - name: Debug info
+        run: |
+          echo "=== Git Info ==="
+          git remote -v
+          git branch -a
+          echo "=== Token check ==="
+          curl -s -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+            "$GITEA_INTERNAL_URL/api/v1/user" | head -c 200
+          echo ""
+
+      - name: Configure git
+        run: |
+          git config user.name "GFD CI"
+          git config user.email "ci@gitea.local"
+
+      - name: Create test branch
+        run: |
+          git checkout -B "ci/cleanup-progress"
+          echo "test" > /tmp/test-pr.txt
+          cp /tmp/test-pr.txt test-pr-marker.txt
+          git add test-pr-marker.txt
+          git commit -m "ci(cleanup-progress): test PR creation"
+          git push -f origin "ci/cleanup-progress"
+
+      - name: Create PR via API
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "title": "ci(cleanup-progress): auto-plan",
+              "head": "ci/cleanup-progress",
+              "base": "main",
+              "body": "Test PR creation from CI"
+            }' \
+            "$GITEA_INTERNAL_URL/api/v1/repos/conroy-gitea/Get-Features-Done/pulls")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          echo "HTTP $HTTP_CODE"
+          echo "$BODY"
+          [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]
