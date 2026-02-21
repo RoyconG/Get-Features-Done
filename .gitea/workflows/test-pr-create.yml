@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITEA_TOKEN }}
+          token: ${{ gitea.token }}
 
       - name: Debug info
         run: |
@@ -21,7 +21,7 @@ jobs:
           git remote -v
           git branch -a
           echo "=== Token check ==="
-          curl -s -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+          curl -s -H "Authorization: token ${{ gitea.token }}" \
             "$GITEA_INTERNAL_URL/api/v1/user" | head -c 200
           echo ""
 
@@ -42,7 +42,7 @@ jobs:
       - name: Create PR via API
         run: |
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+            -H "Authorization: token ${{ gitea.token }}" \
             -H "Content-Type: application/json" \
             -d '{
               "title": "ci(cleanup-progress): auto-plan",
