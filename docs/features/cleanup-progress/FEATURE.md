@@ -16,12 +16,12 @@ Remove the progress command entirely from the codebase. The progress command is 
 
 ## Acceptance Criteria
 
-- [ ] Progress command handler deleted from C# tool (and JS if still present)
-- [ ] `/gfd:progress` skill and workflow file removed
-- [ ] All references to progress command removed from agent prompts and workflow files
-- [ ] Tests for the progress command removed
-- [ ] Any utilities used exclusively by the progress command removed
-- [ ] No remaining dead code or broken references after removal
+- [x] Progress command handler deleted from C# tool (and JS if still present)
+- [x] `/gfd:progress` skill and workflow file removed
+- [x] All references to progress command removed from agent prompts and workflow files
+- [x] Tests for the progress command removed
+- [x] Any utilities used exclusively by the progress command removed
+- [x] No remaining dead code or broken references after removal
 
 ## Tasks
 
