@@ -40,6 +40,14 @@ Comprehensive security audit of the entire GFD codebase — shell scripts, workf
 
 ## Decisions
 
+### Plan 01: C# and Bash Code Audit
+
+- **Severity classification for injection findings:** MEDIUM applied to prompt injection (Finding 3) and path traversal (Finding 4) because exploitation requires repository write access (local user or collaborator). These would be HIGH in a server-side API context where user input comes from untrusted external sources.
+- **ArgumentList.Add() pattern confirmed safe:** No string concatenation into process arguments exists anywhere in the C# codebase. The C# rewrite fully addressed the execSync injection risk present in the old JavaScript tool.
+- **ValidStatuses enforcement confirmed:** Status validation is enforced in `FeatureUpdateStatusCommand.cs` via array membership check before any filesystem operations.
+- **Silent exception swallowing rated LOW not MEDIUM:** Git commit failures silently continue execution but the security impact is limited to missing audit trail entries rather than data exfiltration or privilege escalation.
+- **Both task outputs written in single commit:** C# audit (Task 1) and bash audit (Task 2) content were both written to findings-code.md in a single atomic file creation. Content coverage is identical to what two separate commits would have produced.
+
 ### Plan 02: CI Workflow and Committed Files Audit
 - **inputs.slug injection severity:** Classified as HIGH (not MEDIUM). Gitea Actions follows GitHub Actions expression expansion semantics — `${{ inputs.slug }}` is expanded before the shell sees the run: block, making injection reliable across 6+ shell contexts.
 - **config.json gitignore gap severity:** Classified as MEDIUM (systemic risk). The schema explicitly supports `team.members` and other fields that could hold sensitive values; the gitignore gap is structural, not just about current content.
