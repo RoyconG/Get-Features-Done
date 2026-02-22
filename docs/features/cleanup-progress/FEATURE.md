@@ -1,7 +1,7 @@
 ---
 name: Cleanup Progress
 slug: cleanup-progress
-status: planned
+status: done
 owner: Conroy
 assignees: []
 created: 2026-02-20
@@ -43,7 +43,9 @@ Remove the progress command entirely from the codebase. The progress command is 
 
 ## Decisions
 
-[Key decisions made during planning and execution of this feature.]
+- **Historical doc preservation:** Planning docs under `docs/features/status/` and `docs/features/convert-from-gsd/` retain `/gfd:progress` references as accurate historical records — these were not modified.
+- **ARCHITECTURE.md step 5:** Updated to `/gfd:status` rather than removed, preserving the numbered key command sequence.
+- **Scope confirmed clean:** Workflow backing file (`get-features-done/workflows/progress.md`) and C# handler (`ProgressCommand.cs`) were already deleted in the csharp-rewrite feature — no action needed for those.
 
 ## Blockers
 
