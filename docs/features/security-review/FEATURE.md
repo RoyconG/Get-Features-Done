@@ -24,7 +24,9 @@ Comprehensive security audit of the entire GFD codebase — shell scripts, workf
 
 ## Tasks
 
-[Populated during planning. Links to plan files.]
+- [01-PLAN.md](01-PLAN.md) — Audit C# source files and bash scripts for injection, path traversal, and process execution vulnerabilities
+- [02-PLAN.md](02-PLAN.md) — Audit CI workflows, committed files, and hardcoded paths for supply chain, secrets, and shell injection risks
+- [03-PLAN.md](03-PLAN.md) — Audit agent prompts, workflow files, templates, and references; compile SECURITY-REVIEW.md
 
 ## Notes
 
