@@ -113,3 +113,11 @@ None — no external service configuration required.
 ---
 *Feature: security-review*
 *Completed: 2026-02-22*
+
+## Self-Check: PASSED
+
+- `docs/features/security-review/findings-agents.md` — FOUND
+- `SECURITY-REVIEW.md` — FOUND
+- `docs/features/security-review/03-SUMMARY.md` — FOUND
+- Commit `b151101` (Task 1: agent prompts audit) — FOUND
+- Commit `f8f1285` (Task 2: SECURITY-REVIEW.md compilation) — FOUND
