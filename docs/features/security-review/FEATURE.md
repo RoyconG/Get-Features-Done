@@ -1,7 +1,7 @@
 ---
 name: Security Review
 slug: security-review
-status: planned
+status: in-progress
 owner: Conroy
 assignees: []
 created: 2026-02-20
@@ -39,6 +39,12 @@ Comprehensive security audit of the entire GFD codebase — shell scripts, workf
 - **Motivation:** Pre-publish hygiene before others use GFD
 
 ## Decisions
+
+### Plan 02: CI Workflow and Committed Files Audit
+- **inputs.slug injection severity:** Classified as HIGH (not MEDIUM). Gitea Actions follows GitHub Actions expression expansion semantics — `${{ inputs.slug }}` is expanded before the shell sees the run: block, making injection reliable across 6+ shell contexts.
+- **config.json gitignore gap severity:** Classified as MEDIUM (systemic risk). The schema explicitly supports `team.members` and other fields that could hold sensitive values; the gitignore gap is structural, not just about current content.
+- **Hardcoded paths in documentation:** Paths like `/var/home/conroy/Projects/GFD/` appear in RESEARCH.md and audit findings docs. These are documentation artifacts recording audit evidence, not executable source files. Noted as informational, not flagged as HIGH security findings.
+- **AUTO-RUN.md case bug:** Line 98 of gfd-process-feature.yml references `AUTO-RUN.MD` (uppercase `.MD`) but actual files use `.md` (lowercase). This incidentally prevents AUTO-RUN.md exposure in the debug step. Documented as a note within the debug log finding rather than a separate finding.
 
 ## Blockers
 
