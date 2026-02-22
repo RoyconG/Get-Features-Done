@@ -1,7 +1,7 @@
 ---
 name: Security Review
 slug: security-review
-status: researched
+status: planned
 owner: Conroy
 assignees: []
 created: 2026-02-20
