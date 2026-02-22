@@ -1,7 +1,7 @@
 ---
 name: Cleanup Progress
 slug: cleanup-progress
-status: researched
+status: planned
 owner: Conroy
 assignees: []
 created: 2026-02-20
