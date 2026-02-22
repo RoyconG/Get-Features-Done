@@ -1,7 +1,7 @@
 ---
 name: Security Review
 slug: security-review
-status: in-progress
+status: done
 owner: Conroy
 assignees: []
 created: 2026-02-20
@@ -53,6 +53,13 @@ Comprehensive security audit of the entire GFD codebase — shell scripts, workf
 - **config.json gitignore gap severity:** Classified as MEDIUM (systemic risk). The schema explicitly supports `team.members` and other fields that could hold sensitive values; the gitignore gap is structural, not just about current content.
 - **Hardcoded paths in documentation:** Paths like `/var/home/conroy/Projects/GFD/` appear in RESEARCH.md and audit findings docs. These are documentation artifacts recording audit evidence, not executable source files. Noted as informational, not flagged as HIGH security findings.
 - **AUTO-RUN.md case bug:** Line 98 of gfd-process-feature.yml references `AUTO-RUN.MD` (uppercase `.MD`) but actual files use `.md` (lowercase). This incidentally prevents AUTO-RUN.md exposure in the debug step. Documented as a note within the debug log finding rather than a separate finding.
+
+### Plan 03: Agent Prompts and Final Report
+
+- **Agent Bash grant severity:** All five agents rated LOW for Bash tool grant (not MEDIUM independently) because Bash is operationally required for GFD's CLI model and exploitation requires prior prompt injection success. The Bash grant amplifies blast radius of prompt injection but is not an independent vulnerability.
+- **convert-from-gsd injection severity:** Rated MEDIUM because embedded JavaScript constructs shell commands using template literals with user-controlled GSD migration data. Single-quote breakout in `gfd-tools frontmatter merge` argument is a real injection path.
+- **WebFetch without domain restriction severity:** Rated LOW-14 (not MEDIUM) because URL injection requires write access to FEATURE.md, placing it in the same access tier as other FEATURE.md-dependent findings.
+- **Final finding count 23 vs 12 pre-identified:** Research document pre-identified 12 findings; actual three-plan audit found 23. Higher count reflects Plan 03 identifying 7 new findings in the agent/workflow layer plus some Plan 01/02 findings being split into sub-findings for specificity.
 
 ## Blockers
 
