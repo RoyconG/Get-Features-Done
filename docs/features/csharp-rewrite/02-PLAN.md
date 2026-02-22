@@ -61,7 +61,7 @@ Output: All commands implemented and tested. Full parity with gfd-tools.cjs plus
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>

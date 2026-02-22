@@ -464,7 +464,7 @@ public static Dictionary<string, object?> Extract(string content)
 
 ```bash
 # How C# tool is invoked in updated workflow/agent files:
-INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init plan-feature "${SLUG}")
+INIT=$(dotnet run --project $HOME/.claude/get-features-done/GfdTools/ -- init plan-feature "${SLUG}")
 
 # Extract individual values:
 feature_found=$(echo "$INIT" | grep "^feature_found=" | cut -d= -f2-)
@@ -518,7 +518,7 @@ plans=$(echo "$INIT" | grep "^plan=")  # repeated key for list
 - https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-run — `dotnet run --project` flag, build caching behavior
 - https://learn.microsoft.com/en-us/dotnet/core/tools/global-json — `global.json` SDK version pinning
 - https://packages.fedoraproject.org/pkgs/dotnet10.0/dotnet-sdk-10.0/ — Fedora 43: `dotnet-sdk-10.0` version 10.0.102-1.fc43 (stable)
-- `/var/home/conroy/Projects/GFD/get-features-done/bin/gfd-tools.cjs` — Full source code of existing CLI (ground truth, HIGH confidence)
+- `./get-features-done/bin/gfd-tools.cjs` — Full source code of existing CLI (ground truth, HIGH confidence)
 - All workflow and agent files grepped for command usage (ground truth)
 
 ### Secondary (MEDIUM confidence)

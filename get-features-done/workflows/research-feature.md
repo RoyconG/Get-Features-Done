@@ -5,7 +5,7 @@ Investigate implementation approach for a feature. Spawns gfd-researcher to prod
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
 
-@/home/conroy/.claude/get-features-done/references/ui-brand.md
+@$HOME/.claude/get-features-done/references/ui-brand.md
 </required_reading>
 
 <process>
@@ -27,7 +27,7 @@ Exit.
 ## 2. Run Init
 
 ```bash
-INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init plan-feature "${SLUG}")
+INIT=$($HOME/.claude/get-features-done/bin/gfd-tools init plan-feature "${SLUG}")
 ```
 
 Extract from key=value output: `feature_found`, `feature_dir`, `feature_name`, `feature_status`, `researcher_model`, `has_research` (grep "^key=" | cut -d= -f2-).
@@ -88,7 +88,7 @@ Exit.
 ## 4. Transition to Researching
 
 ```bash
-/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "researching"
+$HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "researching"
 ```
 
 **Display stage banner:**
@@ -156,7 +156,7 @@ Return ## RESEARCH COMPLETE with brief summary when done.
 
 ```
 Task(
-  prompt="First, read /home/conroy/.claude/agents/gfd-researcher.md for your role and instructions.\n\n" + research_prompt,
+  prompt="First, read $HOME/.claude/agents/gfd-researcher.md for your role and instructions.\n\n" + research_prompt,
   subagent_type="general-purpose",
   model="{researcher_model}",
   description="Research feature [SLUG]"
@@ -171,7 +171,7 @@ Task(
 ## 7. Transition to Researched
 
 ```bash
-/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "researched"
+$HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "researched"
 ```
 
 ## 8. Commit

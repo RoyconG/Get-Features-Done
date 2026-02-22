@@ -130,7 +130,7 @@ For each truth:
 Use gfd-tools for artifact verification against must_haves in PLAN frontmatter:
 
 ```bash
-ARTIFACT_RESULT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools verify artifacts "$PLAN_PATH")
+ARTIFACT_RESULT=$($HOME/.claude/get-features-done/bin/gfd-tools verify artifacts "$PLAN_PATH")
 ```
 
 Extract from key=value output: `all_passed` (grep "^all_passed=" | cut -d= -f2-), `passed`, `total`, repeated `artifact=` lines with path/exists/issues/passed fields.
@@ -179,7 +179,7 @@ Key links are critical connections. If broken, the goal fails even with all arti
 Use gfd-tools for key link verification:
 
 ```bash
-LINKS_RESULT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools verify key-links "$PLAN_PATH")
+LINKS_RESULT=$($HOME/.claude/get-features-done/bin/gfd-tools verify key-links "$PLAN_PATH")
 ```
 
 Extract from key=value output: `all_verified` (grep "^all_verified=" | cut -d= -f2-), `verified`, `total`, repeated `link=` lines with from/to/via/verified/detail fields.
@@ -233,13 +233,13 @@ Identify files modified in this feature from SUMMARY.md key-files section, or ch
 
 ```bash
 # Option 1: Extract from SUMMARY frontmatter
-SUMMARY_FILES=$(/home/conroy/.claude/get-features-done/bin/gfd-tools summary-extract "docs/features/$SLUG/01-SUMMARY.md" --fields key-files)
+SUMMARY_FILES=$($HOME/.claude/get-features-done/bin/gfd-tools summary-extract "docs/features/$SLUG/01-SUMMARY.md" --fields key-files)
 # Extract file paths from key=value output: grep "^key-files=" | cut -d= -f2-
 
 # Option 2: Verify commits exist (if commit hashes documented)
 COMMIT_HASHES=$(grep -oE "[a-f0-9]{7,40}" docs/features/$SLUG/*-SUMMARY.md | head -10)
 if [ -n "$COMMIT_HASHES" ]; then
-  COMMITS_VALID=$(/home/conroy/.claude/get-features-done/bin/gfd-tools verify commits $COMMIT_HASHES)
+  COMMITS_VALID=$($HOME/.claude/get-features-done/bin/gfd-tools verify commits $COMMIT_HASHES)
   # Extract from key=value output: repeated valid= and invalid= lines
 fi
 

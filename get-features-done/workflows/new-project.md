@@ -5,7 +5,7 @@ Initialize a new GFD project through a unified flow: questioning, requirements, 
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
 
-@/home/conroy/.claude/get-features-done/references/ui-brand.md
+@$HOME/.claude/get-features-done/references/ui-brand.md
 </required_reading>
 
 <process>
@@ -15,7 +15,7 @@ Read all files referenced by the invoking prompt's execution_context before star
 **MANDATORY FIRST STEP — Execute these checks before ANY user interaction:**
 
 ```bash
-INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init new-project)
+INIT=$($HOME/.claude/get-features-done/bin/gfd-tools init new-project)
 ```
 
 Extract from key=value output: `project_exists`, `has_codebase_map`, `has_existing_code`, `is_brownfield`, `needs_codebase_map`, `has_git`, `planner_model`, `researcher_model`, `mapper_model` (grep "^key=" | cut -d= -f2-).
@@ -95,7 +95,7 @@ Keep following threads. Each answer opens new threads to explore. Ask about:
 - What it would actually look like
 - What's already decided
 
-Consult `@/home/conroy/.claude/get-features-done/references/questioning.md` for techniques:
+Consult `@$HOME/.claude/get-features-done/references/questioning.md` for techniques:
 - Challenge vagueness
 - Make abstract concrete
 - Surface assumptions
@@ -261,7 +261,7 @@ mkdir -p docs/features
 
 ## 6. Write PROJECT.md
 
-Synthesize all context from the questioning session into `docs/features/PROJECT.md` using the template from `@/home/conroy/.claude/get-features-done/templates/project.md`.
+Synthesize all context from the questioning session into `docs/features/PROJECT.md` using the template from `@$HOME/.claude/get-features-done/templates/project.md`.
 
 **For greenfield projects:**
 

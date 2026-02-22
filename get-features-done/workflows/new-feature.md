@@ -5,7 +5,7 @@ Create a new feature in the GFD project. A feature is a named, independently del
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
 
-@/home/conroy/.claude/get-features-done/references/ui-brand.md
+@$HOME/.claude/get-features-done/references/ui-brand.md
 </required_reading>
 
 <process>
@@ -58,7 +58,7 @@ Exit.
 ## 2. Run Init
 
 ```bash
-INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init new-feature "${SLUG}")
+INIT=$($HOME/.claude/get-features-done/bin/gfd-tools init new-feature "${SLUG}")
 ```
 
 Extract from key=value output: `project_exists`, `feature_exists`, `feature_dir`, `planner_model` (grep "^key=" | cut -d= -f2-).
@@ -115,7 +115,7 @@ Create the feature directory:
 mkdir -p docs/features/${SLUG}
 ```
 
-Write `docs/features/${SLUG}/FEATURE.md` using the template from `@/home/conroy/.claude/get-features-done/templates/feature.md`, filled with the user's answer:
+Write `docs/features/${SLUG}/FEATURE.md` using the template from `@$HOME/.claude/get-features-done/templates/feature.md`, filled with the user's answer:
 
 ```markdown
 ---

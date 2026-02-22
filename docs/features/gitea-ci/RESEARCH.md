@@ -559,8 +559,8 @@ Note: `workflow_call` with static `with:` values works. The limitation is that `
 - https://gitea.com/actions/setup-dotnet — setup-dotnet action, .NET 10 support
 - https://gitea.com/actions/gitea-upload-artifact — Gitea-native artifact upload action
 - https://platform.claude.com/docs/en/api/usage-cost-api — Anthropic Usage API (admin key required, org-only)
-- `/var/home/conroy/Projects/GFD/get-features-done/GfdTools/Commands/ListFeaturesCommand.cs` — `list-features --status` command implementation
-- `/var/home/conroy/Projects/GFD/get-features-done/GfdTools/Program.cs` — gfd-tools command registry
+- `./get-features-done/GfdTools/Commands/ListFeaturesCommand.cs` — `list-features --status` command implementation
+- `./get-features-done/GfdTools/Program.cs` — gfd-tools command registry
 
 ### Secondary (MEDIUM confidence)
 - https://github.com/go-gitea/gitea/issues/25179 — Dynamic matrix broken (open issue as of Feb 2025)

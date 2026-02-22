@@ -71,8 +71,8 @@ Capture the idea in a "Deferred Ideas" section of Notes. Don't lose it, don't ac
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
 
-@/home/conroy/.claude/get-features-done/references/ui-brand.md
-@/home/conroy/.claude/get-features-done/references/questioning.md
+@$HOME/.claude/get-features-done/references/ui-brand.md
+@$HOME/.claude/get-features-done/references/questioning.md
 </required_reading>
 
 <process>
@@ -94,7 +94,7 @@ Exit.
 ## 2. Run Init
 
 ```bash
-INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init plan-feature "${SLUG}")
+INIT=$($HOME/.claude/get-features-done/bin/gfd-tools init plan-feature "${SLUG}")
 ```
 
 Extract from key=value output: `feature_found`, `feature_dir`, `feature_name`, `feature_status` (grep "^key=" | cut -d= -f2-).
@@ -144,7 +144,7 @@ Exit.
 ## 4. Transition to Discussing
 
 ```bash
-/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "discussing"
+$HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "discussing"
 ```
 
 **Display stage banner:**
@@ -359,7 +359,7 @@ Keep the `## Decisions` and `## Blockers` sections as-is.
 ## 10. Transition to Discussed
 
 ```bash
-/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "discussed"
+$HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "discussed"
 ```
 
 ## 11. Commit

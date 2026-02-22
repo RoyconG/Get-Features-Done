@@ -53,7 +53,7 @@ re_verification: false
 
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
-| `commands/gfd/convert-from-gsd.md` | `get-features-done/workflows/convert-from-gsd.md` | `@execution_context` reference | WIRED | `@/home/conroy/.claude/get-features-done/workflows/convert-from-gsd.md` present in command file |
+| `commands/gfd/convert-from-gsd.md` | `get-features-done/workflows/convert-from-gsd.md` | `@execution_context` reference | WIRED | `@$HOME/.claude/get-features-done/workflows/convert-from-gsd.md` present in command file |
 | Workflow step 3: scan phases | Workflow step 4: present table | Node.js `PHASES_JSON` → `MAPPING_JSON` pipeline | WIRED | `PHASES_JSON` produced in Step 3, consumed in Step 4's `node -e` via `$(echo $PHASES_JSON)` |
 | Workflow step 7: create FEATURE.md | ROADMAP.md `**Goal**` field | `extractPhaseGoal` regex | WIRED | `\*\*Goal\*\*` pattern present in regex; function called during FEATURE.md generation |
 | Workflow step 8: migrate artifacts | `gfd-tools.cjs frontmatter merge` | `node gfd-tools.cjs frontmatter merge --data` | WIRED | Full command present in step 8 with `{feature: m.slug}` data payload |

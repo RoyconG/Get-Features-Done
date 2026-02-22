@@ -47,7 +47,7 @@ Output: Two files — the command stub and the workflow document with steps 1-5 
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>
@@ -69,8 +69,8 @@ The file must have:
 - Frontmatter: `name: gfd:convert-from-gsd`, `description: Migrate a GSD .planning/ project to GFD docs/features/ structure`, `argument-hint: (no arguments)`, `allowed-tools: Read, Write, Edit, Bash, Grep, Glob, AskUserQuestion`
 - `<objective>` tag: one sentence describing the command
 - `<execution_context>` tag with these @-references:
-  - `@/home/conroy/.claude/get-features-done/workflows/convert-from-gsd.md`
-  - `@/home/conroy/.claude/get-features-done/references/ui-brand.md`
+  - `@$HOME/.claude/get-features-done/workflows/convert-from-gsd.md`
+  - `@$HOME/.claude/get-features-done/references/ui-brand.md`
 - `<process>` tag: "Execute the convert-from-gsd workflow."
 
 Do NOT include any workflow logic in the command file — that belongs in the workflow. The command is just a stub that loads the workflow.
@@ -97,7 +97,7 @@ Migrate a GSD `.planning/` directory to GFD `docs/features/` structure. Scans ph
 
 **`<required_reading>` block:**
 ```
-@/home/conroy/.claude/get-features-done/references/ui-brand.md
+@$HOME/.claude/get-features-done/references/ui-brand.md
 ```
 
 **`<process>` block — implement these 5 steps:**

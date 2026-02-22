@@ -58,7 +58,7 @@ Output: `.gitea/workflows/gfd-process-feature.yml`
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>

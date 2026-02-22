@@ -389,12 +389,12 @@ Output.WriteBool("committed", true);
 ### Primary (HIGH confidence)
 - https://code.claude.com/docs/en/cli-reference — Confirmed `--max-turns`, `--allowedTools`, `--output-format`, `--model`, `--permission-mode` flags; exit behavior on max-turns
 - https://code.claude.com/docs/en/headless — Confirmed `-p` flag behavior, tool approval pattern
-- `/var/home/conroy/Projects/GFD/get-features-done/GfdTools/Services/GitService.cs` — ExecGit pattern for subprocess invocation
-- `/var/home/conroy/Projects/GFD/get-features-done/GfdTools/Services/OutputService.cs` — Output contract
-- `/var/home/conroy/Projects/GFD/get-features-done/GfdTools/Program.cs` — Command registration pattern
-- `/var/home/conroy/Projects/GFD/get-features-done/GfdTools/GfdTools.csproj` — .NET 10, System.CommandLine beta5
-- `/var/home/conroy/Projects/GFD/get-features-done/workflows/research-feature.md` — Exact research prompt structure
-- `/var/home/conroy/Projects/GFD/get-features-done/workflows/plan-feature.md` — Exact plan prompt structure and status lifecycle
+- `./get-features-done/GfdTools/Services/GitService.cs` — ExecGit pattern for subprocess invocation
+- `./get-features-done/GfdTools/Services/OutputService.cs` — Output contract
+- `./get-features-done/GfdTools/Program.cs` — Command registration pattern
+- `./get-features-done/GfdTools/GfdTools.csproj` — .NET 10, System.CommandLine beta5
+- `./get-features-done/workflows/research-feature.md` — Exact research prompt structure
+- `./get-features-done/workflows/plan-feature.md` — Exact plan prompt structure and status lifecycle
 
 ### Secondary (MEDIUM confidence)
 - GitHub issue #16963 anthropics/claude-code — `--max-turns` confirmed present in CLI even if underdocumented in `--help`

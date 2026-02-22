@@ -21,7 +21,7 @@ affects: [csharp-rewrite]
 tech-stack:
   added: []
   patterns:
-    - "All tool invocations: dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- <command>"
+    - "All tool invocations: dotnet run --project $HOME/.claude/get-features-done/GfdTools/ -- <command>"
     - "Output parsing: grep '^key=' | cut -d= -f2- replaces jq JSON extraction"
     - "Committing: plain git add + git commit replaces gfd-tools.cjs commit command"
     - "Feature content: cat FEATURE.md separately after init (--include flag dropped)"
@@ -54,7 +54,7 @@ key-decisions:
   - "progress.md workflow deleted alongside gfd-tools.cjs (progress feature dropped per plan decisions)"
 
 patterns-established:
-  - "Tool invocation pattern: dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- <command> <args>"
+  - "Tool invocation pattern: dotnet run --project $HOME/.claude/get-features-done/GfdTools/ -- <command> <args>"
   - "Output parsing pattern: echo \"$INIT\" | grep \"^key=\" | cut -d= -f2-"
   - "File reading pattern: cat docs/features/${SLUG}/FEATURE.md (no --include needed)"
 

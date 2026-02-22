@@ -5,7 +5,7 @@
 ## Directory Layout
 
 ```
-/var/home/conroy/Projects/GFD/
+
 ├── agents/                              # Agent definitions with role, process, templates
 │   ├── gfd-codebase-mapper.md          # Analyzes codebase, writes STACK/ARCHITECTURE/CONVENTIONS/CONCERNS
 │   ├── gfd-executor.md                 # Executes PLAN.md files, creates SUMMARY.md

@@ -44,7 +44,7 @@ Output: `commands/gfd/status.md` (thin command) and `get-features-done/workflows
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>
@@ -58,7 +58,7 @@ Output: `commands/gfd/status.md` (thin command) and `get-features-done/workflows
   <name>Task 1: Create the status command file</name>
   <files>commands/gfd/status.md</files>
   <action>
-Create /var/home/conroy/Projects/GFD/commands/gfd/status.md as a thin command file following the existing GFD command pattern (same structure as commands/gfd/progress.md but updated):
+Create ./commands/gfd/status.md as a thin command file following the existing GFD command pattern (same structure as commands/gfd/progress.md but updated):
 
 ```markdown
 ---
@@ -70,7 +70,7 @@ allowed-tools: Read, Bash, Grep, Glob
 <objective>Show a plain table of all active features (excluding done) with their current status.</objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/workflows/status.md
+@$HOME/.claude/get-features-done/workflows/status.md
 </execution_context>
 
 <process>Execute the status workflow.</process>
@@ -80,7 +80,7 @@ Note: No `argument-hint` needed (no arguments). `allowed-tools` is minimal since
   </action>
   <verify>
 ```bash
-cat /var/home/conroy/Projects/GFD/commands/gfd/status.md
+cat ./commands/gfd/status.md
 ```
 File exists and contains `name: gfd:status` in frontmatter and an `@` reference to the status workflow.
   </verify>
@@ -93,7 +93,7 @@ commands/gfd/status.md exists with correct frontmatter name and execution_contex
   <name>Task 2: Create the status workflow</name>
   <files>get-features-done/workflows/status.md</files>
   <action>
-Create /var/home/conroy/Projects/GFD/get-features-done/workflows/status.md with the following content:
+Create ./get-features-done/workflows/status.md with the following content:
 
 ```markdown
 <purpose>
@@ -105,7 +105,7 @@ Display a plain table of all active features with their current lifecycle status
 ## 1. Load Features
 
 ```bash
-FEATURES_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs list-features)
+FEATURES_RAW=$(node $HOME/.claude/get-features-done/bin/gfd-tools.cjs list-features)
 ```
 
 Parse the JSON array from `features` key. Filter out any feature where `status` is `"done"`.
@@ -158,7 +158,7 @@ Important: The code blocks within the workflow markdown must use triple backtick
   </action>
   <verify>
 ```bash
-cat /var/home/conroy/Projects/GFD/get-features-done/workflows/status.md
+cat ./get-features-done/workflows/status.md
 ```
 File exists and contains: the list-features bash call, filtering logic for done features, a table rendering section, and the empty-state message with `/gfd:new-feature` hint.
   </verify>
@@ -172,17 +172,17 @@ get-features-done/workflows/status.md exists with list-features call, done-filte
 <verification>
 ```bash
 # Confirm both files exist
-ls /var/home/conroy/Projects/GFD/commands/gfd/status.md
-ls /var/home/conroy/Projects/GFD/get-features-done/workflows/status.md
+ls ./commands/gfd/status.md
+ls ./get-features-done/workflows/status.md
 
 # Confirm command name
-grep "name: gfd:status" /var/home/conroy/Projects/GFD/commands/gfd/status.md
+grep "name: gfd:status" ./commands/gfd/status.md
 
 # Confirm workflow references list-features
-grep "list-features" /var/home/conroy/Projects/GFD/get-features-done/workflows/status.md
+grep "list-features" ./get-features-done/workflows/status.md
 
 # Confirm no symbols in the table format description
-grep -v "✓\|◆\|○\|⚠\|progress bar" /var/home/conroy/Projects/GFD/get-features-done/workflows/status.md | grep -c "Status"
+grep -v "✓\|◆\|○\|⚠\|progress bar" ./get-features-done/workflows/status.md | grep -c "Status"
 ```
 </verification>
 

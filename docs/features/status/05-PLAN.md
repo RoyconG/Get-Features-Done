@@ -55,7 +55,7 @@ Output: Four updated files with no references to "backlog" status and /gfd:progr
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>
@@ -74,7 +74,7 @@ Output: Four updated files with no references to "backlog" status and /gfd:progr
   <action>
 **Part A: Update get-features-done/templates/feature.md**
 
-Read the current template at /var/home/conroy/Projects/GFD/get-features-done/templates/feature.md.
+Read the current template at ./get-features-done/templates/feature.md.
 
 Make these changes:
 1. Change `status: backlog` to `status: new` in the template frontmatter
@@ -92,7 +92,7 @@ Make these changes:
 
 **Part B: Simplify get-features-done/workflows/new-feature.md**
 
-Read the current workflow at /var/home/conroy/Projects/GFD/get-features-done/workflows/new-feature.md.
+Read the current workflow at ./get-features-done/workflows/new-feature.md.
 
 The current workflow asks 4 questions (description, acceptance criteria, priority, dependencies). Simplify it to:
 1. Slug (from $ARGUMENTS — already handled)
@@ -123,21 +123,21 @@ Keep all other workflow mechanics (slug validation, init, directory creation, ST
   <verify>
 ```bash
 # Template uses new status
-grep "status: new" /var/home/conroy/Projects/GFD/get-features-done/templates/feature.md
+grep "status: new" ./get-features-done/templates/feature.md
 
 # Template no longer has backlog
-grep "status: backlog" /var/home/conroy/Projects/GFD/get-features-done/templates/feature.md
+grep "status: backlog" ./get-features-done/templates/feature.md
 # (should return nothing)
 
 # Workflow simplified — no acceptance criteria question
-grep -c "Acceptance Criteria" /var/home/conroy/Projects/GFD/get-features-done/workflows/new-feature.md
+grep -c "Acceptance Criteria" ./get-features-done/workflows/new-feature.md
 # (should be 1 or fewer — just the placeholder mention, not the question)
 
 # Workflow points to discuss-feature as next step
-grep "discuss-feature" /var/home/conroy/Projects/GFD/get-features-done/workflows/new-feature.md
+grep "discuss-feature" ./get-features-done/workflows/new-feature.md
 
 # No progress references remain
-grep "gfd:progress" /var/home/conroy/Projects/GFD/get-features-done/workflows/new-feature.md
+grep "gfd:progress" ./get-features-done/workflows/new-feature.md
 # (should return nothing)
 ```
   </verify>
@@ -159,7 +159,7 @@ grep "gfd:progress" /var/home/conroy/Projects/GFD/get-features-done/workflows/ne
   <action>
 **Part A: Update get-features-done/workflows/plan-feature.md**
 
-Read the current workflow at /var/home/conroy/Projects/GFD/get-features-done/workflows/plan-feature.md.
+Read the current workflow at ./get-features-done/workflows/plan-feature.md.
 
 Make these targeted changes:
 
@@ -182,7 +182,7 @@ Make these targeted changes:
    ```
    Replace with:
    ```bash
-   node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "planning"
+   node $HOME/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "planning"
    ```
    (Using feature-update-status is preferred — validates the transition and returns confirmation.)
 
@@ -208,7 +208,7 @@ Make these targeted changes:
 
 **Part B: Update get-features-done/workflows/execute-feature.md**
 
-Read the current workflow at /var/home/conroy/Projects/GFD/get-features-done/workflows/execute-feature.md.
+Read the current workflow at ./get-features-done/workflows/execute-feature.md.
 
 Make these targeted changes:
 
@@ -221,7 +221,7 @@ Make these targeted changes:
    ```
    Replace with:
    ```bash
-   node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "in-progress"
+   node $HOME/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "in-progress"
    ```
    (Single authoritative call — no backlog fallback needed. The validator in gfd-tools.cjs handles validation.)
 
@@ -244,24 +244,24 @@ After making all changes, verify no `/gfd:progress` references remain in either 
   <verify>
 ```bash
 # plan-feature accepts researched
-grep "researched" /var/home/conroy/Projects/GFD/get-features-done/workflows/plan-feature.md
+grep "researched" ./get-features-done/workflows/plan-feature.md
 
 # plan-feature no longer has backlog in sed
-grep "status: backlog" /var/home/conroy/Projects/GFD/get-features-done/workflows/plan-feature.md
+grep "status: backlog" ./get-features-done/workflows/plan-feature.md
 # (should return nothing)
 
 # execute-feature no longer has backlog in sed
-grep "status: backlog" /var/home/conroy/Projects/GFD/get-features-done/workflows/execute-feature.md
+grep "status: backlog" ./get-features-done/workflows/execute-feature.md
 # (should return nothing)
 
 # No progress references in either file
-grep "gfd:progress" /var/home/conroy/Projects/GFD/get-features-done/workflows/plan-feature.md
-grep "gfd:progress" /var/home/conroy/Projects/GFD/get-features-done/workflows/execute-feature.md
+grep "gfd:progress" ./get-features-done/workflows/plan-feature.md
+grep "gfd:progress" ./get-features-done/workflows/execute-feature.md
 # (both should return nothing)
 
 # Confirm gfd:status references added
-grep "gfd:status" /var/home/conroy/Projects/GFD/get-features-done/workflows/plan-feature.md
-grep "gfd:status" /var/home/conroy/Projects/GFD/get-features-done/workflows/execute-feature.md
+grep "gfd:status" ./get-features-done/workflows/plan-feature.md
+grep "gfd:status" ./get-features-done/workflows/execute-feature.md
 ```
   </verify>
   <done>
@@ -279,21 +279,21 @@ grep "gfd:status" /var/home/conroy/Projects/GFD/get-features-done/workflows/exec
 ```bash
 # Full sweep: no gfd:progress references in any updated workflow
 grep -r "gfd:progress" \
-  /var/home/conroy/Projects/GFD/get-features-done/workflows/new-feature.md \
-  /var/home/conroy/Projects/GFD/get-features-done/workflows/plan-feature.md \
-  /var/home/conroy/Projects/GFD/get-features-done/workflows/execute-feature.md
+  ./get-features-done/workflows/new-feature.md \
+  ./get-features-done/workflows/plan-feature.md \
+  ./get-features-done/workflows/execute-feature.md
 # (should return nothing)
 
 # Template uses new status
-grep "status: new" /var/home/conroy/Projects/GFD/get-features-done/templates/feature.md
+grep "status: new" ./get-features-done/templates/feature.md
 
 # plan-feature accepts researched
-grep "researched" /var/home/conroy/Projects/GFD/get-features-done/workflows/plan-feature.md
+grep "researched" ./get-features-done/workflows/plan-feature.md
 
 # No backlog in sed patterns
 grep "backlog" \
-  /var/home/conroy/Projects/GFD/get-features-done/workflows/plan-feature.md \
-  /var/home/conroy/Projects/GFD/get-features-done/workflows/execute-feature.md
+  ./get-features-done/workflows/plan-feature.md \
+  ./get-features-done/workflows/execute-feature.md
 # (should return nothing or only comments/docs, not active sed patterns)
 ```
 </verification>

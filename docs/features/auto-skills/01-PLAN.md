@@ -46,7 +46,7 @@ Output: `get-features-done/GfdTools/Services/ClaudeService.cs` with `InvokeHeadl
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>
@@ -174,7 +174,7 @@ Use `string.Join("\n", result.Stdout.Split('\n').TakeLast(50))` for the tail.
   <verify>
 Run from the GfdTools directory:
 ```bash
-cd /var/home/conroy/Projects/GFD/get-features-done/GfdTools && dotnet build 2>&1
+cd ./get-features-done/GfdTools && dotnet build 2>&1
 ```
 Build must succeed with 0 errors. ClaudeService.cs must compile cleanly. Confirm `ClaudeService` and `RunResult` are recognized.
   </verify>
@@ -199,5 +199,5 @@ The service layer for headless claude invocation is complete and compiles. Wave 
 </success_criteria>
 
 <output>
-After completion, create `docs/features/auto-skills/01-SUMMARY.md` following the summary template at `/home/conroy/.claude/get-features-done/templates/summary.md`.
+After completion, create `docs/features/auto-skills/01-SUMMARY.md` following the summary template at `$HOME/.claude/get-features-done/templates/summary.md`.
 </output>

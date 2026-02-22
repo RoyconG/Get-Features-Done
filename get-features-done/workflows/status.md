@@ -7,7 +7,7 @@ Display a plain table of all active features with their current lifecycle status
 ## 1. Load Features
 
 ```bash
-FEATURES_RAW=$(/home/conroy/.claude/get-features-done/bin/gfd-tools list-features)
+FEATURES_RAW=$($HOME/.claude/get-features-done/bin/gfd-tools list-features)
 ```
 
 Extract from key=value output: each feature appears as repeated `feature=` lines. Parse each feature's name, slug, status, priority. Filter out any feature where `status` is `done`.

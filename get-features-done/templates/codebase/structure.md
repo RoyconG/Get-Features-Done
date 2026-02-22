@@ -216,7 +216,7 @@ get-features-done/
 
 **New Workflow:**
 - Implementation: `get-features-done/workflows/{name}.md`
-- Usage: Reference from command with `@/home/conroy/.claude/get-features-done/workflows/{name}.md`
+- Usage: Reference from command with `@$HOME/.claude/get-features-done/workflows/{name}.md`
 
 **New Reference Document:**
 - Implementation: `get-features-done/references/{name}.md`
@@ -229,12 +229,12 @@ get-features-done/
 ## Special Directories
 
 **get-features-done/**
-- Purpose: Resources installed to /home/conroy/.claude/
+- Purpose: Resources installed to $HOME/.claude/
 - Source: Copied by bin/install.js during installation
 - Committed: Yes (source of truth)
 
 **commands/**
-- Purpose: Slash commands installed to /home/conroy/.claude/commands/
+- Purpose: Slash commands installed to $HOME/.claude/commands/
 - Source: Copied by bin/install.js during installation
 - Committed: Yes (source of truth)
 

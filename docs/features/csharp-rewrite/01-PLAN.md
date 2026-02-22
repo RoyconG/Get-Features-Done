@@ -71,7 +71,7 @@ Output: A compilable C# project at get-features-done/GfdTools/ with ~7 working c
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>

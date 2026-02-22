@@ -6,7 +6,7 @@
 
 ## Summary
 
-This feature converts a project managed by GSD (Get Shit Done) from the `.planning/` phase-based structure into GFD's `docs/features/<slug>/` feature-based structure. Both systems are fully understood — GSD exists at `~/.claude/get-shit-done/` and representative GSD projects exist at `/home/conroy/Projects/Guild/`. Both gfd-tools.cjs and gsd-tools.cjs are available and their data models are fully analyzed.
+This feature converts a project managed by GSD (Get Shit Done) from the `.planning/` phase-based structure into GFD's `docs/features/<slug>/` feature-based structure. Both systems are fully understood — GSD exists at `~/.claude/get-shit-done/` and both gfd-tools.cjs and gsd-tools.cjs are available and their data models are fully analyzed.
 
 The core mapping is: GSD "phase" (e.g., `01-foundation-save-system`) becomes a GFD "feature" (e.g., `foundation-save-system`). Each GSD phase directory contains a predictable set of artifacts that map directly to GFD feature artifacts. The conversion is a one-shot migration: scan, present mappings, confirm with user, execute, and remove `.planning/`.
 
@@ -16,7 +16,7 @@ The command follows GFD's standard `command → workflow` pattern. It needs no n
 
 ## GSD `.planning/` Directory Structure
 
-Source: direct inspection of `/home/conroy/Projects/Guild/.planning/` (HIGH confidence — ground truth).
+Source: direct inspection of a live GSD project's `.planning/` directory (HIGH confidence — ground truth).
 
 ### Top-Level Files
 
@@ -98,7 +98,7 @@ These are informational. The current `.planning/ROADMAP.md` is the authoritative
 
 ### GSD Phase Status Values
 
-From ROADMAP.md analysis (Guild project, 28 phases inspected):
+From ROADMAP.md analysis (sample GSD project, 28 phases inspected):
 
 | ROADMAP indicator | Disk artifacts | Meaning | GFD Status |
 |------------------|---------------|---------|------------|
@@ -114,7 +114,7 @@ From ROADMAP.md analysis (Guild project, 28 phases inspected):
 
 ## GFD Target Structure
 
-Source: direct inspection of `/var/home/conroy/Projects/GFD/` (HIGH confidence — ground truth).
+Source: direct inspection of `./` (HIGH confidence — ground truth).
 
 ### FEATURE.md Frontmatter
 
@@ -163,8 +163,8 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, AskUserQuestion
 <objective>Migrate GSD .planning/ directory to GFD docs/features/ structure.</objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/workflows/convert-from-gsd.md
-@/home/conroy/.claude/get-features-done/references/ui-brand.md
+@$HOME/.claude/get-features-done/workflows/convert-from-gsd.md
+@$HOME/.claude/get-features-done/references/ui-brand.md
 </execution_context>
 
 <process>Execute the convert-from-gsd workflow.</process>
@@ -202,7 +202,7 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, AskUserQuestion
 
 **Suggested via gfd-tools generate-slug:**
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs generate-slug "Foundation Save System" --raw
+node $HOME/.claude/get-features-done/bin/gfd-tools.cjs generate-slug "Foundation Save System" --raw
 # → foundation-save-system
 ```
 
@@ -334,7 +334,7 @@ Note: `gsd_phase` is a non-standard frontmatter field for traceability. The GFD 
 ### Pitfall 2: Archived Phases in Milestones Directory
 **What goes wrong:** Checking only `.planning/phases/` misses phases that were archived to `.planning/milestones/vX.Y-phases/`.
 **Why it happens:** The `complete-milestone` command with `--archive-phases` moves phase dirs out of `.planning/phases/` into `.planning/milestones/vX.Y-phases/`.
-**How to avoid:** Also check `.planning/milestones/` for archived phase directories. The Guild project doesn't use `--archive-phases` (phases are in `phases/` despite milestones), but the feature should handle it. Check both directories.
+**How to avoid:** Also check `.planning/milestones/` for archived phase directories. Most GSD projects don't use `--archive-phases` (phases remain in `phases/` despite milestones), but the feature should handle it. Check both directories.
 **Warning signs:** Large gap in phase numbers in `phases/` dir (e.g., phases 7-13 missing, milestones dir has a `vX.Y-phases/` subdirectory).
 
 ### Pitfall 3: Plan Frontmatter Has Phase-Scoped Plan Numbers
@@ -373,7 +373,7 @@ Verified patterns from existing codebase inspection:
 ### Scanning Phase Directories
 
 ```bash
-# Source: direct inspection of Guild .planning/ structure
+# Source: direct inspection of a sample GSD .planning/ structure
 ls /path/to/project/.planning/phases/
 # Output: 01-foundation-save-system  02-hero-system  03-adventure-system ...
 
@@ -428,7 +428,7 @@ if (match) {
 
 ```bash
 # Source: gfd-tools.cjs frontmatter merge pattern
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs \
+node $HOME/.claude/get-features-done/bin/gfd-tools.cjs \
   frontmatter merge "docs/features/foundation-save-system/01-PLAN.md" \
   --data '{"feature": "foundation-save-system"}'
 # This replaces the phase field or adds feature field — does not remove phase field
@@ -523,28 +523,28 @@ Found 28 GSD phases in .planning/phases/
    - Recommendation: Don't migrate codebase docs. If user wants them, they should run `/gfd:map-codebase` post-migration.
 
 3. **How to handle `.planning/milestones/vX.Y-phases/` (archived phase directories)?**
-   - What we know: The `complete-milestone --archive-phases` flag moves phase dirs to milestones. Guild project doesn't use this flag.
+   - What we know: The `complete-milestone --archive-phases` flag moves phase dirs to milestones. Most projects don't use this flag.
    - What's unclear: How common is `--archive-phases` usage in practice? No real example to inspect.
    - Recommendation: Check for `milestones/*/phases/` subdirectories and offer to include archived phases in migration. Default to including them. Mark archived phases as `done`.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- `/home/conroy/Projects/Guild/.planning/` — Live GSD project with 28 phases inspected directly
-- `/var/home/conroy/Projects/GFD/get-features-done/bin/gfd-tools.cjs` — GFD CLI source inspected
-- `/home/conroy/.claude/get-shit-done/bin/gsd-tools.cjs` — GSD CLI source inspected
-- `/home/conroy/.claude/get-shit-done/templates/summary.md` — GSD SUMMARY.md frontmatter schema
-- `/home/conroy/.claude/get-shit-done/templates/roadmap.md` — GSD ROADMAP.md format
-- `/var/home/conroy/Projects/GFD/get-features-done/templates/feature.md` — GFD FEATURE.md template
-- `/var/home/conroy/Projects/GFD/docs/features/codebase/STRUCTURE.md` — GFD directory layout
+- A live GSD project's `.planning/` directory — 28 phases inspected directly
+- `./get-features-done/bin/gfd-tools.cjs` — GFD CLI source inspected
+- `$HOME/.claude/get-shit-done/bin/gsd-tools.cjs` — GSD CLI source inspected
+- `$HOME/.claude/get-shit-done/templates/summary.md` — GSD SUMMARY.md frontmatter schema
+- `$HOME/.claude/get-shit-done/templates/roadmap.md` — GSD ROADMAP.md format
+- `./get-features-done/templates/feature.md` — GFD FEATURE.md template
+- `./docs/features/codebase/STRUCTURE.md` — GFD directory layout
 
 ### Secondary (MEDIUM confidence)
-- `/home/conroy/.claude/get-shit-done/references/planning-config.md` — GSD config format and branching strategies
+- `$HOME/.claude/get-shit-done/references/planning-config.md` — GSD config format and branching strategies
 
 ## Metadata
 
 **Confidence breakdown:**
-- GSD directory structure: HIGH — inspected live Guild project with 28 phases
+- GSD directory structure: HIGH — inspected live GSD project with 28 phases
 - GFD target structure: HIGH — inspected GFD codebase and templates directly
 - Mapping algorithm: HIGH — both formats fully understood, no ambiguity
 - Pitfalls: HIGH (for listed ones) — derived from actual GSD project inspection

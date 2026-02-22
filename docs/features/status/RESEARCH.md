@@ -78,8 +78,8 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, AskUserQuestion
 <objective>Deep conversation to refine feature scope and transition status to `discussed`.</objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/workflows/discuss-feature.md
-@/home/conroy/.claude/get-features-done/references/ui-brand.md
+@$HOME/.claude/get-features-done/workflows/discuss-feature.md
+@$HOME/.claude/get-features-done/references/ui-brand.md
 </execution_context>
 
 <process>Execute the discuss-feature workflow.</process>
@@ -99,7 +99,7 @@ sed -i 's/^status: backlog$/status: planning/' "${feature_dir}/FEATURE.md"
 
 **Preferred approach (uses validation):**
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "discussing"
+node $HOME/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "discussing"
 ```
 
 **When to use:** Use `feature-update-status` whenever the workflow is already loading JSON from init (it returns `old_status` and `new_status` for confirmation display). Use `sed -i` only when the transition is a simple single-case replacement and you don't need the return value.
@@ -110,7 +110,7 @@ node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-sta
 
 **For new commands:**
 ```bash
-INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature,state)
+INIT_RAW=$(node $HOME/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature,state)
 # Large payloads are written to a tmpfile
 if [[ "$INIT_RAW" == @file:* ]]; then
   INIT_FILE="${INIT_RAW#@file:}"
@@ -306,7 +306,7 @@ New valid transitions for execute-feature: `planned` → `in-progress`
 
 **How to avoid:** After creating `status.md`, grep for all `gfd:progress` references:
 ```bash
-grep -r "gfd:progress" /var/home/conroy/Projects/GFD/get-features-done/
+grep -r "gfd:progress" ./get-features-done/
 ```
 Update each reference to `/gfd:status`.
 
@@ -417,7 +417,7 @@ status: fm.status || 'new',
 
 ```bash
 # List features, filter done, render table
-FEATURES=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs list-features --raw)
+FEATURES=$(node $HOME/.claude/get-features-done/bin/gfd-tools.cjs list-features --raw)
 
 # The workflow parses the JSON and renders:
 # | Feature Name | Status |
@@ -430,28 +430,28 @@ FEATURES=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs list-fe
 
 ```bash
 # Transition to discussing on start
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "discussing"
+node $HOME/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "discussing"
 
 # ... run conversation ...
 
 # Transition to discussed on completion
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "discussed"
+node $HOME/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "discussed"
 ```
 
 ### research-feature Workflow Pattern (mirrors existing plan-feature research step)
 
 ```bash
 # Transition to researching
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "researching"
+node $HOME/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "researching"
 
 # Load context (reuse plan-feature init)
-INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature,state)
+INIT_RAW=$(node $HOME/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature,state)
 
 # Spawn researcher (same prompt as current plan-feature research step)
 # Task(prompt=research_prompt, model=researcher_model, ...)
 
 # Transition to researched
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "researched"
+node $HOME/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "researched"
 ```
 
 ---
@@ -490,14 +490,14 @@ node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-sta
 ## Sources
 
 ### Primary (HIGH confidence)
-- `/var/home/conroy/Projects/GFD/get-features-done/bin/gfd-tools.cjs` — inspected live source, lines 282, 324, 351-357, 1082-1100, 1399-1434
-- `/var/home/conroy/Projects/GFD/get-features-done/workflows/plan-feature.md` — full workflow inspected
-- `/var/home/conroy/Projects/GFD/get-features-done/workflows/new-feature.md` — full workflow inspected
-- `/var/home/conroy/Projects/GFD/get-features-done/workflows/progress.md` — full workflow inspected
-- `/var/home/conroy/Projects/GFD/get-features-done/workflows/execute-feature.md` — first 80 lines inspected
-- `/var/home/conroy/Projects/GFD/get-features-done/templates/feature.md` — template inspected
-- `/var/home/conroy/Projects/GFD/docs/features/codebase/ARCHITECTURE.md` — architecture patterns inspected
-- `/var/home/conroy/Projects/GFD/docs/features/codebase/CONVENTIONS.md` — conventions inspected
+- `./get-features-done/bin/gfd-tools.cjs` — inspected live source, lines 282, 324, 351-357, 1082-1100, 1399-1434
+- `./get-features-done/workflows/plan-feature.md` — full workflow inspected
+- `./get-features-done/workflows/new-feature.md` — full workflow inspected
+- `./get-features-done/workflows/progress.md` — full workflow inspected
+- `./get-features-done/workflows/execute-feature.md` — first 80 lines inspected
+- `./get-features-done/templates/feature.md` — template inspected
+- `./docs/features/codebase/ARCHITECTURE.md` — architecture patterns inspected
+- `./docs/features/codebase/CONVENTIONS.md` — conventions inspected
 
 ---
 

@@ -5,7 +5,7 @@ Migrate a GSD `.planning/` directory to GFD `docs/features/` structure. Scans ph
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
 
-@/home/conroy/.claude/get-features-done/references/ui-brand.md
+@$HOME/.claude/get-features-done/references/ui-brand.md
 </required_reading>
 
 <process>
@@ -452,7 +452,7 @@ for (const m of mapping) {
     const filePath = path.join(featureDir, file);
     try {
       execSync(
-        \`/home/conroy/.claude/get-features-done/bin/gfd-tools frontmatter merge \"\${filePath}\" --data '\${JSON.stringify({feature: m.slug})}'\`,
+        \`$HOME/.claude/get-features-done/bin/gfd-tools frontmatter merge \"\${filePath}\" --data '\${JSON.stringify({feature: m.slug})}'\`,
         {stdio: 'inherit'}
       );
       console.log('Updated frontmatter: ' + filePath);

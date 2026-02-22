@@ -65,7 +65,7 @@ Output: `AutoResearchCommand.cs`, `AutoPlanCommand.cs`, and updated `Program.cs`
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>
@@ -78,8 +78,8 @@ Output: `AutoResearchCommand.cs`, `AutoPlanCommand.cs`, and updated `Program.cs`
 @get-features-done/GfdTools/Services/ConfigService.cs
 @get-features-done/GfdTools/Commands/InitCommands.cs
 @get-features-done/GfdTools/Program.cs
-@/home/conroy/.claude/agents/gfd-researcher.md
-@/home/conroy/.claude/agents/gfd-planner.md
+@$HOME/.claude/agents/gfd-researcher.md
+@$HOME/.claude/agents/gfd-planner.md
 </context>
 
 <tasks>
@@ -131,13 +131,13 @@ if (featureInfo.HasResearch)
 **Step 2 — Assemble the research prompt:**
 
 Build the prompt string that mirrors what `/gfd:research-feature` sends to the gfd-researcher agent. The prompt MUST include:
-- The researcher agent role (read from `/home/conroy/.claude/agents/gfd-researcher.md` via `File.ReadAllText`)
+- The researcher agent role (read from `$HOME/.claude/agents/gfd-researcher.md` via `File.ReadAllText`)
 - The feature slug and context instruction
 - An explicit instruction to NOT use `AskUserQuestion` and to abort on ambiguity by outputting `## ABORT: <reason>` to stdout
 
 Inline prompt assembly (do NOT read workflow files at runtime — build the string directly):
 ```csharp
-var agentMd = File.ReadAllText("/home/conroy/.claude/agents/gfd-researcher.md");
+var agentMd = File.ReadAllText("$HOME/.claude/agents/gfd-researcher.md");
 var featureMdPath = Path.Combine(cwd, featureInfo.Directory, "FEATURE.md");
 var featureMdContent = File.ReadAllText(featureMdPath);
 
@@ -255,11 +255,11 @@ private static void CommitAutoRunMd(string cwd, string slug, string featureDir,
   </action>
   <verify>
 ```bash
-cd /var/home/conroy/Projects/GFD/get-features-done/GfdTools && dotnet build 2>&1
+cd ./get-features-done/GfdTools && dotnet build 2>&1
 ```
 Build exits 0. Then confirm file exists:
 ```bash
-ls /var/home/conroy/Projects/GFD/get-features-done/GfdTools/Commands/AutoResearchCommand.cs
+ls ./get-features-done/GfdTools/Commands/AutoResearchCommand.cs
 ```
   </verify>
   <done>
@@ -312,7 +312,7 @@ if (featureInfo.Plans.Count > 0)
 
 **Step 2 — Assemble the planning prompt:**
 ```csharp
-var agentMd = File.ReadAllText("/home/conroy/.claude/agents/gfd-planner.md");
+var agentMd = File.ReadAllText("$HOME/.claude/agents/gfd-planner.md");
 var featureMdPath = Path.Combine(cwd, featureInfo.Directory, "FEATURE.md");
 var featureMdContent = File.ReadAllText(featureMdPath);
 
@@ -446,11 +446,11 @@ else
   </action>
   <verify>
 ```bash
-cd /var/home/conroy/Projects/GFD/get-features-done/GfdTools && dotnet build 2>&1
+cd ./get-features-done/GfdTools && dotnet build 2>&1
 ```
 Build exits 0. Confirm file exists:
 ```bash
-ls /var/home/conroy/Projects/GFD/get-features-done/GfdTools/Commands/AutoPlanCommand.cs
+ls ./get-features-done/GfdTools/Commands/AutoPlanCommand.cs
 ```
   </verify>
   <done>
@@ -478,7 +478,7 @@ The namespace `GfdTools.Commands` is already referenced via `using GfdTools.Comm
 
 After updating Program.cs, run a full build and then verify the commands appear in the CLI help:
 ```bash
-cd /var/home/conroy/Projects/GFD/get-features-done/GfdTools && dotnet build -o /tmp/gfd-tools-build 2>&1
+cd ./get-features-done/GfdTools && dotnet build -o /tmp/gfd-tools-build 2>&1
 /tmp/gfd-tools-build/gfd-tools --help 2>&1 | grep -E "auto-research|auto-plan"
 ```
 
@@ -494,11 +494,11 @@ Both must show `--max-turns` with default value of `30`.
   </action>
   <verify>
 ```bash
-cd /var/home/conroy/Projects/GFD/get-features-done/GfdTools && dotnet build 2>&1 && echo "BUILD OK"
+cd ./get-features-done/GfdTools && dotnet build 2>&1 && echo "BUILD OK"
 ```
 Then:
 ```bash
-cd /var/home/conroy/Projects/GFD/get-features-done/GfdTools && dotnet build -o /tmp/gfd-tools-build -q && /tmp/gfd-tools-build/gfd-tools --help
+cd ./get-features-done/GfdTools && dotnet build -o /tmp/gfd-tools-build -q && /tmp/gfd-tools-build/gfd-tools --help
 ```
   </verify>
   <done>
@@ -525,5 +525,5 @@ cd /var/home/conroy/Projects/GFD/get-features-done/GfdTools && dotnet build -o /
 </success_criteria>
 
 <output>
-After completion, create `docs/features/auto-skills/02-SUMMARY.md` following the summary template at `/home/conroy/.claude/get-features-done/templates/summary.md`.
+After completion, create `docs/features/auto-skills/02-SUMMARY.md` following the summary template at `$HOME/.claude/get-features-done/templates/summary.md`.
 </output>

@@ -45,7 +45,7 @@ Output: `commands/gfd/discuss-feature.md` and `get-features-done/workflows/discu
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>
@@ -59,7 +59,7 @@ Output: `commands/gfd/discuss-feature.md` and `get-features-done/workflows/discu
   <name>Task 1: Create the discuss-feature command file</name>
   <files>commands/gfd/discuss-feature.md</files>
   <action>
-Create /var/home/conroy/Projects/GFD/commands/gfd/discuss-feature.md following the GFD command pattern:
+Create ./commands/gfd/discuss-feature.md following the GFD command pattern:
 
 ```markdown
 ---
@@ -72,9 +72,9 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, AskUserQuestion
 <objective>Deep conversation to refine feature scope. Transitions status from `new` → `discussing` → `discussed` and populates FEATURE.md with acceptance criteria, description, priority, dependencies, and notes.</objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/workflows/discuss-feature.md
-@/home/conroy/.claude/get-features-done/references/ui-brand.md
-@/home/conroy/.claude/get-features-done/references/questioning.md
+@$HOME/.claude/get-features-done/workflows/discuss-feature.md
+@$HOME/.claude/get-features-done/references/ui-brand.md
+@$HOME/.claude/get-features-done/references/questioning.md
 </execution_context>
 
 <process>Execute the discuss-feature workflow.</process>
@@ -82,7 +82,7 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, AskUserQuestion
   </action>
   <verify>
 ```bash
-cat /var/home/conroy/Projects/GFD/commands/gfd/discuss-feature.md
+cat ./commands/gfd/discuss-feature.md
 ```
 File exists, contains `name: gfd:discuss-feature`, and has `@` reference to the discuss-feature workflow in execution_context.
   </verify>
@@ -95,7 +95,7 @@ commands/gfd/discuss-feature.md exists with correct frontmatter and execution_co
   <name>Task 2: Create the discuss-feature workflow</name>
   <files>get-features-done/workflows/discuss-feature.md</files>
   <action>
-Create /var/home/conroy/Projects/GFD/get-features-done/workflows/discuss-feature.md with the full workflow. The workflow handles: slug validation, init, status guard, status transition to discussing, conversation, FEATURE.md update, status transition to discussed, commit.
+Create ./get-features-done/workflows/discuss-feature.md with the full workflow. The workflow handles: slug validation, init, status guard, status transition to discussing, conversation, FEATURE.md update, status transition to discussed, commit.
 
 Write the following content:
 
@@ -107,8 +107,8 @@ Deepen a feature definition through structured conversation. Starts from a minim
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
 
-@/home/conroy/.claude/get-features-done/references/ui-brand.md
-@/home/conroy/.claude/get-features-done/references/questioning.md
+@$HOME/.claude/get-features-done/references/ui-brand.md
+@$HOME/.claude/get-features-done/references/questioning.md
 </required_reading>
 
 <process>
@@ -130,7 +130,7 @@ Exit.
 ## 2. Run Init
 
 ```bash
-INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature,state)
+INIT_RAW=$(node $HOME/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature,state)
 if [[ "$INIT_RAW" == @file:* ]]; then
   INIT_FILE="${INIT_RAW#@file:}"
   INIT=$(cat "$INIT_FILE")
@@ -182,7 +182,7 @@ Exit.
 ## 4. Transition to Discussing
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "discussing"
+node $HOME/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "discussing"
 ```
 
 **Display stage banner:**
@@ -291,7 +291,7 @@ Keep the `## Tasks` section as-is (populated during planning).
 ## 7. Transition to Discussed
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "discussed"
+node $HOME/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "discussed"
 ```
 
 ## 8. Update STATE.md
@@ -302,7 +302,7 @@ Update `docs/features/STATE.md`:
 ## 9. Commit
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): discuss feature scope" --files docs/features/${SLUG}/FEATURE.md docs/features/STATE.md
+node $HOME/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): discuss feature scope" --files docs/features/${SLUG}/FEATURE.md docs/features/STATE.md
 ```
 
 ## 10. Done
@@ -361,14 +361,14 @@ Note: When writing the file, all the triple-backtick code blocks within the mark
   <verify>
 ```bash
 # File exists
-ls /var/home/conroy/Projects/GFD/get-features-done/workflows/discuss-feature.md
+ls ./get-features-done/workflows/discuss-feature.md
 
 # Contains status transitions
-grep "feature-update-status.*discussing" /var/home/conroy/Projects/GFD/get-features-done/workflows/discuss-feature.md
-grep "feature-update-status.*discussed" /var/home/conroy/Projects/GFD/get-features-done/workflows/discuss-feature.md
+grep "feature-update-status.*discussing" ./get-features-done/workflows/discuss-feature.md
+grep "feature-update-status.*discussed" ./get-features-done/workflows/discuss-feature.md
 
 # Contains FEATURE.md update step
-grep -i "write.*FEATURE\|Update FEATURE" /var/home/conroy/Projects/GFD/get-features-done/workflows/discuss-feature.md
+grep -i "write.*FEATURE\|Update FEATURE" ./get-features-done/workflows/discuss-feature.md
 ```
 All three greps should return matches.
   </verify>
@@ -388,14 +388,14 @@ get-features-done/workflows/discuss-feature.md exists with:
 <verification>
 ```bash
 # Both files exist
-ls /var/home/conroy/Projects/GFD/commands/gfd/discuss-feature.md
-ls /var/home/conroy/Projects/GFD/get-features-done/workflows/discuss-feature.md
+ls ./commands/gfd/discuss-feature.md
+ls ./get-features-done/workflows/discuss-feature.md
 
 # Command points to workflow
-grep "workflows/discuss-feature" /var/home/conroy/Projects/GFD/commands/gfd/discuss-feature.md
+grep "workflows/discuss-feature" ./commands/gfd/discuss-feature.md
 
 # Workflow has both status transitions
-grep "discussing\|discussed" /var/home/conroy/Projects/GFD/get-features-done/workflows/discuss-feature.md | head -5
+grep "discussing\|discussed" ./get-features-done/workflows/discuss-feature.md | head -5
 ```
 </verification>
 

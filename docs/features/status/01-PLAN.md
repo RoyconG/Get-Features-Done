@@ -40,7 +40,7 @@ Output: Updated gfd-tools.cjs where all 9 new status values are valid, sort corr
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>
@@ -54,7 +54,7 @@ Output: Updated gfd-tools.cjs where all 9 new status values are valid, sort corr
   <name>Task 1: Update validStatuses, statusOrder, by_status, and default fallback in gfd-tools.cjs</name>
   <files>get-features-done/bin/gfd-tools.cjs</files>
   <action>
-Make four targeted edits to /var/home/conroy/Projects/GFD/get-features-done/bin/gfd-tools.cjs:
+Make four targeted edits to ./get-features-done/bin/gfd-tools.cjs:
 
 **Edit 1 — validStatuses (line ~1082):**
 Replace:
@@ -117,11 +117,11 @@ Do NOT change anything else in the file. These are all targeted single-line (or 
   <verify>
 Run these checks:
 ```bash
-node /var/home/conroy/Projects/GFD/get-features-done/bin/gfd-tools.cjs feature-update-status status "new" 2>&1
-node /var/home/conroy/Projects/GFD/get-features-done/bin/gfd-tools.cjs feature-update-status status "discussing" 2>&1
-node /var/home/conroy/Projects/GFD/get-features-done/bin/gfd-tools.cjs feature-update-status status "researched" 2>&1
-node /var/home/conroy/Projects/GFD/get-features-done/bin/gfd-tools.cjs feature-update-status status "backlog" 2>&1
-node /var/home/conroy/Projects/GFD/get-features-done/bin/gfd-tools.cjs list-features 2>&1 | head -5
+node ./get-features-done/bin/gfd-tools.cjs feature-update-status status "new" 2>&1
+node ./get-features-done/bin/gfd-tools.cjs feature-update-status status "discussing" 2>&1
+node ./get-features-done/bin/gfd-tools.cjs feature-update-status status "researched" 2>&1
+node ./get-features-done/bin/gfd-tools.cjs feature-update-status status "backlog" 2>&1
+node ./get-features-done/bin/gfd-tools.cjs list-features 2>&1 | head -5
 ```
 First three should return `{"updated":true,...}`. The "backlog" call should error with "Invalid status". list-features should return JSON with by_status containing "new", "discussing", etc.
   </verify>
@@ -139,15 +139,15 @@ First three should return `{"updated":true,...}`. The "backlog" call should erro
 ```bash
 # Confirm all 9 statuses are accepted
 for s in new discussing discussed researching researched planning planned in-progress done; do
-  result=$(node /var/home/conroy/Projects/GFD/get-features-done/bin/gfd-tools.cjs feature-update-status status "$s" 2>&1)
+  result=$(node ./get-features-done/bin/gfd-tools.cjs feature-update-status status "$s" 2>&1)
   echo "$s: $(echo $result | grep -o '\"updated\":true' || echo FAILED)"
 done
 
 # Confirm backlog is rejected
-node /var/home/conroy/Projects/GFD/get-features-done/bin/gfd-tools.cjs feature-update-status status "backlog" 2>&1 | grep "Invalid"
+node ./get-features-done/bin/gfd-tools.cjs feature-update-status status "backlog" 2>&1 | grep "Invalid"
 
 # Restore to planning after tests
-node /var/home/conroy/Projects/GFD/get-features-done/bin/gfd-tools.cjs feature-update-status status "planning" 2>&1
+node ./get-features-done/bin/gfd-tools.cjs feature-update-status status "planning" 2>&1
 ```
 </verification>
 

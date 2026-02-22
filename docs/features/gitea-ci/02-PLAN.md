@@ -71,7 +71,7 @@ Output: `.gitea/workflows/gfd-nightly.yml`
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>

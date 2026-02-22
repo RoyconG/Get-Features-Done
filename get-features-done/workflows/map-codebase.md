@@ -26,7 +26,7 @@ Documents are reference material for Claude when planning/executing. Always incl
 Load codebase mapping context:
 
 ```bash
-INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init map-codebase)
+INIT=$($HOME/.claude/get-features-done/bin/gfd-tools init map-codebase)
 ```
 
 Extract from key=value output: `mapper_model`, `codebase_dir`, `has_maps`, `codebase_dir_exists`, `project_exists` (grep "^key=" | cut -d= -f2-).

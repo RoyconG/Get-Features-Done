@@ -362,7 +362,7 @@ Output: [Artifacts created]
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>
@@ -836,7 +836,7 @@ git add docs/features/$SLUG/*-PLAN.md && git diff --cached --quiet || git commit
 Load feature context:
 
 ```bash
-INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init plan-feature "${SLUG}")
+INIT=$($HOME/.claude/get-features-done/bin/gfd-tools init plan-feature "${SLUG}")
 ```
 
 Extract from key=value output: `planner_model`, `researcher_model`, `checker_model`, `research_enabled`, `feature_dir`, `slug`, `feature_name`, `has_research`, `feature_status` (grep "^key=" | cut -d= -f2-).
@@ -887,7 +887,7 @@ Apply discovery level protocol (see discovery_levels section).
 
 **Step 1 — Generate digest index:**
 ```bash
-/home/conroy/.claude/get-features-done/bin/gfd-tools history-digest
+$HOME/.claude/get-features-done/bin/gfd-tools history-digest
 ```
 
 **Step 2 — Select relevant features (typically 2-4):**
@@ -1003,7 +1003,7 @@ Include all frontmatter fields.
 Validate each created PLAN.md using gfd-tools:
 
 ```bash
-VALID=$(/home/conroy/.claude/get-features-done/bin/gfd-tools frontmatter validate "$PLAN_PATH" --schema plan)
+VALID=$($HOME/.claude/get-features-done/bin/gfd-tools frontmatter validate "$PLAN_PATH" --schema plan)
 ```
 
 Extract from key=value output: `valid` (grep "^valid=" | cut -d= -f2-), `missing` (repeated `missing=` lines).
@@ -1016,7 +1016,7 @@ Required plan frontmatter fields:
 Also validate plan structure:
 
 ```bash
-STRUCTURE=$(/home/conroy/.claude/get-features-done/bin/gfd-tools verify plan-structure "$PLAN_PATH")
+STRUCTURE=$($HOME/.claude/get-features-done/bin/gfd-tools verify plan-structure "$PLAN_PATH")
 ```
 
 Extract from key=value output: `valid` (grep "^valid=" | cut -d= -f2-), `task_count`, repeated `error=` and `warning=` lines.
@@ -1031,13 +1031,13 @@ Extract from key=value output: `valid` (grep "^valid=" | cut -d= -f2-), `task_co
 Update FEATURE.md status to reflect planning in progress:
 
 ```bash
-/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "planning"
+$HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "planning"
 ```
 
 After plans are written and validated, update to planned:
 
 ```bash
-/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "planned"
+$HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "planned"
 ```
 </step>
 

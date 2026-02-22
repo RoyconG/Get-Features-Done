@@ -50,7 +50,7 @@ Output: Workflow file updated with steps 6-12. Running the full command on a GSD
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>
@@ -250,7 +250,7 @@ for (const m of mapping) {
     const filePath = path.join(featureDir, file);
     try {
       execSync(
-        \`node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs frontmatter merge \"\${filePath}\" --data '\${JSON.stringify({feature: m.slug})}'\`,
+        \`node $HOME/.claude/get-features-done/bin/gfd-tools.cjs frontmatter merge \"\${filePath}\" --data '\${JSON.stringify({feature: m.slug})}'\`,
         {stdio: 'inherit'}
       );
       console.log('Updated frontmatter: ' + filePath);
@@ -365,7 +365,7 @@ Commit all new feature files:
 ```bash
 # Gather all new feature files
 FEATURE_FILES=$(find docs/features -name "*.md" -newer docs/features/STATE.md 2>/dev/null | head -100)
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd): migrate from GSD" --files $FEATURE_FILES docs/features/STATE.md
+node $HOME/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(gfd): migrate from GSD" --files $FEATURE_FILES docs/features/STATE.md
 ```
 
 Display completion banner:

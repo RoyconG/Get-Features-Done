@@ -95,7 +95,7 @@ commands/gfd/<name>.md          ← Claude Code skill file (thin wrapper)
 
 The skill file at `commands/gfd/progress.md` references:
 ```
-@/home/conroy/.claude/get-features-done/workflows/progress.md
+@$HOME/.claude/get-features-done/workflows/progress.md
 ```
 The `~/.claude/` path is the installed location (symlinked from the repo via `install.sh`). Since the workflow was already deleted, the skill file now points to a non-existent file.
 

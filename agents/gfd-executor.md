@@ -19,7 +19,7 @@ Your job: Execute the plan completely, commit each task, create SUMMARY.md, reco
 Load execution context:
 
 ```bash
-INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init execute-feature "${SLUG}")
+INIT=$($HOME/.claude/get-features-done/bin/gfd-tools init execute-feature "${SLUG}")
 ```
 
 Extract from key=value output:
@@ -176,7 +176,7 @@ Track auto-fix attempts per task. After 3 auto-fix attempts on a single task:
 Check if auto mode is active at executor start:
 
 ```bash
-AUTO_CFG=$(/home/conroy/.claude/get-features-done/bin/gfd-tools config-get workflow.auto_advance 2>/dev/null | grep "^value=" | cut -d= -f2- || echo "false")
+AUTO_CFG=$($HOME/.claude/get-features-done/bin/gfd-tools config-get workflow.auto_advance 2>/dev/null | grep "^value=" | cut -d= -f2- || echo "false")
 ```
 
 Store the result for checkpoint handling below.
@@ -312,7 +312,7 @@ After all tasks complete, create `NN-SUMMARY.md` at `docs/features/<slug>/`.
 
 **ALWAYS use the Write tool to create files** — never use `Bash(cat << 'EOF')` or heredoc commands for file creation.
 
-**Use template:** @/home/conroy/.claude/get-features-done/templates/summary.md
+**Use template:** @$HOME/.claude/get-features-done/templates/summary.md
 
 **Frontmatter:** feature, plan, subsystem, tags, dependency graph (requires/provides/affects), tech-stack (added/patterns), key-files (created/modified), decisions, metrics (duration, completed date).
 
@@ -365,11 +365,11 @@ After SUMMARY.md, update feature status using the C# tool. Record decisions and 
 
 ```bash
 # Update feature status to in-progress (if not already)
-/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "in-progress"
+$HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "in-progress"
 
 # After ALL plans in feature complete, mark done
 # (Only when incomplete_plans count reaches 0)
-/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "done"
+$HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "done"
 ```
 
 **Determine feature completion:** After creating SUMMARY.md, re-run init to check `incomplete_count`. If 0, the feature is fully executed — update status to `done`.

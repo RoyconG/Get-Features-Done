@@ -49,7 +49,7 @@ Output: `commands/gfd/research-feature.md` and `get-features-done/workflows/rese
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>
@@ -63,7 +63,7 @@ Output: `commands/gfd/research-feature.md` and `get-features-done/workflows/rese
   <name>Task 1: Create the research-feature command file</name>
   <files>commands/gfd/research-feature.md</files>
   <action>
-Create /var/home/conroy/Projects/GFD/commands/gfd/research-feature.md following the GFD command pattern:
+Create ./commands/gfd/research-feature.md following the GFD command pattern:
 
 ```markdown
 ---
@@ -76,8 +76,8 @@ allowed-tools: Read, Write, Bash, Grep, Glob
 <objective>Investigate implementation approach for a feature. Transitions status from `discussed` → `researching` → `researched` and produces RESEARCH.md.</objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/workflows/research-feature.md
-@/home/conroy/.claude/get-features-done/references/ui-brand.md
+@$HOME/.claude/get-features-done/workflows/research-feature.md
+@$HOME/.claude/get-features-done/references/ui-brand.md
 </execution_context>
 
 <process>Execute the research-feature workflow.</process>
@@ -85,7 +85,7 @@ allowed-tools: Read, Write, Bash, Grep, Glob
   </action>
   <verify>
 ```bash
-cat /var/home/conroy/Projects/GFD/commands/gfd/research-feature.md
+cat ./commands/gfd/research-feature.md
 ```
 File exists, contains `name: gfd:research-feature`, and `@` reference to the research-feature workflow.
   </verify>
@@ -98,7 +98,7 @@ commands/gfd/research-feature.md exists with correct frontmatter and execution_c
   <name>Task 2: Create the research-feature workflow</name>
   <files>get-features-done/workflows/research-feature.md</files>
   <action>
-Create /var/home/conroy/Projects/GFD/get-features-done/workflows/research-feature.md. This workflow mirrors the research step currently in plan-feature.md (step 6) but as a standalone command. Reuse `init plan-feature` (as documented in RESEARCH.md — it already provides all needed context including researcher_model and feature content).
+Create ./get-features-done/workflows/research-feature.md. This workflow mirrors the research step currently in plan-feature.md (step 6) but as a standalone command. Reuse `init plan-feature` (as documented in RESEARCH.md — it already provides all needed context including researcher_model and feature content).
 
 Write the following content:
 
@@ -110,7 +110,7 @@ Investigate implementation approach for a feature. Spawns gfd-researcher to prod
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
 
-@/home/conroy/.claude/get-features-done/references/ui-brand.md
+@$HOME/.claude/get-features-done/references/ui-brand.md
 </required_reading>
 
 <process>
@@ -132,7 +132,7 @@ Exit.
 ## 2. Run Init
 
 ```bash
-INIT_RAW=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature,state,requirements)
+INIT_RAW=$(node $HOME/.claude/get-features-done/bin/gfd-tools.cjs init plan-feature "${SLUG}" --include feature,state,requirements)
 if [[ "$INIT_RAW" == @file:* ]]; then
   INIT_FILE="${INIT_RAW#@file:}"
   INIT=$(cat "$INIT_FILE")
@@ -195,7 +195,7 @@ Exit.
 ## 4. Transition to Researching
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "researching"
+node $HOME/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "researching"
 ```
 
 **Display stage banner:**
@@ -265,7 +265,7 @@ Return ## RESEARCH COMPLETE with brief summary when done.
 
 ```
 Task(
-  prompt="First, read /home/conroy/.claude/agents/gfd-researcher.md for your role and instructions.\n\n" + research_prompt,
+  prompt="First, read $HOME/.claude/agents/gfd-researcher.md for your role and instructions.\n\n" + research_prompt,
   subagent_type="general-purpose",
   model="{researcher_model}",
   description="Research feature [SLUG]"
@@ -280,7 +280,7 @@ Task(
 ## 7. Transition to Researched
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "researched"
+node $HOME/.claude/get-features-done/bin/gfd-tools.cjs feature-update-status "${SLUG}" "researched"
 ```
 
 ## 8. Update STATE.md
@@ -291,7 +291,7 @@ Update `docs/features/STATE.md`:
 ## 9. Commit
 
 ```bash
-node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): research feature" --files docs/features/${SLUG}/FEATURE.md docs/features/${SLUG}/RESEARCH.md docs/features/STATE.md
+node $HOME/.claude/get-features-done/bin/gfd-tools.cjs commit "docs(${SLUG}): research feature" --files docs/features/${SLUG}/FEATURE.md docs/features/${SLUG}/RESEARCH.md docs/features/STATE.md
 ```
 
 ## 10. Done
@@ -349,14 +349,14 @@ Note: All triple-backtick code blocks in the written content must use actual tri
   <verify>
 ```bash
 # File exists
-ls /var/home/conroy/Projects/GFD/get-features-done/workflows/research-feature.md
+ls ./get-features-done/workflows/research-feature.md
 
 # Contains both status transitions
-grep "feature-update-status.*researching" /var/home/conroy/Projects/GFD/get-features-done/workflows/research-feature.md
-grep "feature-update-status.*researched" /var/home/conroy/Projects/GFD/get-features-done/workflows/research-feature.md
+grep "feature-update-status.*researching" ./get-features-done/workflows/research-feature.md
+grep "feature-update-status.*researched" ./get-features-done/workflows/research-feature.md
 
 # References gfd-researcher
-grep "gfd-researcher" /var/home/conroy/Projects/GFD/get-features-done/workflows/research-feature.md
+grep "gfd-researcher" ./get-features-done/workflows/research-feature.md
 ```
 All three greps should return matches.
   </verify>
@@ -375,14 +375,14 @@ get-features-done/workflows/research-feature.md exists with:
 <verification>
 ```bash
 # Both files exist
-ls /var/home/conroy/Projects/GFD/commands/gfd/research-feature.md
-ls /var/home/conroy/Projects/GFD/get-features-done/workflows/research-feature.md
+ls ./commands/gfd/research-feature.md
+ls ./get-features-done/workflows/research-feature.md
 
 # Command points to workflow
-grep "workflows/research-feature" /var/home/conroy/Projects/GFD/commands/gfd/research-feature.md
+grep "workflows/research-feature" ./commands/gfd/research-feature.md
 
 # Workflow has both status transitions
-grep "researching\|researched" /var/home/conroy/Projects/GFD/get-features-done/workflows/research-feature.md | head -5
+grep "researching\|researched" ./get-features-done/workflows/research-feature.md | head -5
 ```
 </verification>
 

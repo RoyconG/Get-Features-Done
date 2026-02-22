@@ -80,7 +80,7 @@ Output: All workflows and agents use the C# tool. gfd-tools.cjs is deleted.
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>
@@ -109,8 +109,8 @@ Output: All workflows and agents use the C# tool. gfd-tools.cjs is deleted.
 For each of the 9 remaining workflow files (progress.md is deleted, not updated), make these systematic changes:
 
 **A. Replace tool invocation path:**
-- Old: `node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs`
-- New: `dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ --`
+- Old: `node $HOME/.claude/get-features-done/bin/gfd-tools.cjs`
+- New: `dotnet run --project $HOME/.claude/get-features-done/GfdTools/ --`
 - The `--` separator is required before command arguments when using `dotnet run`.
 
 **B. Replace JSON parsing instructions with key=value parsing:**
@@ -123,7 +123,7 @@ Parse JSON for: planner_model, commit_docs, feature_dir, slug, ...
 
 New pattern:
 ```
-INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init plan-feature "${SLUG}")
+INIT=$(dotnet run --project $HOME/.claude/get-features-done/GfdTools/ -- init plan-feature "${SLUG}")
 ```
 Then extract values with: `echo "$INIT" | grep "^key=" | cut -d= -f2-`
 
@@ -188,8 +188,8 @@ Grep all workflow files for `--include` — must return 0 matches.
 For each of the 4 agent files, apply the same substitution patterns as the workflow files:
 
 **A. Replace tool invocation path (all 4 files):**
-- Old: `node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs`
-- New: `dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ --`
+- Old: `node $HOME/.claude/get-features-done/bin/gfd-tools.cjs`
+- New: `dotnet run --project $HOME/.claude/get-features-done/GfdTools/ --`
 
 **B. Replace JSON parsing with key=value extraction (all 4 files):**
 - Where agents say "Extract from init JSON:" or "Parse JSON for:", replace with key=value extraction using `grep "^key=" | cut -d= -f2-`.
@@ -198,13 +198,13 @@ For each of the 4 agent files, apply the same substitution patterns as the workf
 
 CRITICAL — **agents/gfd-executor.md line 22** currently reads:
 ```
-INIT=$(node /home/conroy/.claude/get-features-done/bin/gfd-tools.cjs init execute-feature "${SLUG}" --include feature)
+INIT=$(node $HOME/.claude/get-features-done/bin/gfd-tools.cjs init execute-feature "${SLUG}" --include feature)
 ```
 The `--include feature` flag causes the init command to embed `feature_content` in the output. The executor's line 25 then extracts `feature_content` from the init result.
 
 Replace with:
 ```
-INIT=$(dotnet run --project /home/conroy/.claude/get-features-done/GfdTools/ -- init execute-feature "${SLUG}")
+INIT=$(dotnet run --project $HOME/.claude/get-features-done/GfdTools/ -- init execute-feature "${SLUG}")
 ```
 And immediately after, add a separate read instruction:
 ```

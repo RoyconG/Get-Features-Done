@@ -5,7 +5,7 @@ Create executable plan files (NN-PLAN.md) for a feature with integrated research
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
 
-@/home/conroy/.claude/get-features-done/references/ui-brand.md
+@$HOME/.claude/get-features-done/references/ui-brand.md
 </required_reading>
 
 <process>
@@ -31,7 +31,7 @@ Exit.
 Load all context in one call:
 
 ```bash
-INIT=$(/home/conroy/.claude/get-features-done/bin/gfd-tools init plan-feature "${SLUG}")
+INIT=$($HOME/.claude/get-features-done/bin/gfd-tools init plan-feature "${SLUG}")
 ```
 
 Extract from key=value output:
@@ -127,7 +127,7 @@ If "Replan from scratch": Confirm and delete existing PLAN.md files.
 Update FEATURE.md status field from `researched` → `planning`:
 
 ```bash
-/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "planning"
+$HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "planning"
 ```
 
 ## 5. Load Codebase Context
@@ -200,7 +200,7 @@ Return ## RESEARCH COMPLETE with brief summary when done.
 
 ```
 Task(
-  prompt="First, read /home/conroy/.claude/agents/gfd-researcher.md for your role and instructions.\n\n" + research_prompt,
+  prompt="First, read $HOME/.claude/agents/gfd-researcher.md for your role and instructions.\n\n" + research_prompt,
   subagent_type="general-purpose",
   model="{researcher_model}",
   description="Research feature [SLUG]"
@@ -294,7 +294,7 @@ Return ## PLANNING COMPLETE with plan count and wave structure.
 
 ```
 Task(
-  prompt="First, read /home/conroy/.claude/agents/gfd-planner.md for your role and instructions.\n\n" + planner_prompt,
+  prompt="First, read $HOME/.claude/agents/gfd-planner.md for your role and instructions.\n\n" + planner_prompt,
   subagent_type="general-purpose",
   model="{planner_model}",
   description="Plan feature [SLUG]"
@@ -385,7 +385,7 @@ Return ## PLANNING COMPLETE with what changed.
 
 ```
 Task(
-  prompt="First, read /home/conroy/.claude/agents/gfd-planner.md for your role and instructions.\n\n" + revision_prompt,
+  prompt="First, read $HOME/.claude/agents/gfd-planner.md for your role and instructions.\n\n" + revision_prompt,
   subagent_type="general-purpose",
   model="{planner_model}",
   description="Revise plans for [SLUG]"
@@ -409,7 +409,7 @@ Update FEATURE.md status field from `planning` → `planned` and populate the Ta
 
 ```bash
 # Update status
-/home/conroy/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "planned"
+$HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "planned"
 ```
 
 Update the Tasks section in FEATURE.md to list the created plans:
