@@ -16,11 +16,11 @@ Comprehensive security audit of the entire GFD codebase — shell scripts, workf
 
 ## Acceptance Criteria
 
-- [ ] All GFD source files reviewed (bin/, workflows/, agents/, references/, CI configs)
-- [ ] OWASP-applicable vulnerability categories checked (injection, path traversal, secrets exposure, privilege escalation, etc.)
-- [ ] Supply chain risks assessed (external fetches, untrusted downloads, dependency risks)
-- [ ] Hardcoded user paths flagged as findings
-- [ ] SECURITY-REVIEW.md produced with findings organized by severity (critical/high/medium/low)
+- [x] All GFD source files reviewed (bin/, workflows/, agents/, references/, CI configs)
+- [x] OWASP-applicable vulnerability categories checked (injection, path traversal, secrets exposure, privilege escalation, etc.)
+- [x] Supply chain risks assessed (external fetches, untrusted downloads, dependency risks)
+- [x] Hardcoded user paths flagged as findings
+- [x] SECURITY-REVIEW.md produced with findings organized by severity (critical/high/medium/low)
 
 ## Tasks
 
