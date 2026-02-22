@@ -1,7 +1,7 @@
 ---
 name: Auto Run Feature Toggle
 slug: auto-run-feature-toggle
-status: discussed
+status: researched
 owner: Conroy
 assignees: []
 created: 2026-02-20
