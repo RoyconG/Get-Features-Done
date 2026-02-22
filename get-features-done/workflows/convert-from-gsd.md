@@ -28,7 +28,7 @@ If missing, display error and exit:
 No GSD project found. .planning/ directory does not exist.
 
 **To fix:** This command is for projects managed by GSD.
-           If you have a GFD project already, run /gfd:progress instead.
+           If you have a GFD project already, run /gfd:status instead.
 ```
 
 Exit.
@@ -599,7 +599,7 @@ Show next steps:
 
 **Review your features** — check what was migrated
 
-`/gfd:progress`
+`/gfd:status`
 
 ───────────────────────────────────────────────────────────────
 

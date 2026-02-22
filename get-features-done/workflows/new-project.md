@@ -29,7 +29,7 @@ Extract from key=value output: `project_exists`, `has_codebase_map`, `has_existi
 
 Project already initialized. docs/features/ already exists.
 
-**To fix:** Run /gfd:progress to see current status.
+**To fix:** Run /gfd:status to see current status.
 ```
 
 Exit.
@@ -412,7 +412,7 @@ Present completion summary and next step:
 
 **Also available:**
 - `/gfd:map-codebase` — map existing codebase first (brownfield)
-- `/gfd:progress` — see overall project status
+- `/gfd:status` — see overall project status
 
 ───────────────────────────────────────────────────────────────
 ```

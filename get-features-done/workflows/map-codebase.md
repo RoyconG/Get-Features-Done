@@ -387,7 +387,7 @@ fi
 
 **Continue feature planning** — codebase context now available
 
-`/gfd:progress`
+`/gfd:status`
 
 <sub>`/clear` first → fresh context window</sub>
 ```
