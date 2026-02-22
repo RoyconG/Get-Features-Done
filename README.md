@@ -11,7 +11,7 @@ A structured feature delivery toolkit for [Claude Code](https://docs.anthropic.c
 | `get-features-done/workflows/`| Detailed workflow instructions for each command   |
 | `get-features-done/references/`| Reference docs (git integration, questioning style, UI branding) |
 | `get-features-done/templates/` | Document templates (FEATURE.md, PROJECT.md, state, config, codebase analysis) |
-| `get-features-done/bin/`      | CLI tool (`gfd-tools.cjs`)                       |
+| `get-features-done/bin/`      | CLI tool (`gfd-tools`)                            |
 
 ## Installation
 
@@ -43,6 +43,7 @@ After installation, the following slash commands are available in Claude Code:
 | `/gfd:execute-feature` | Execute plans with atomic commits |
 | `/gfd:status` | Show active features with status and next steps |
 | `/gfd:map-codebase` | Analyze codebase with parallel mapper agents |
+| `/gfd:convert-from-gsd` | Migrate a GSD `.planning/` project to GFD structure |
 
 ## Workflow
 
