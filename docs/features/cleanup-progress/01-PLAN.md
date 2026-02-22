@@ -60,7 +60,7 @@ Output: No skill file, no workflow references, no documentation entries for /gfd
 </objective>
 
 <execution_context>
-@/home/conroy/.claude/get-features-done/templates/summary.md
+@$HOME/.claude/get-features-done/templates/summary.md
 </execution_context>
 
 <context>
@@ -83,7 +83,7 @@ Output: No skill file, no workflow references, no documentation entries for /gfd
     Note: The workflow file get-features-done/workflows/progress.md is ALREADY deleted (confirmed in research). No action needed there.
   </action>
   <verify>
-    `ls /var/home/conroy/Projects/GFD/commands/gfd/progress.md 2>/dev/null && echo "EXISTS - ERROR" || echo "DELETED - OK"` outputs "DELETED - OK"
+    `ls ./commands/gfd/progress.md 2>/dev/null && echo "EXISTS - ERROR" || echo "DELETED - OK"` outputs "DELETED - OK"
   </verify>
   <done>commands/gfd/progress.md does not exist. ls of commands/gfd/ shows no progress.md entry.</done>
 </task>
@@ -115,7 +115,7 @@ Output: No skill file, no workflow references, no documentation entries for /gfd
     `grep -rn "gfd:progress" get-features-done/workflows/`
   </action>
   <verify>
-    `grep -rn "gfd:progress" /var/home/conroy/Projects/GFD/get-features-done/workflows/` returns zero results.
+    `grep -rn "gfd:progress" ./get-features-done/workflows/` returns zero results.
   </verify>
   <done>All five /gfd:progress slash command references in convert-from-gsd.md, new-project.md, and map-codebase.md are replaced with /gfd:status. No /gfd:progress text remains in any workflow file.</done>
 </task>
@@ -146,7 +146,7 @@ Output: No skill file, no workflow references, no documentation entries for /gfd
     `grep -n "gfd:progress\|progress\.md" docs/features/codebase/`
   </action>
   <verify>
-    `grep -rn "gfd:progress\|progress\.md" /var/home/conroy/Projects/GFD/docs/features/codebase/` returns zero results (or only results about STATE.md progress tracking, which is unrelated).
+    `grep -rn "gfd:progress\|progress\.md" ./docs/features/codebase/` returns zero results (or only results about STATE.md progress tracking, which is unrelated).
   </verify>
   <done>ARCHITECTURE.md, STACK.md, and STRUCTURE.md contain no references to progress.md or /gfd:progress. The codebase documentation accurately reflects the current command set.</done>
 </task>
@@ -158,16 +158,16 @@ Run the full grep sweep to confirm zero remaining references:
 
 ```bash
 # Must return zero results for the slash command
-grep -rn "gfd:progress" /var/home/conroy/Projects/GFD/get-features-done/ /var/home/conroy/Projects/GFD/commands/ /var/home/conroy/Projects/GFD/docs/features/codebase/
+grep -rn "gfd:progress" ./get-features-done/ ./commands/ ./docs/features/codebase/
 
 # Must not exist
-ls /var/home/conroy/Projects/GFD/commands/gfd/progress.md 2>/dev/null && echo "EXISTS - ERROR" || echo "DELETED - OK"
+ls ./commands/gfd/progress.md 2>/dev/null && echo "EXISTS - ERROR" || echo "DELETED - OK"
 
 # Workflow file already gone — confirm
-ls /var/home/conroy/Projects/GFD/get-features-done/workflows/progress.md 2>/dev/null && echo "EXISTS - ERROR" || echo "ALREADY DELETED - OK"
+ls ./get-features-done/workflows/progress.md 2>/dev/null && echo "EXISTS - ERROR" || echo "ALREADY DELETED - OK"
 
 # No broken references to progress.md in codebase docs
-grep -rn "progress\.md" /var/home/conroy/Projects/GFD/docs/features/codebase/
+grep -rn "progress\.md" ./docs/features/codebase/
 ```
 
 All checks must pass with zero results (except "DELETED - OK" messages).

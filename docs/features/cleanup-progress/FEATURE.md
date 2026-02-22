@@ -25,7 +25,7 @@ Remove the progress command entirely from the codebase. The progress command is 
 
 ## Tasks
 
-[Populated during planning. Links to plan files.]
+- [01-PLAN.md](01-PLAN.md) — Remove /gfd:progress skill, workflow references, and codebase doc entries
 
 ## Notes
 
