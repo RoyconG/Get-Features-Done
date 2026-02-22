@@ -140,7 +140,7 @@
 
 **Slash Commands:**
 - Location: `commands/gfd/`
-- Files: `new-project.md`, `new-feature.md`, `plan-feature.md`, `execute-feature.md`, `progress.md`, `map-codebase.md`
+- Files: `new-project.md`, `new-feature.md`, `plan-feature.md`, `execute-feature.md`, `map-codebase.md`
 - Each defines: name (command path), description, allowed-tools, execution_context (references), process (orchestration steps)
 
 **Key command sequence:**
@@ -148,7 +148,7 @@
 2. `/gfd:new-feature` — Create FEATURE.md with acceptance criteria
 3. `/gfd:plan-feature <slug>` — Generate PLAN.md
 4. `/gfd:execute-feature <slug>` — Run PLAN.md, produce SUMMARY.md
-5. `/gfd:progress` — Check status, determine next action
+5. `/gfd:status` — Check status, determine next action
 6. `/gfd:map-codebase` — Analyze codebase, produce STACK/ARCHITECTURE/CONVENTIONS/CONCERNS docs
 
 **Initialization Entry:**

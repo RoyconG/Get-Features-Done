@@ -18,8 +18,7 @@
 │       ├── map-codebase.md             # Analyze codebase, output structured docs
 │       ├── new-feature.md              # Define new feature with acceptance criteria
 │       ├── new-project.md              # Initialize project with docs/features/ structure
-│       ├── plan-feature.md             # Create implementation plans
-│       └── progress.md                 # Check project status, determine next action
+│       └── plan-feature.md             # Create implementation plans
 ├── docs/
 │   └── features/                       # Project planning artifacts (per-project)
 │       ├── codebase/                   # Codebase analysis output (created by map-codebase)
@@ -61,8 +60,7 @@
 │   │   ├── map-codebase.md             # Parallel agent spawning for codebase analysis
 │   │   ├── new-feature.md              # Feature creation workflow
 │   │   ├── new-project.md              # Project initialization workflow
-│   │   ├── plan-feature.md             # Planning workflow with research/checking/verification
-│   │   └── progress.md                 # Status check workflow
+│   │   └── plan-feature.md             # Planning workflow with research/checking/verification
 │   └── VERSION                         # Release version number
 ├── install.sh                          # Installation script (creates symlinks to ~/.claude/)
 └── README.md                           # Project overview and usage
@@ -166,7 +164,7 @@
 - Status values: `backlog`, `planning`, `planned`, `in-progress`, `done`
 - Priority values: `critical`, `high`, `medium`, `low`
 - Agent names: `gfd-planner`, `gfd-executor`, `gfd-researcher`, `gfd-verifier`, `gfd-codebase-mapper`
-- Command names: `gfd:new-project`, `gfd:new-feature`, `gfd:plan-feature`, `gfd:execute-feature`, `gfd:progress`, `gfd:map-codebase`
+- Command names: `gfd:new-project`, `gfd:new-feature`, `gfd:plan-feature`, `gfd:execute-feature`, `gfd:map-codebase`
 
 ## Where to Add New Code
 

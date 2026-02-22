@@ -108,7 +108,7 @@
 
 **Command Definitions:**
 - Location: `commands/gfd/` (6 commands)
-- Slash commands for Claude Code: `/gfd:new-project`, `/gfd:new-feature`, `/gfd:plan-feature`, `/gfd:execute-feature`, `/gfd:map-codebase`, `/gfd:progress`
+- Slash commands for Claude Code: `/gfd:new-project`, `/gfd:new-feature`, `/gfd:plan-feature`, `/gfd:execute-feature`, `/gfd:map-codebase`
 - Markdown format with command metadata
 
 **Templates:**
