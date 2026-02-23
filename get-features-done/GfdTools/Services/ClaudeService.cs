@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace GfdTools.Services;
 
@@ -8,7 +9,11 @@ public record RunResult(
     string Stderr,
     int ExitCode,
     double DurationSeconds,
-    string AbortReason   // empty string on success
+    string AbortReason,   // empty string on success
+    double TotalCostUsd = 0,
+    int InputTokens = 0,
+    int OutputTokens = 0,
+    int CacheReadTokens = 0
 );
 
 public static class ClaudeService
@@ -16,8 +21,9 @@ public static class ClaudeService
     /// <summary>
     /// Invoke claude headlessly via -p (pipe/print mode). Uses ArgumentList.Add() for each arg
     /// (never string concatenation) and reads stdout/stderr concurrently to avoid deadlock.
-    /// Success is determined by stdout containing a terminal signal string AND the expected
-    /// artifact existing on disk — NOT exit code alone.
+    /// Success is determined by the parsed result field content containing a terminal signal string
+    /// AND the expected artifact existing on disk — NOT exit code alone.
+    /// Uses --output-format stream-json to capture token/cost data from the result line.
     /// </summary>
     public static async Task<RunResult> InvokeHeadless(
         string cwd,
@@ -51,7 +57,7 @@ public static class ClaudeService
             psi.ArgumentList.Add(tool);
         }
         psi.ArgumentList.Add("--output-format");
-        psi.ArgumentList.Add("text");
+        psi.ArgumentList.Add("stream-json");
 
         try
         {
@@ -70,12 +76,44 @@ public static class ClaudeService
             var stdout = await stdoutTask;
             var stderr = await stderrTask;
 
+            // With stream-json, each stdout line is a JSON object.
+            // The final "result" type line contains the agent's text output and token data.
+            string resultText = "";
+            double totalCostUsd = 0;
+            int inputTokens = 0, outputTokens = 0, cacheReadTokens = 0;
+
+            var resultLine = stdout.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                .LastOrDefault(l => l.TrimStart().StartsWith("{") && l.Contains("\"type\":\"result\""));
+
+            if (resultLine != null)
+            {
+                try
+                {
+                    using var resultDoc = JsonDocument.Parse(resultLine);
+                    var root = resultDoc.RootElement;
+                    if (root.TryGetProperty("result", out var resultProp))
+                        resultText = resultProp.GetString() ?? "";
+                    if (root.TryGetProperty("total_cost_usd", out var costProp))
+                        totalCostUsd = costProp.GetDouble();
+                    if (root.TryGetProperty("usage", out var usageProp))
+                    {
+                        if (usageProp.TryGetProperty("input_tokens", out var inp))
+                            inputTokens = inp.GetInt32();
+                        if (usageProp.TryGetProperty("output_tokens", out var outp))
+                            outputTokens = outp.GetInt32();
+                        if (usageProp.TryGetProperty("cache_read_input_tokens", out var cache))
+                            cacheReadTokens = cache.GetInt32();
+                    }
+                }
+                catch { /* Parsing failure: token data unavailable, proceed without it */ }
+            }
+
             var durationSeconds = (DateTime.UtcNow - startTime).TotalSeconds;
 
-            // Success/abort detection — check stdout for terminal signals, NOT exit code alone.
-            // claude -p may exit 0 even on ambiguity; check stdout for completion signals.
-            bool success = stdout.Contains("## RESEARCH COMPLETE", StringComparison.Ordinal)
-                        || stdout.Contains("## PLANNING COMPLETE", StringComparison.Ordinal);
+            // Success/abort detection — check resultText for terminal signals, NOT raw stdout.
+            // With stream-json, agent text output is inside the JSON result field.
+            bool success = resultText.Contains("## RESEARCH COMPLETE", StringComparison.Ordinal)
+                        || resultText.Contains("## PLANNING COMPLETE", StringComparison.Ordinal);
 
             string abortReason;
             if (success)
@@ -88,8 +126,12 @@ public static class ClaudeService
                 bool isMaxTurns = stderr.Contains("max turns", StringComparison.OrdinalIgnoreCase)
                                || stdout.Contains("max-turns", StringComparison.Ordinal);
 
+                // For ambiguous detection, check both raw stdout (JSON objects may contain signals)
+                // and the parsed resultText
                 bool isAmbiguous = stdout.Contains("AskUserQuestion", StringComparison.Ordinal)
-                                || stdout.Contains("## CHECKPOINT", StringComparison.Ordinal);
+                                || stdout.Contains("## CHECKPOINT", StringComparison.Ordinal)
+                                || resultText.Contains("AskUserQuestion", StringComparison.Ordinal)
+                                || resultText.Contains("## CHECKPOINT", StringComparison.Ordinal);
 
                 if (isMaxTurns)
                     abortReason = "max-turns reached";
@@ -99,7 +141,8 @@ public static class ClaudeService
                     abortReason = "no completion signal found";
             }
 
-            return new RunResult(success, stdout, stderr, process.ExitCode, durationSeconds, abortReason);
+            return new RunResult(success, stdout, stderr, process.ExitCode, durationSeconds, abortReason,
+                totalCostUsd, inputTokens, outputTokens, cacheReadTokens);
         }
         catch (Exception ex)
         {
@@ -133,12 +176,16 @@ public static class ClaudeService
             ? "(none)"
             : string.Join("\n", result.Stdout.Split('\n').TakeLast(50));
 
+        var costLine = result.TotalCostUsd > 0
+            ? $"\n**Cost:** ${result.TotalCostUsd:F4}"
+            : "";
+
         return $"""
 # Auto Run: {command} {slug}
 
 **Status:** {status}
 **Started:** {startedAt}
-**Duration:** {result.DurationSeconds:F1}s
+**Duration:** {result.DurationSeconds:F1}s{costLine}
 
 ## Outcome
 
