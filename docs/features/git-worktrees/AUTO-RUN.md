@@ -1,56 +1,58 @@
-# Auto Run: auto-research git-worktrees
+# Auto Run: auto-plan git-worktrees
 
 **Status:** Success
-**Started:** 2026-02-20T21:46:05Z
-**Duration:** 282.6s
+**Started:** 2026-02-23T03:15:53Z
+**Duration:** 576.7s
 
 ## Outcome
 
 Command completed successfully.
 
-- RESEARCH.md
+- 01-PLAN.md
+- 02-PLAN.md
 
 ## Artifacts
 
-- RESEARCH.md
+- 01-PLAN.md
+- 02-PLAN.md
 
 ## Claude Output (tail)
 
 ```
-## RESEARCH COMPLETE
+## PLANNING COMPLETE
 
 **Feature:** git-worktrees — Git Worktrees
-**Confidence:** HIGH
+**Plans:** 2 plans in 1 wave
 
-### Key Findings
+### Wave Structure
 
-- All implementation uses existing C# patterns: `GitService.ExecGit`, `Output.Write`, `System.CommandLine` v2-beta5 — no new dependencies
-- Git 2.53.0 (installed) supports all required `git worktree` subcommands: `add`, `remove`, `prune`, `list --porcelain`
-- The critical executor CWD problem: executors must use `git -C .worktrees/<slug>/` for commits, or they'll commit to main instead of `feature/<slug>` — orchestrator must pass `worktree_path` in the executor prompt
-- Branch-already-exists on resume is a predictable edge case: detect with `git show-ref --verify --quiet refs/heads/feature/<slug>` and use bare `worktree add` (no `-b`) if branch exists
-- `git worktree remove --force` is needed for failure-preserved worktrees (they'll have uncommitted changes)
-- `.worktrees/` gitignore does NOT prevent `git worktree add` — the directory is tracked via `.git/worktrees/`, not the working tree index
+| Wave | Plans | Autonomous |
+|------|-------|------------|
+| 1 | 01-PLAN, 02-PLAN | yes, yes |
 
-### File Created
+### Plans Created
 
-`docs/features/git-worktrees/RESEARCH.md`
+| Plan | Objective | Tasks | Key Files |
+|------|-----------|-------|-----------|
+| 01-PLAN | C# gfd-tools: WorktreeCommands + config wire | 2 | WorktreeCommands.cs (new), Config.cs, ConfigService.cs, Program.cs, InitCommands.cs |
+| 02-PLAN | Workflow + config: .gitignore, config.json, execute-feature.md | 2 | .gitignore, config.json, execute-feature.md |
 
-### Confidence Assessment
+**Both plans are Wave 1 (parallel)** — they touch no overlapping files.
 
-| Area | Level | Reason |
-|------|-------|--------|
-| Standard Stack | HIGH | Verified from codebase source files |
-| Architecture | HIGH | git worktree API verified from `git --help`; command patterns from codebase |
-| Pitfalls | HIGH | Derived from git semantics and CWD behavior |
-| execute-feature changes | MEDIUM | Workflow pattern is clear; executor CWD mechanism is a planner decision |
+**Coverage:**
+- AC1 (config toggle): both plans (01 = C# parsing, 02 = config.json entry)
+- AC2 (worktree-create command): 01-PLAN
+- AC3 (worktree-remove command): 01-PLAN
+- AC4 (execute-feature integration): 02-PLAN
+- AC5 (merge prompt): 02-PLAN
+- AC6 (conflict handling): 02-PLAN
+- AC7 (.worktrees/ gitignored): 02-PLAN
+- AC8 (disabled = unchanged behavior): 02-PLAN
 
-### Open Questions
+### Next Steps
 
-- How exactly does the executor receive the `worktree_path`? (`git -C <path>` in prompt vs directory change) — recommendation: `git -C <path>` is cleaner
-- Should `init execute-feature` emit `worktree_path` if a worktree already exists?
+Execute: `/gfd:execute-feature git-worktrees`
 
-### Ready for Planning
-
-Research committed to `docs/features/git-worktrees/RESEARCH.md`. Planner can now create PLAN.md files.
+<sub>`/clear` first — fresh context window</sub>
 
 ```
