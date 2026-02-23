@@ -100,6 +100,17 @@ public static class ConfigService
             if (root.TryGetProperty("path_prefix", out var ppFlat))
                 defaults.PathPrefix = ppFlat.GetString() ?? defaults.PathPrefix;
 
+            if (root.TryGetProperty("model_overrides", out var overrides) &&
+                overrides.ValueKind == JsonValueKind.Object)
+            {
+                foreach (var prop in overrides.EnumerateObject())
+                {
+                    var val = prop.Value.GetString();
+                    if (!string.IsNullOrWhiteSpace(val))
+                        defaults.ModelOverrides[prop.Name] = val;
+                }
+            }
+
             return defaults;
         }
         catch
@@ -111,6 +122,11 @@ public static class ConfigService
     public static string ResolveModel(string cwd, string agentName)
     {
         var config = LoadConfig(cwd);
+
+        if (config.ModelOverrides.TryGetValue(agentName, out var overrideModel) &&
+            !string.IsNullOrEmpty(overrideModel))
+            return overrideModel;
+
         var profile = config.ModelProfile;
 
         if (!ModelProfiles.TryGetValue(profile, out var profileMap))
@@ -126,7 +142,7 @@ public static class ConfigService
     public static Dictionary<string, object?> GetAllFields(string cwd)
     {
         var config = LoadConfig(cwd);
-        return new Dictionary<string, object?>
+        var result = new Dictionary<string, object?>
         {
             ["model_profile"] = config.ModelProfile,
             ["search_gitignored"] = config.SearchGitignored,
@@ -137,5 +153,8 @@ public static class ConfigService
             ["auto_advance"] = config.AutoAdvance,
             ["path_prefix"] = config.PathPrefix,
         };
+        foreach (var kv in config.ModelOverrides)
+            result[$"model_override_{kv.Key}"] = kv.Value;
+        return result;
     }
 }

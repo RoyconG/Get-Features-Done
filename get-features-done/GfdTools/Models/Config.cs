@@ -10,6 +10,7 @@ public class Config
     public bool Parallelization { get; set; } = true;
     public bool AutoAdvance { get; set; } = false;
     public string PathPrefix { get; set; } = "docs/features";
+    public Dictionary<string, string> ModelOverrides { get; set; } = new();
     public TeamConfig Team { get; set; } = new();
 }
 
