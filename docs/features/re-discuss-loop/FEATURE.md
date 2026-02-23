@@ -58,6 +58,14 @@ When downstream stages (research, planning, execution) encounter blockers they c
 
 ## Blockers
 
+## Token Usage
+
+| Workflow | Date | Agent Role | Model | Cost |
+|----------|------|------------|-------|------|
+| execute | 2026-02-23 | gfd-executor | sonnet | est. |
+| execute | 2026-02-23 | gfd-executor | sonnet | est. |
+| execute | 2026-02-23 | gfd-verifier | sonnet | est. |
+
 ---
 *Created: 2026-02-21*
 *Last updated: 2026-02-23*
