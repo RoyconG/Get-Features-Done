@@ -81,6 +81,9 @@ Read all files referenced by the invoking prompt's execution_context before star
 
 Extract the feature slug from $ARGUMENTS (first positional argument).
 
+Extract the optional context file path from $ARGUMENTS (second positional argument, if present).
+Set FILE_PATH to the second argument value, or empty string if not provided.
+
 **If no slug provided:**
 
 ```
@@ -157,9 +160,46 @@ $HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "d
 
 Show the current one-liner from FEATURE.md as context.
 
-## 5. Analyze Feature
+## 5. Gather Source Context
+
+**If FILE_PATH is set:**
+
+Read the file at FILE_PATH using the Read tool.
+
+If the file is read successfully: set SOURCE_CONTEXT to the file contents. Proceed to Step 6.
+
+If the file cannot be read (does not exist, permission denied, etc.): display a warning:
+```
+⚠ Could not read context file: [FILE_PATH]
+```
+Then fall through to the free-text prompt below.
+
+**If FILE_PATH is not set (or file read failed):**
+
+Use AskUserQuestion:
+- header: "Context"
+- question: "Do you have additional context to share? (ticket, spec, design doc, requirements)"
+- options:
+  - "Skip — discuss without context"
+  - "Yes — I'll paste it now"
+
+If "Skip — discuss without context": set SOURCE_CONTEXT to empty string. Proceed to Step 6.
+
+If "Yes — I'll paste it now": ask inline (NOT AskUserQuestion):
+  "Paste your context below (ticket body, spec excerpt, requirements doc, etc.):"
+  Set SOURCE_CONTEXT to whatever the user provides. Proceed to Step 6.
+
+**If SOURCE_CONTEXT is empty:** Proceed to Step 6 without any context reference.
+
+## 6. Analyze Feature
 
 Analyze the feature description to identify gray areas worth discussing.
+
+**If SOURCE_CONTEXT is not empty:** Also analyze SOURCE_CONTEXT for domain-specific constraints, pre-specified requirements, and terminology from the source material. Use this to:
+- Resolve gray areas that SOURCE_CONTEXT already answers (skip those in Step 7)
+- Surface context-specific gray areas not apparent from the feature description alone
+
+
 
 **Read the feature description from FEATURE.md and determine:**
 
@@ -192,7 +232,7 @@ Feature: "API documentation"
 - Architecture patterns
 - Performance optimization
 
-## 6. Present Gray Areas
+## 7. Present Gray Areas
 
 Present the domain boundary and gray areas to user.
 
@@ -234,7 +274,7 @@ For "Post Feed" (visual feature):
 
 Continue to discuss_areas with selected areas.
 
-## 7. Discuss Selected Areas
+## 8. Discuss Selected Areas
 
 For each selected area, conduct a focused discussion loop.
 
@@ -301,7 +341,7 @@ Back to [current area]: [return to current question]"
 
 Track deferred ideas internally.
 
-## 8. Synthesize and Confirm
+## 9. Synthesize and Confirm
 
 Derive acceptance criteria from the discussion (3-5 concrete, observable behaviors). Each should be independently verifiable, written from user/system perspective.
 
@@ -337,7 +377,7 @@ Use AskUserQuestion:
 
 Loop until "Looks good — save it" selected.
 
-## 9. Update FEATURE.md
+## 10. Update FEATURE.md
 
 Read the current FEATURE.md content. Rewrite it using the Write tool with:
 - `status: discussing` in frontmatter (already set — leave it, will update after)
@@ -346,6 +386,7 @@ Read the current FEATURE.md content. Rewrite it using the Write tool with:
 - `## Description` updated with expanded 2-3 sentence description
 - `## Acceptance Criteria` populated with 3-5 criteria in `- [ ] [criterion]` format
 - `## Notes` populated with:
+  - **Source Context** (if SOURCE_CONTEXT is non-empty): Under `### Source Context` heading. Write raw text if short (roughly under 500 words). Summarize at Claude's discretion if longer. Omit this heading entirely if SOURCE_CONTEXT is empty.
   - Implementation decisions from discussion
   - Claude's discretion areas
   - Deferred ideas (if any) clearly marked
@@ -356,19 +397,19 @@ Preserve existing frontmatter fields (`name`, `slug`, `owner`, `assignees`, `cre
 Keep the `## Tasks` section as-is (populated during planning).
 Keep the `## Decisions` and `## Blockers` sections as-is.
 
-## 10. Transition to Discussed
+## 11. Transition to Discussed
 
 ```bash
 $HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "discussed"
 ```
 
-## 11. Commit
+## 12. Commit
 
 ```bash
 git add "docs/features/${SLUG}/FEATURE.md" && git diff --cached --quiet || git commit -m "docs(${SLUG}): discuss feature scope"
 ```
 
-## 12. Done
+## 13. Done
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -427,6 +468,8 @@ Call `list-features` to get all features. Filter out done features. If there are
 - [ ] Slug validated and feature found
 - [ ] Status guard: only proceeds for new/discussing (with confirm for discussed)
 - [ ] Status transitioned to "discussing" before conversation starts
+- [ ] Source context gathered (file read from FILE_PATH, or free-text prompt offered and either filled or skipped)
+- [ ] SOURCE_CONTEXT written to FEATURE.md Notes under ### Source Context heading when non-empty (omitted when empty)
 - [ ] Gray areas identified through intelligent analysis (not generic questions)
 - [ ] User selected which areas to discuss
 - [ ] Each selected area explored until user satisfied (4 questions then check)
