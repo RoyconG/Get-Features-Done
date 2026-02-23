@@ -49,6 +49,9 @@ Audit all GFD agents for token efficiency — identify overqualified models, red
 - Show recommended defaults based on audit findings
 - Token summary at end of workflows + cumulative section in FEATURE.md
 - Audit findings documented in docs/
+- [Plan 01] model_overrides override priority: overrides > profile[role] > sonnet fallback
+- [Plan 01] GetAllFields() emits model_override_{role} keys for discoverability via config-get
+- [Plan 01] Audit finding: gfd-verifier is overqualified at sonnet in balanced profile; haiku sufficient for pattern-matching workload (~75% cost reduction per verification)
 - Plan 02: Use stream-json output format so both agent text and token cost data come from a single invocation; parse the final result-type JSON line for resultText and token fields
 - Plan 02: All FEATURE.md mutations (status update + token row) done before git commit so the commit is one atomic unit
 - Plan 02: Use "est." in cost column when TotalCostUsd is 0 to avoid misleading zero-precision display
