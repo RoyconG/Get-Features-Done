@@ -16,13 +16,13 @@ When downstream stages (research, planning, execution) encounter blockers they c
 
 ## Acceptance Criteria
 
-- [ ] Research, planning, and execution agents detect unresolvable blockers and stop with an error box showing the blocker and `/gfd:discuss-feature <slug>` as the fix command
-- [ ] Blocker details are written to the `## Blockers` section of FEATURE.md so they persist across context windows
-- [ ] `discuss-feature` detects blockers in FEATURE.md and runs a focused re-discussion on just the affected area (not a full re-discuss)
-- [ ] After re-discussion resolves the blocker, the blocker is removed from FEATURE.md and the user is shown the next command to run
-- [ ] Status rewinds to `discussing` then `discussed` during re-discuss, then the user re-runs the stage that triggered it
-- [ ] If the same blocker type recurs after a re-discuss, the agent warns the user before stopping
-- [ ] In auto-advance mode, the agent jumps directly into discuss-feature instead of stopping
+- [x] Research, planning, and execution agents detect unresolvable blockers and stop with an error box showing the blocker and `/gfd:discuss-feature <slug>` as the fix command
+- [x] Blocker details are written to the `## Blockers` section of FEATURE.md so they persist across context windows
+- [x] `discuss-feature` detects blockers in FEATURE.md and runs a focused re-discussion on just the affected area (not a full re-discuss)
+- [x] After re-discussion resolves the blocker, the blocker is removed from FEATURE.md and the user is shown the next command to run
+- [x] Status rewinds to `discussing` then `discussed` during re-discuss, then the user re-runs the stage that triggered it
+- [x] If the same blocker type recurs after a re-discuss, the agent warns the user before stopping
+- [x] In auto-advance mode, the agent jumps directly into discuss-feature instead of stopping
 
 ## Tasks
 
@@ -60,4 +60,4 @@ When downstream stages (research, planning, execution) encounter blockers they c
 
 ---
 *Created: 2026-02-21*
-*Last updated: 2026-02-21*
+*Last updated: 2026-02-23*
