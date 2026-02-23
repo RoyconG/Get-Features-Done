@@ -103,14 +103,7 @@ public static class AutoResearchCommand
             result = result with { Success = false, AbortReason = "RESEARCH.md not found after completion signal" };
         }
 
-        // Step 6 — Build and commit AUTO-RUN.md
-        var autoRunMd = ClaudeService.BuildAutoRunMd(slug, "auto-research", result, startedAt, artifactsProduced);
-        var commitMessage = result.Success
-            ? $"feat({slug}): auto-research complete"
-            : $"docs({slug}): auto-research aborted — {result.AbortReason}";
-        CommitAutoRunMd(cwd, slug, featureInfo.Directory, autoRunMd, commitMessage, artifactsProduced);
-
-        // Step 7 — Update feature status and output
+        // Step 6 — On success, update FEATURE.md (status + token row) before committing
         if (result.Success)
         {
             // Update status via direct FEATURE.md edit
@@ -121,6 +114,32 @@ public static class AutoResearchCommand
                 System.Text.RegularExpressions.RegexOptions.Multiline);
             File.WriteAllText(featureMd, featureContent);
 
+            // Append token usage row to FEATURE.md
+            var resolvedModel = ConfigService.ResolveModel(cwd, "gfd-researcher");
+            AppendTokenUsageToFeatureMd(featureMd, "research", "gfd-researcher",
+                resolvedModel, result.TotalCostUsd);
+        }
+
+        // Step 7 — Build and commit AUTO-RUN.md (include FEATURE.md in artifacts on success)
+        var autoRunMd = ClaudeService.BuildAutoRunMd(slug, "auto-research", result, startedAt, artifactsProduced);
+        var commitMessage = result.Success
+            ? $"feat({slug}): auto-research complete"
+            : $"docs({slug}): auto-research aborted — {result.AbortReason}";
+
+        if (result.Success)
+        {
+            // Include FEATURE.md in the commit alongside RESEARCH.md
+            CommitAutoRunMd(cwd, slug, featureInfo.Directory, autoRunMd, commitMessage,
+                artifactsProduced.Append("FEATURE.md").ToArray());
+        }
+        else
+        {
+            CommitAutoRunMd(cwd, slug, featureInfo.Directory, autoRunMd, commitMessage, artifactsProduced);
+        }
+
+        // Step 8 — Output results
+        if (result.Success)
+        {
             Output.Write("result", "success");
             Output.Write("artifact", "RESEARCH.md");
             Output.Write("duration_seconds", result.DurationSeconds.ToString("F1"));
@@ -150,5 +169,51 @@ public static class AutoResearchCommand
 
         // git commit
         GitService.ExecGit(cwd, ["commit", "-m", commitMessage]);
+    }
+
+    private static void AppendTokenUsageToFeatureMd(
+        string featureMdPath,
+        string workflow,   // "research" or "plan"
+        string agentRole,  // "gfd-researcher" or "gfd-planner"
+        string model,      // resolved model tier (e.g. "sonnet")
+        double totalCostUsd)
+    {
+        if (!File.Exists(featureMdPath)) return;
+
+        var content = File.ReadAllText(featureMdPath);
+        var date = DateTime.UtcNow.ToString("yyyy-MM-dd");
+        var costStr = totalCostUsd > 0 ? $"${totalCostUsd:F4}" : "est.";
+        var newRow = $"| {workflow} | {date} | {agentRole} | {model} | {costStr} |";
+
+        const string sectionHeader = "## Token Usage";
+        const string tableHeader = "| Workflow | Date | Agent Role | Model | Cost |\n|----------|------|------------|-------|------|";
+
+        if (content.Contains(sectionHeader, StringComparison.Ordinal))
+        {
+            // Find end of existing table and insert row before any trailing content
+            var insertPoint = content.IndexOf(sectionHeader, StringComparison.Ordinal);
+            // Append the new row after the last table row in the section
+            // Simple approach: find the section, append the row at end of file or before next ##
+            var afterSection = content.IndexOf("\n## ", insertPoint + sectionHeader.Length, StringComparison.Ordinal);
+            if (afterSection == -1)
+            {
+                // Section is at the end of file
+                content = content.TrimEnd() + "\n" + newRow + "\n";
+            }
+            else
+            {
+                content = content.Substring(0, afterSection).TrimEnd()
+                    + "\n" + newRow + "\n"
+                    + content.Substring(afterSection);
+            }
+        }
+        else
+        {
+            // Add new section at end of file
+            content = content.TrimEnd()
+                + $"\n\n{sectionHeader}\n\n{tableHeader}\n{newRow}\n";
+        }
+
+        File.WriteAllText(featureMdPath, content);
     }
 }

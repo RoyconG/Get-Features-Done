@@ -122,7 +122,7 @@ public static class AutoPlanCommand
 
         // Step 6 — Commit AUTO-RUN.md
         // On abort: commit ONLY AUTO-RUN.md. Do NOT add any partial PLAN.md files.
-        // On success: commit AUTO-RUN.md + all plan files + FEATURE.md (status update).
+        // On success: commit AUTO-RUN.md + all plan files + FEATURE.md (status update + token row).
         var autoRunMd = ClaudeService.BuildAutoRunMd(slug, "auto-plan", result, startedAt, artifactsProduced);
         var commitMessage = result.Success
             ? $"feat({slug}): auto-plan complete ({artifactsProduced.Length} plan(s))"
@@ -137,6 +137,11 @@ public static class AutoPlanCommand
                 featureContent, @"^status:\s*.+$", "status: planned",
                 System.Text.RegularExpressions.RegexOptions.Multiline);
             File.WriteAllText(featureMd, featureContent);
+
+            // Append token usage row to FEATURE.md before committing
+            var resolvedModel = ConfigService.ResolveModel(cwd, "gfd-planner");
+            AppendTokenUsageToFeatureMd(featureMd, "plan", "gfd-planner",
+                resolvedModel, result.TotalCostUsd);
 
             // Include FEATURE.md + all plan files in commit
             CommitAutoRunMd(cwd, slug, featureInfo.Directory, autoRunMd, commitMessage,
@@ -186,5 +191,51 @@ public static class AutoPlanCommand
 
         // git commit
         GitService.ExecGit(cwd, ["commit", "-m", commitMessage]);
+    }
+
+    private static void AppendTokenUsageToFeatureMd(
+        string featureMdPath,
+        string workflow,   // "research" or "plan"
+        string agentRole,  // "gfd-researcher" or "gfd-planner"
+        string model,      // resolved model tier (e.g. "sonnet")
+        double totalCostUsd)
+    {
+        if (!File.Exists(featureMdPath)) return;
+
+        var content = File.ReadAllText(featureMdPath);
+        var date = DateTime.UtcNow.ToString("yyyy-MM-dd");
+        var costStr = totalCostUsd > 0 ? $"${totalCostUsd:F4}" : "est.";
+        var newRow = $"| {workflow} | {date} | {agentRole} | {model} | {costStr} |";
+
+        const string sectionHeader = "## Token Usage";
+        const string tableHeader = "| Workflow | Date | Agent Role | Model | Cost |\n|----------|------|------------|-------|------|";
+
+        if (content.Contains(sectionHeader, StringComparison.Ordinal))
+        {
+            // Find end of existing table and insert row before any trailing content
+            var insertPoint = content.IndexOf(sectionHeader, StringComparison.Ordinal);
+            // Append the new row after the last table row in the section
+            // Simple approach: find the section, append the row at end of file or before next ##
+            var afterSection = content.IndexOf("\n## ", insertPoint + sectionHeader.Length, StringComparison.Ordinal);
+            if (afterSection == -1)
+            {
+                // Section is at the end of file
+                content = content.TrimEnd() + "\n" + newRow + "\n";
+            }
+            else
+            {
+                content = content.Substring(0, afterSection).TrimEnd()
+                    + "\n" + newRow + "\n"
+                    + content.Substring(afterSection);
+            }
+        }
+        else
+        {
+            // Add new section at end of file
+            content = content.TrimEnd()
+                + $"\n\n{sectionHeader}\n\n{tableHeader}\n{newRow}\n";
+        }
+
+        File.WriteAllText(featureMdPath, content);
     }
 }
