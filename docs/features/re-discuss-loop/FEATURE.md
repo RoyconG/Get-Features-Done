@@ -1,7 +1,7 @@
 ---
 name: Re-Discuss Loop
 slug: re-discuss-loop
-status: researched
+status: planned
 owner: Conroy
 assignees: []
 created: 2026-02-21
