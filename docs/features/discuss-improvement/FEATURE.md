@@ -16,10 +16,10 @@ Enhances the `/gfd:discuss-feature` workflow to accept additional context (ticke
 
 ## Acceptance Criteria
 
-- [ ] When no file path argument is provided, a skippable free text prompt appears after the "DISCUSSING" banner asking for additional context
-- [ ] When a file path is provided as a second argument to `/gfd:discuss-feature`, the file is read and the free text prompt is skipped
-- [ ] Provided context is used to inform gray area analysis (step 5), producing more relevant discussion topics
-- [ ] Provided context is saved to the Notes section of FEATURE.md under a "Source Context" heading (raw for short text, summarized for long text — Claude's discretion)
+- [x] When no file path argument is provided, a skippable free text prompt appears after the "DISCUSSING" banner asking for additional context
+- [x] When a file path is provided as a second argument to `/gfd:discuss-feature`, the file is read and the free text prompt is skipped
+- [x] Provided context is used to inform gray area analysis (step 5), producing more relevant discussion topics
+- [x] Provided context is saved to the Notes section of FEATURE.md under a "Source Context" heading (raw for short text, summarized for long text — Claude's discretion)
 
 ## Tasks
 
