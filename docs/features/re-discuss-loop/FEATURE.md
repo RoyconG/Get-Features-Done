@@ -1,7 +1,7 @@
 ---
 name: Re-Discuss Loop
 slug: re-discuss-loop
-status: in-progress
+status: done
 owner: Conroy
 assignees: []
 created: 2026-02-21
@@ -48,6 +48,10 @@ When downstream stages (research, planning, execution) encounter blockers they c
 - Blocker context persisted in ## Blockers section of FEATURE.md
 - Status rewinds to discussing → discussed, then user re-runs the triggering stage
 - Warn on repeat blockers but don't prevent re-discuss
+- [01-PLAN] Executor blocker threshold is higher (Rule 4 equivalent) — must require user input, not Claude's discretion
+- [01-PLAN] Status rewind targets are stage-specific: researcher→discussed, planner→researched, executor→planned
+- [01-PLAN] Executor reuses existing AUTO_CFG variable (single declaration point in auto_mode_detection step)
+- [01-PLAN] All three agents share identical four blocker type strings for consistent repeat detection across stages
 - [02-PLAN] Active blocker detection uses `### [type:` line pattern (not any content) to avoid false positives on placeholder text
 - [02-PLAN] Re-discuss path exits before Step 3 status guard — no guard modification needed
 - [02-PLAN] Next command mapping: researcher→research-feature, planner→plan-feature, executor→execute-feature
