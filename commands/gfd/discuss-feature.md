@@ -1,7 +1,7 @@
 ---
 name: gfd:discuss-feature
 description: Refine feature scope through conversation
-argument-hint: <feature-slug>
+argument-hint: <feature-slug> [context-file]
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, AskUserQuestion
 ---
 
