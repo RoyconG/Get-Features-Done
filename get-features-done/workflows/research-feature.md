@@ -180,7 +180,48 @@ $HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "r
 git add "docs/features/${SLUG}/FEATURE.md" "docs/features/${SLUG}/RESEARCH.md" && git diff --cached --quiet || git commit -m "docs(${SLUG}): research feature"
 ```
 
-## 9. Done
+## 9. Token Usage Reporting
+
+After research is complete and committed, append a token usage row to FEATURE.md:
+
+1. Determine the model used for the researcher agent:
+   ```bash
+   gfd-tools resolve-model gfd-researcher
+   ```
+   Extract: `grep "^model=" | cut -d= -f2-`
+
+2. Get today's date: `date +%Y-%m-%d`
+
+3. Read the current FEATURE.md content (`docs/features/<slug>/FEATURE.md`).
+
+4. Check if a `## Token Usage` section exists in FEATURE.md:
+   - **If it exists:** append a new row to the table. Find the last row of the table and insert after it (before any next `##` section or end of file).
+   - **If it does not exist:** append the full section at the end of the file.
+
+5. Row format:
+   ```
+   | research | <YYYY-MM-DD> | gfd-researcher | <model> | est. |
+   ```
+
+6. New section format (when creating for the first time):
+   ```markdown
+   ## Token Usage
+
+   | Workflow | Date | Agent Role | Model | Cost |
+   |----------|------|------------|-------|------|
+   | research | <YYYY-MM-DD> | gfd-researcher | <model> | est. |
+   ```
+   Note: Interactive workflow runs mark cost as `est.` (estimated) because exact token counts are not available from the Task tool return value. For headless auto-research runs, the C# AutoResearchCommand writes exact cost data.
+
+7. Use the Edit tool (preferred) or Write tool to update FEATURE.md with the new row.
+
+8. Commit the FEATURE.md update:
+   ```bash
+   git add docs/features/<slug>/FEATURE.md
+   git commit -m "docs(<slug>): add research token usage"
+   ```
+
+## 10. Done
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
