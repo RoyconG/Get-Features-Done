@@ -360,6 +360,79 @@ git log --oneline --all | grep -q "{hash}" && echo "FOUND: {hash}" || echo "MISS
 Do NOT skip. Do NOT proceed to state updates if self-check fails.
 </self_check>
 
+<blocker_detection>
+
+## When to Trigger a Blocker
+
+Blockers are ONLY for issues that genuinely require user input — not for things Claude can decide with reasonable judgment (those are deviations). Before triggering a blocker, apply the Rule 1-3 check:
+- Can this be auto-fixed and documented as a deviation? → Fix it, document it, continue.
+- Is it "Claude's discretion" per FEATURE.md? → Make a reasonable choice, document it, continue.
+- Only if "this decision requires the user's input and proceeding without it would produce the wrong outcome" → trigger blocker path.
+
+**Blocker types (use exact strings):**
+- `ambiguous-scope` — the plan scope is fundamentally unclear in a way that prevents knowing what to implement
+- `conflicting-decisions` — FEATURE.md has locked decisions that directly contradict each other
+- `missing-context` — a required piece of context is not in FEATURE.md and cannot be inferred
+- `technical-impossibility` — a locked decision in FEATURE.md or the plan is technically unachievable
+
+**Blocker path (execute in order):**
+
+1. **Check for repeat blocker:** Scan the `## Decisions` section of FEATURE.md for a line matching `[re-discuss resolved: <current-blocker-type>]`. If found, set REPEAT_WARNING to:
+   ```
+   ⚠ WARNING: This blocker type ([type]) occurred before and was resolved via re-discuss. If it recurs, the feature scope may need a more fundamental rethink.
+   ```
+   Otherwise REPEAT_WARNING is empty.
+
+2. **Write structured blocker entry** to the `## Blockers` section of `docs/features/${SLUG}/FEATURE.md` using the Edit tool. Append the new entry:
+   ```markdown
+   ### [type: <blocker-type>] Detected by: executor | <ISO-date>
+
+   **What the agent found:** <specific description of what was found and why it blocks execution>
+
+   **Why this blocks progress:** <concrete reason>
+
+   **To resolve:** Run `/gfd:discuss-feature <slug>` to clarify this area.
+   ```
+
+3. **Rewind status:**
+   ```bash
+   $HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "planned"
+   ```
+   (in-progress → planned: preserves execution plans, un-does execution stage start)
+
+4. **Check auto-advance mode** (use existing `AUTO_CFG` variable):
+   If `AUTO_CFG` is `"true"`: output "Auto-advancing to discuss-feature for blocker resolution" and return `## EXECUTION BLOCKED (AUTO-ADVANCING)`.
+   If `AUTO_CFG` is not `"true"`: proceed to step 5.
+
+5. **Return `## EXECUTION BLOCKED`** structured return:
+   ```markdown
+   ## EXECUTION BLOCKED
+
+   **Feature:** {slug}
+   **Blocker type:** <blocker-type>
+   **Stage:** executor
+
+   {REPEAT_WARNING if non-empty}
+
+   ╔══════════════════════════════════════════════════════════════╗
+   ║  BLOCKER DETECTED                                            ║
+   ╚══════════════════════════════════════════════════════════════╝
+
+   **What's blocking execution:**
+   <Specific description of what the agent found and why it cannot proceed>
+
+   **To resolve:**
+   `/gfd:discuss-feature {slug}` — focused re-discussion on this area
+
+   ---
+   Blocker written to: docs/features/{slug}/FEATURE.md ## Blockers
+   Status rewound to: planned
+   ```
+
+6. **Stop.** Do not attempt further execution. Do NOT create a partial SUMMARY.md.
+
+</blocker_detection>
+
 <state_updates>
 After SUMMARY.md, update feature status using the C# tool. Record decisions and blockers directly in FEATURE.md using the Edit tool.
 
@@ -384,6 +457,36 @@ git add "docs/features/<slug>/NN-SUMMARY.md" "docs/features/<slug>/FEATURE.md" &
 
 Separate from per-task commits — captures execution results only.
 </final_commit>
+
+<structured_returns>
+
+## Execution Blocked
+
+```markdown
+## EXECUTION BLOCKED
+
+**Feature:** {slug}
+**Blocker type:** <blocker-type>
+**Stage:** executor
+
+{REPEAT_WARNING if non-empty}
+
+╔══════════════════════════════════════════════════════════════╗
+║  BLOCKER DETECTED                                            ║
+╚══════════════════════════════════════════════════════════════╝
+
+**What's blocking execution:**
+<Specific description of what the agent found and why it cannot proceed>
+
+**To resolve:**
+`/gfd:discuss-feature {slug}` — focused re-discussion on this area
+
+---
+Blocker written to: docs/features/{slug}/FEATURE.md ## Blockers
+Status rewound to: planned
+```
+
+</structured_returns>
 
 <completion_format>
 ```markdown
