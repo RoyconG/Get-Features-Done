@@ -1,40 +1,64 @@
-# Auto Run: auto-research review-token-usage
+# Auto Run: auto-plan review-token-usage
 
 **Status:** Success
-**Started:** 2026-02-22T07:46:13Z
-**Duration:** 314.4s
+**Started:** 2026-02-23T03:45:55Z
+**Duration:** 713.9s
 
 ## Outcome
 
 Command completed successfully.
 
-- RESEARCH.md
+- 01-PLAN.md
+- 02-PLAN.md
+- 03-PLAN.md
+- 04-PLAN.md
 
 ## Artifacts
 
-- RESEARCH.md
+- 01-PLAN.md
+- 02-PLAN.md
+- 03-PLAN.md
+- 04-PLAN.md
 
 ## Claude Output (tail)
 
 ```
-## RESEARCH COMPLETE
+## PLANNING COMPLETE
 
-The research for the **Review Token Usage** feature is complete. Here's a summary of key findings:
+**Feature:** review-token-usage — Review Token Usage
+**Plans:** 4 plans in 2 waves
 
-**File created:** `docs/features/review-token-usage/RESEARCH.md`
+### Wave Structure
 
-### Key Findings
+| Wave | Plans | Autonomous |
+|------|-------|------------|
+| 1 | 01-PLAN, 02-PLAN, 04-PLAN | yes, yes, yes |
+| 2 | 03-PLAN | yes |
 
-1. **Token data IS available from headless runs** — The SDK's `SDKResultMessage` type includes `total_cost_usd`, `usage` (input/output/cache tokens), and `modelUsage` (per-model breakdown). The current `ClaudeService.InvokeHeadless()` uses `--output-format text` which discards this data; switching to `--output-format stream-json` captures it.
+### Plans Created
 
-2. **Per-role model overrides need minimal config schema extension** — The existing `ConfigService.cs` supports profiles (`quality`/`balanced`/`budget`). Adding a `model_overrides` map to `config.json` and updating `ResolveModel()` is the minimal change.
+| Plan | Objective | Tasks | Key Files |
+|------|-----------|-------|-----------|
+| 01-PLAN | Config extension + audit document | 2 | Config.cs, ConfigService.cs, docs/token-audit.md |
+| 02-PLAN | Headless token capture (stream-json) | 2 | ClaudeService.cs, AutoResearchCommand.cs, AutoPlanCommand.cs |
+| 03-PLAN | /gfd:configure-models command | 2 | commands/gfd/configure-models.md, workflows/configure-models.md |
+| 04-PLAN | Interactive workflow token reporting | 2 | execute-feature.md, research-feature.md, plan-feature.md |
 
-3. **Interactive Task() token data is unreliable** — The `TaskOutput.usage` field is optional in the SDK TypeScript reference. Token reporting should be "exact for headless runs, best-effort for interactive runs."
+### Acceptance Criteria Coverage
 
-4. **`/gfd:configure-models` follows an established pattern** — Needs a command file (`commands/gfd/configure-models.md`) and workflow file. Config can be written directly via the Write tool — no new CLI command needed.
+| Criterion | Plan(s) |
+|-----------|---------|
+| Audit document in docs/ | 01 |
+| /gfd:configure-models command | 03 |
+| Recommended model + warnings per role | 03 |
+| Model preferences in GFD config file | 01 (schema) + 03 (write) |
+| Token summary at end of workflows | 02 (headless) + 04 (interactive) |
+| Cumulative ## Token Usage in FEATURE.md | 02 + 04 |
 
-5. **Recommended model defaults by role:** mapper=haiku, verifier=haiku, researcher=sonnet, planner=sonnet, executor=sonnet. The audit finding is that the `quality` profile (all opus) is overkill for mapper and verifier roles.
+### Next Steps
 
-### Confidence: HIGH
+Execute: `/gfd:execute-feature review-token-usage`
+
+<sub>`/clear` first — fresh context window</sub>
 
 ```
