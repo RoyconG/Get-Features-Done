@@ -117,6 +117,113 @@ Feature not found: [SLUG]
 
 Exit.
 
+## 2.5. Check for Active Blockers
+
+Read the `## Blockers` section of `docs/features/${SLUG}/FEATURE.md`.
+
+**Active blocker detection:** Check if the section contains any lines starting with `### [type:`. The placeholder text in the template does NOT count as an active blocker.
+
+**If no active blocker entries found:** Continue to Step 3 (standard flow — no change to existing behavior).
+
+**If one or more `### [type:` entries exist:** Enter the re-discuss path:
+
+### Re-Discuss Path
+
+**1. Extract blocker information from the first active entry:**
+- Blocker type: value between `[type: ` and `]` on the header line
+- Detected by: stage name after `Detected by: ` on the header line
+- Description: the "What the agent found" paragraph content
+
+**2. Transition to discussing:**
+```bash
+$HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "discussing"
+```
+
+**3. Display RE-DISCUSSING banner:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GFD ► RE-DISCUSSING [SLUG]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+**4. Show blocker context:**
+```
+Blocker found: [type] — detected by [stage] on [date]
+
+[Human-readable "What the agent found" description from the blocker entry]
+```
+
+**5. Skip Steps 3–7 entirely.** Do NOT run status validation, do NOT present the full gray-area menu. The feature status is now `discussing` — the standard status guard in Step 3 would allow this, but the full discuss flow is not needed here.
+
+**6. Run focused re-discussion:**
+
+Ask only questions that resolve the specific blocker area. Scope strictly to what the blocker describes. Do NOT expand into adjacent gray areas or present the full feature domain.
+
+Use AskUserQuestion for each question:
+- header: "Re-discuss" (or the blocker area name, max 12 chars)
+- question: targeted at the specific ambiguity in the blocker entry
+- options: 2-3 concrete choices
+
+Ask up to 4 questions, then check:
+- header: "Re-discuss"
+- question: "Is the blocker resolved?"
+- options: "Yes — resolved" / "Need to discuss more"
+
+If "Need to discuss more" → ask up to 4 more questions, then check again.
+
+**7. After "Yes — resolved":**
+
+a. **Remove the resolved blocker entry** from `## Blockers` in FEATURE.md using the Edit tool. Remove the entire `### [type: <type>] ...` block including all content until the next `###` header or end of section.
+
+b. **Add resolution to ## Decisions** using the Edit tool. Append to the `## Decisions` section:
+```markdown
+[re-discuss resolved: <blocker-type>] <ISO-date>: <one-sentence summary of what was decided>
+```
+
+c. **Surgically update the relevant FEATURE.md section** based on the blocker area (e.g., if the blocker was `ambiguous-scope`, update `## Acceptance Criteria` or `## Description` with the clarification). Use the Edit tool — do NOT rewrite the entire file.
+
+d. **Transition to discussed:**
+```bash
+$HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "discussed"
+```
+
+e. **Commit:**
+```bash
+git add "docs/features/${SLUG}/FEATURE.md" && git diff --cached --quiet || git commit -m "docs(${SLUG}): resolve blocker via re-discuss [<blocker-type>]"
+```
+
+f. **Show re-discuss done banner and next command:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GFD ► [SLUG] RE-DISCUSSED ✓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Blocker resolved: [type]
+Stage that triggered it: [stage]
+```
+
+Then show the next command based on which stage detected the blocker:
+- `researcher` → `/gfd:research-feature [SLUG]`
+- `planner` → `/gfd:plan-feature [SLUG]`
+- `executor` → `/gfd:execute-feature [SLUG]`
+
+```
+───────────────────────────────────────────────────────────────
+
+## ▶ Next Up
+
+**Re-run [stage] for [SLUG]**
+
+`/gfd:[stage-command] [SLUG]`
+
+<sub>`/clear` first → fresh context window</sub>
+───────────────────────────────────────────────────────────────
+```
+
+g. **Exit.** Do NOT continue to Step 3 or later steps.
+
+**Important implementation note on Step 3 status guard:** The status guard in Step 3 currently errors on `researching`, `planning`, `in-progress`. After Step 2.5, if no active blockers were found, the guard runs normally. If active blockers were found, Step 2.5 completes and exits before Step 3 runs — so the guard is never a problem for the re-discuss path. No changes to Step 3 are needed.
+
 ## 3. Validate Status
 
 Check `feature_status` from init JSON.
