@@ -933,6 +933,75 @@ cat "$feature_dir"/DISCOVERY.md 2>/dev/null     # From mandatory discovery
 **If RESEARCH.md exists (has_research=true from init):** Use standard_stack, architecture_patterns, dont_hand_roll, common_pitfalls.
 </step>
 
+<step name="blocker_detection">
+Before breaking into tasks, check for unresolvable blockers. If you encounter an issue that genuinely cannot be resolved with reasonable judgment — acceptance criteria too vague to break into tasks, locked decisions that contradict each other, a required dependency or constraint not in FEATURE.md, or a locked decision that cannot be planned around — do NOT continue planning. Trigger the blocker path:
+
+**Blocker types (use exact strings):**
+- `ambiguous-scope` — acceptance criteria too vague to break into tasks
+- `conflicting-decisions` — locked decisions contradict each other in a way that prevents planning
+- `missing-context` — a required dependency or constraint is not in FEATURE.md
+- `technical-impossibility` — a locked decision cannot be planned around
+
+**Blocker path (execute in order):**
+
+1. **Check for repeat blocker:** Scan the `## Decisions` section of FEATURE.md for a line matching `[re-discuss resolved: <current-blocker-type>]`. If found, set REPEAT_WARNING to:
+   ```
+   ⚠ WARNING: This blocker type ([type]) occurred before and was resolved via re-discuss. If it recurs, the feature scope may need a more fundamental rethink.
+   ```
+   Otherwise set REPEAT_WARNING to empty string.
+
+2. **Write structured blocker entry** to the `## Blockers` section of `docs/features/${SLUG}/FEATURE.md` using the Edit tool. Detection logic: look for lines starting with `### [type:` to determine if real blockers exist (not just placeholder text). Append the new entry:
+   ```markdown
+   ### [type: <blocker-type>] Detected by: planner | <ISO-date>
+
+   **What the agent found:** <specific description of what was found and why it blocks planning>
+
+   **Why this blocks progress:** <concrete reason — cannot determine X without knowing Y>
+
+   **To resolve:** Run `/gfd:discuss-feature <slug>` to clarify this area.
+   ```
+
+3. **Rewind status:**
+   ```bash
+   $HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "researched"
+   ```
+   (planning → researched: preserves research, un-does the plan stage start)
+
+4. **Check auto-advance mode:**
+   ```bash
+   AUTO_CFG=$($HOME/.claude/get-features-done/bin/gfd-tools config-get workflow.auto_advance 2>/dev/null | grep "^value=" | cut -d= -f2- || echo "false")
+   ```
+   If `AUTO_CFG` is `"true"`: output "Auto-advancing to discuss-feature for blocker resolution" and return `## PLAN BLOCKED (AUTO-ADVANCING)` — the discuss-feature workflow will pick up the active blocker from FEATURE.md.
+   If `AUTO_CFG` is not `"true"`: proceed to step 5.
+
+5. **Return `## PLAN BLOCKED`** structured return with error box:
+   ```markdown
+   ## PLAN BLOCKED
+
+   **Feature:** {slug}
+   **Blocker type:** <blocker-type>
+   **Stage:** planner
+
+   {REPEAT_WARNING if non-empty}
+
+   ╔══════════════════════════════════════════════════════════════╗
+   ║  BLOCKER DETECTED                                            ║
+   ╚══════════════════════════════════════════════════════════════╝
+
+   **What's blocking planning:**
+   <Specific description of what the agent found and why it cannot proceed>
+
+   **To resolve:**
+   `/gfd:discuss-feature {slug}` — focused re-discussion on this area
+
+   ---
+   Blocker written to: docs/features/{slug}/FEATURE.md ## Blockers
+   Status rewound to: researched
+   ```
+
+6. **Stop.** Do not attempt further planning.
+</step>
+
 <step name="break_into_tasks">
 Decompose feature into tasks. **Think dependencies first, not sequence.**
 
@@ -1101,6 +1170,32 @@ Execute: `/gfd:execute-feature {slug}`
 ### Next Steps
 
 Execute: `/gfd:execute-feature {slug} --gaps-only`
+```
+
+## Plan Blocked
+
+```markdown
+## PLAN BLOCKED
+
+**Feature:** {slug}
+**Blocker type:** <blocker-type>
+**Stage:** planner
+
+{REPEAT_WARNING if non-empty}
+
+╔══════════════════════════════════════════════════════════════╗
+║  BLOCKER DETECTED                                            ║
+╚══════════════════════════════════════════════════════════════╝
+
+**What's blocking planning:**
+<Specific description of what the agent found and why it cannot proceed>
+
+**To resolve:**
+`/gfd:discuss-feature {slug}` — focused re-discussion on this area
+
+---
+Blocker written to: docs/features/{slug}/FEATURE.md ## Blockers
+Status rewound to: researched
 ```
 
 ## Checkpoint Reached / Revision Complete

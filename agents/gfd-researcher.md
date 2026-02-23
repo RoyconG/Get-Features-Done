@@ -615,6 +615,75 @@ Problems:  "[tech] common mistakes", "[tech] gotchas"
 
 Run pre-submission checklist (see verification_protocol).
 
+## Step 5.5: Blocker Detection
+
+If at any point during research you encounter an unresolvable issue — ambiguous scope that prevents knowing what to research, conflicting locked decisions, missing context that cannot be inferred, or a technical impossibility in the locked approach — do NOT continue research. Trigger the blocker path:
+
+**Blocker types (use exact strings):**
+- `ambiguous-scope` — scope or feature boundary unclear; cannot determine research target
+- `conflicting-decisions` — two locked decisions in FEATURE.md contradict each other
+- `missing-context` — information needed to proceed is not in FEATURE.md and cannot be inferred
+- `technical-impossibility` — a locked decision is technically unachievable
+
+**Blocker path (execute in order):**
+
+1. **Check for repeat blocker:** Scan the `## Decisions` section of FEATURE.md for a line matching `[re-discuss resolved: <current-blocker-type>]`. If found, set REPEAT_WARNING to:
+   ```
+   ⚠ WARNING: This blocker type ([type]) occurred before and was resolved via re-discuss. If it recurs, the feature scope may need a more fundamental rethink.
+   ```
+   Otherwise set REPEAT_WARNING to empty string.
+
+2. **Write structured blocker entry** to the `## Blockers` section of `docs/features/${SLUG}/FEATURE.md` using the Edit tool. Detection logic: look for lines starting with `### [type:` to determine if real blockers exist (not just placeholder text). Append the new entry:
+   ```markdown
+   ### [type: <blocker-type>] Detected by: researcher | <ISO-date>
+
+   **What the agent found:** <specific description of what was found and why it blocks research>
+
+   **Why this blocks progress:** <concrete reason — cannot determine X without knowing Y>
+
+   **To resolve:** Run `/gfd:discuss-feature <slug>` to clarify this area.
+   ```
+
+3. **Rewind status:**
+   ```bash
+   $HOME/.claude/get-features-done/bin/gfd-tools feature-update-status "${SLUG}" "discussed"
+   ```
+   (researching → discussed: preserves that discuss happened, but un-does the research stage start)
+
+4. **Check auto-advance mode:**
+   ```bash
+   AUTO_CFG=$($HOME/.claude/get-features-done/bin/gfd-tools config-get workflow.auto_advance 2>/dev/null | grep "^value=" | cut -d= -f2- || echo "false")
+   ```
+   If `AUTO_CFG` is `"true"`: output "Auto-advancing to discuss-feature for blocker resolution" and return `## RESEARCH BLOCKED (AUTO-ADVANCING)` — the discuss-feature workflow will pick up the active blocker from FEATURE.md.
+   If `AUTO_CFG` is not `"true"`: proceed to step 5.
+
+5. **Return `## RESEARCH BLOCKED`** structured return with error box:
+   ```markdown
+   ## RESEARCH BLOCKED
+
+   **Feature:** {slug}
+   **Blocker type:** <blocker-type>
+   **Stage:** researcher
+
+   {REPEAT_WARNING if non-empty}
+
+   ╔══════════════════════════════════════════════════════════════╗
+   ║  BLOCKER DETECTED                                            ║
+   ╚══════════════════════════════════════════════════════════════╝
+
+   **What's blocking research:**
+   <Specific description of what the agent found and why it cannot proceed>
+
+   **To resolve:**
+   `/gfd:discuss-feature {slug}` — focused re-discussion on this area
+
+   ---
+   Blocker written to: docs/features/{slug}/FEATURE.md ## Blockers
+   Status rewound to: discussed
+   ```
+
+6. **Stop.** Do not attempt further research.
+
 ## Step 6: Write RESEARCH.md
 
 **ALWAYS use Write tool to persist to disk** — mandatory regardless of `commit_docs` setting.
@@ -712,18 +781,25 @@ Research complete. Planner can now create PLAN.md files.
 ```markdown
 ## RESEARCH BLOCKED
 
-**Feature/Project:** {name}
-**Blocked by:** [what's preventing progress]
+**Feature:** {slug}
+**Blocker type:** <blocker-type>
+**Stage:** researcher
 
-### Attempted
-[What was tried]
+{REPEAT_WARNING if non-empty}
 
-### Options
-1. [Option to resolve]
-2. [Alternative approach]
+╔══════════════════════════════════════════════════════════════╗
+║  BLOCKER DETECTED                                            ║
+╚══════════════════════════════════════════════════════════════╝
 
-### Awaiting
-[What's needed to continue]
+**What's blocking research:**
+<Specific description of what the agent found and why it cannot proceed>
+
+**To resolve:**
+`/gfd:discuss-feature {slug}` — focused re-discussion on this area
+
+---
+Blocker written to: docs/features/{slug}/FEATURE.md ## Blockers
+Status rewound to: discussed
 ```
 
 </structured_returns>
