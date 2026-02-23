@@ -16,12 +16,12 @@ Audit all GFD agents for token efficiency — identify overqualified models, red
 
 ## Acceptance Criteria
 
-- [ ] One-time audit document produced in docs/ analyzing token usage across all agent roles with findings and recommendations
-- [ ] New `/gfd:configure-models` command walks users through each agent role, showing Claude family models as options plus free text for custom models
-- [ ] Each agent role shows the recommended model during selection, with warnings if a potentially too-weak model is chosen
-- [ ] Model preferences persisted in GFD config file and respected by all workflows
-- [ ] Token usage summary (per agent role) displayed at the end of each major workflow (research, plan, execute)
-- [ ] Cumulative `## Token Usage` section maintained in FEATURE.md across workflow runs
+- [x] One-time audit document produced in docs/ analyzing token usage across all agent roles with findings and recommendations
+- [x] New `/gfd:configure-models` command walks users through each agent role, showing Claude family models as options plus free text for custom models
+- [x] Each agent role shows the recommended model during selection, with warnings if a potentially too-weak model is chosen
+- [x] Model preferences persisted in GFD config file and respected by all workflows
+- [x] Token usage summary (per agent role) displayed at the end of each major workflow (research, plan, execute)
+- [x] Cumulative `## Token Usage` section maintained in FEATURE.md across workflow runs
 
 ## Tasks
 
