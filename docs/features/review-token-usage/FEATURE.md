@@ -1,7 +1,7 @@
 ---
 name: Review Token Usage
 slug: review-token-usage
-status: planned
+status: in-progress
 owner: Conroy
 assignees: []
 created: 2026-02-20
