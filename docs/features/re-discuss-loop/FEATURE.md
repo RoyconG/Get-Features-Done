@@ -26,7 +26,8 @@ When downstream stages (research, planning, execution) encounter blockers they c
 
 ## Tasks
 
-[Populated during planning. Links to plan files.]
+- [01-PLAN.md](01-PLAN.md) — Add blocker detection to researcher, planner, executor agents
+- [02-PLAN.md](02-PLAN.md) — Add Step 2.5 blocker-detection branch to discuss-feature workflow
 
 ## Notes
 
