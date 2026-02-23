@@ -391,6 +391,54 @@ git add "${feature_dir}/FEATURE.md" "${feature_dir}/VERIFICATION.md" && git diff
 ```
 </step>
 
+<step name="token_usage_reporting">
+After all plans have executed (and verifier has run, if enabled), append token usage rows to FEATURE.md.
+
+1. Resolve models for the agents that ran:
+   ```bash
+   gfd-tools resolve-model gfd-executor
+   gfd-tools resolve-model gfd-verifier
+   ```
+   Extract each model: `grep "^model=" | cut -d= -f2-`
+
+2. Get today's date: `date +%Y-%m-%d`
+
+3. Read the current FEATURE.md content (`docs/features/<slug>/FEATURE.md`).
+
+4. Check if `## Token Usage` section exists:
+   - If yes: append rows to the existing table.
+   - If no: create the section with header.
+
+5. Rows to append (one per agent role that ran):
+   ```
+   | execute | <YYYY-MM-DD> | gfd-executor | <executor-model> | est. |
+   ```
+   If verifier ran (check workflow config — verifier is enabled unless explicitly disabled):
+   ```
+   | execute | <YYYY-MM-DD> | gfd-verifier | <verifier-model> | est. |
+   ```
+
+6. Table format when creating new section:
+   ```markdown
+   ## Token Usage
+
+   | Workflow | Date | Agent Role | Model | Cost |
+   |----------|------|------------|-------|------|
+   | execute | <YYYY-MM-DD> | gfd-executor | <model> | est. |
+   | execute | <YYYY-MM-DD> | gfd-verifier | <model> | est. |
+   ```
+
+7. Update FEATURE.md using Edit or Write tool.
+
+8. Commit:
+   ```bash
+   git add docs/features/<slug>/FEATURE.md
+   git commit -m "docs(<slug>): add execute token usage"
+   ```
+
+   Note: These are `est.` (estimated) costs because interactive Task() tool calls do not reliably surface token counts to the parent orchestrator. For auto-plan runs (headless), the C# AutoPlanCommand writes exact cost data separately.
+</step>
+
 <step name="offer_next">
 **Display stage banner:**
 
