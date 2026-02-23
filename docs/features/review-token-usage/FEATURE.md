@@ -1,7 +1,7 @@
 ---
 name: Review Token Usage
 slug: review-token-usage
-status: in-progress
+status: done
 owner: Conroy
 assignees: []
 created: 2026-02-20
@@ -55,6 +55,10 @@ Audit all GFD agents for token efficiency — identify overqualified models, red
 - Plan 02: Use stream-json output format so both agent text and token cost data come from a single invocation; parse the final result-type JSON line for resultText and token fields
 - Plan 02: All FEATURE.md mutations (status update + token row) done before git commit so the commit is one atomic unit
 - Plan 02: Use "est." in cost column when TotalCostUsd is 0 to avoid misleading zero-precision display
+- Plan 03: configure-models uses no Task tool — fully interactive via AskUserQuestion, no subagent spawning
+- Plan 03: Write tool (not Bash) for config.json updates to avoid shell quoting issues with JSON
+- Plan 03: Include all 5 roles in model_overrides even when unchanged, for self-documenting config
+- Plan 03: Warn for haiku only on gfd-planner and gfd-executor; haiku is acceptable for researcher/verifier/codebase-mapper
 
 ## Blockers
 
