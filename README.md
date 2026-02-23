@@ -16,7 +16,7 @@ A structured feature delivery toolkit for [Claude Code](https://docs.anthropic.c
 ## Prerequisites
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and working
-- [Node.js](https://nodejs.org/) (v18+) — used by the `gfd-tools` CLI
+- [.NET 10](https://dotnet.microsoft.com/) — used by the `gfd-tools` CLI
 - [Git](https://git-scm.com/) — GFD creates atomic commits throughout the workflow
 
 ## Installation
@@ -38,7 +38,7 @@ If you already have files in those locations, they'll be backed up with a `.bak`
 Verify the install:
 
 ```bash
-node ~/.claude/get-features-done/bin/gfd-tools.cjs --help
+~/.claude/get-features-done/bin/gfd-tools --help
 ```
 
 ## Quick Start

@@ -38,6 +38,9 @@ rootCommand.Add(AutoResearchCommand.Create(cwd));
 // ─── auto-plan ───────────────────────────────────────────────────────────────
 rootCommand.Add(AutoPlanCommand.Create(cwd));
 
+// ─── convert-gsd ─────────────────────────────────────────────────────────────
+rootCommand.Add(ConvertGsdCommands.Create(cwd));
+
 // ─── resolve-model ───────────────────────────────────────────────────────────
 var resolveModelCmd = new Command("resolve-model") { Description = "Resolve model tier for an agent" };
 var resolveModelArg = new Argument<string>("agent-name") { Description = "Agent name (e.g. gfd-executor)" };
