@@ -1,7 +1,7 @@
 ---
 name: Discuss Improvement
 slug: discuss-improvement
-status: planned
+status: done
 owner: Conroy
 assignees: []
 created: 2026-02-21
@@ -36,6 +36,11 @@ Enhances the `/gfd:discuss-feature` workflow to accept additional context (ticke
 - **Claude's discretion:** Whether to save raw text or summarize based on length
 
 ## Decisions
+
+- **File read failure handling:** Falls through to interactive prompt rather than hard-failing. Provides graceful degradation when FILE_PATH is invalid.
+- **SOURCE_CONTEXT threshold:** ~500 words for raw vs. summarized in FEATURE.md Notes — left to Claude's discretion per acceptance criteria.
+- **Empty Source Context:** The `### Source Context` heading is entirely omitted from Notes when SOURCE_CONTEXT is empty (no blank section written).
+- **Step placement:** New Step 5 placed between banner display (Step 4) and analysis (Step 6) to group context-gathering logically before analysis begins.
 
 ## Blockers
 
