@@ -176,8 +176,8 @@ public static class ClaudeService
             ? "(none)"
             : string.Join("\n", result.Stdout.Split('\n').TakeLast(50));
 
-        var costLine = result.TotalCostUsd > 0
-            ? $"\n**Cost:** ${result.TotalCostUsd:F4}"
+        var tokenLine = result.InputTokens > 0
+            ? $"\n**Tokens:** {result.InputTokens:N0} input, {result.OutputTokens:N0} output, {result.CacheReadTokens:N0} cache read"
             : "";
 
         return $"""
@@ -185,7 +185,7 @@ public static class ClaudeService
 
 **Status:** {status}
 **Started:** {startedAt}
-**Duration:** {result.DurationSeconds:F1}s{costLine}
+**Duration:** {result.DurationSeconds:F1}s{tokenLine}
 
 ## Outcome
 

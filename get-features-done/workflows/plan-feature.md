@@ -449,18 +449,18 @@ After planning is complete and committed, append a token usage row to FEATURE.md
 
 5. Row format:
    ```
-   | plan | <YYYY-MM-DD> | gfd-planner | <model> | est. |
+   | plan | <YYYY-MM-DD> | gfd-planner | <model> | — | — | — |
    ```
+   Note: Interactive workflow runs use `—` for token columns because exact token counts are not available from the Task tool return value. For headless auto-plan runs, the C# AutoPlanCommand writes actual token counts.
 
 6. New section format (when creating for the first time):
    ```markdown
    ## Token Usage
 
-   | Workflow | Date | Agent Role | Model | Cost |
-   |----------|------|------------|-------|------|
-   | plan | <YYYY-MM-DD> | gfd-planner | <model> | est. |
+   | Workflow | Date | Agent Role | Model | Input | Output | Cache Read |
+   |----------|------|------------|-------|-------|--------|------------|
+   | plan | <YYYY-MM-DD> | gfd-planner | <model> | — | — | — |
    ```
-   Note: Interactive workflow runs mark cost as `est.` (estimated) because exact token counts are not available from the Task tool return value. For headless auto-plan runs, the C# AutoPlanCommand writes exact cost data.
 
 7. Use the Edit tool (preferred) or Write tool to update FEATURE.md with the new row.
 

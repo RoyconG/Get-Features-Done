@@ -411,21 +411,22 @@ After all plans have executed (and verifier has run, if enabled), append token u
 
 5. Rows to append (one per agent role that ran):
    ```
-   | execute | <YYYY-MM-DD> | gfd-executor | <executor-model> | est. |
+   | execute | <YYYY-MM-DD> | gfd-executor | <executor-model> | — | — | — |
    ```
    If verifier ran (check workflow config — verifier is enabled unless explicitly disabled):
    ```
-   | execute | <YYYY-MM-DD> | gfd-verifier | <verifier-model> | est. |
+   | execute | <YYYY-MM-DD> | gfd-verifier | <verifier-model> | — | — | — |
    ```
+   Note: Interactive workflow runs use `—` for token columns because exact token counts are not available from the Task tool return value. For headless runs, the C# commands write actual token counts.
 
 6. Table format when creating new section:
    ```markdown
    ## Token Usage
 
-   | Workflow | Date | Agent Role | Model | Cost |
-   |----------|------|------------|-------|------|
-   | execute | <YYYY-MM-DD> | gfd-executor | <model> | est. |
-   | execute | <YYYY-MM-DD> | gfd-verifier | <model> | est. |
+   | Workflow | Date | Agent Role | Model | Input | Output | Cache Read |
+   |----------|------|------------|-------|-------|--------|------------|
+   | execute | <YYYY-MM-DD> | gfd-executor | <model> | — | — | — |
+   | execute | <YYYY-MM-DD> | gfd-verifier | <model> | — | — | — |
    ```
 
 7. Update FEATURE.md using Edit or Write tool.
@@ -435,8 +436,6 @@ After all plans have executed (and verifier has run, if enabled), append token u
    git add docs/features/<slug>/FEATURE.md
    git commit -m "docs(<slug>): add execute token usage"
    ```
-
-   Note: These are `est.` (estimated) costs because interactive Task() tool calls do not reliably surface token counts to the parent orchestrator. For auto-plan runs (headless), the C# AutoPlanCommand writes exact cost data separately.
 </step>
 
 <step name="offer_next">

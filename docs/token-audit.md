@@ -48,7 +48,7 @@ The synthesis and cross-verification steps require genuine reasoning, not just r
 
 **Recommended model:** sonnet
 
-**Cost profile:** Medium. Research runs are typically 30-60K input tokens (feature context + web content). A single research session runs $0.10-0.30 at sonnet rates.
+**Token profile:** Medium. Research runs are typically 30-60K input tokens (feature context + web content).
 
 ---
 
@@ -78,7 +78,7 @@ The must-haves derivation requires structured reasoning across multiple levels s
 
 **Recommended model:** sonnet
 
-**Cost profile:** Medium-high. Planning involves reading multiple codebase files + prior SUMMARYs + writing structured plans. Typically 40-80K tokens. $0.12-0.25 per plan at sonnet rates.
+**Token profile:** Medium-high. Planning involves reading multiple codebase files + prior SUMMARYs + writing structured plans. Typically 40-80K tokens.
 
 ---
 
@@ -108,7 +108,7 @@ Executor tasks have the highest failure cost: incorrect code changes require rew
 
 **Recommended model:** sonnet
 
-**Cost profile:** High. Executors read source files, implement changes, run builds, and may iterate on failures. Typical plan: 60-150K tokens. $0.20-0.50 per plan at sonnet rates.
+**Token profile:** High. Executors read source files, implement changes, run builds, and may iterate on failures. Typical plan: 60-150K tokens.
 
 ---
 
@@ -139,9 +139,9 @@ Haiku handles structured comparison tasks well. The gap output format is fixed Y
 
 **Recommended model:** haiku
 
-**Cost profile:** Low. Verification involves reading files and running grep checks. Typically 20-40K tokens. $0.02-0.05 at haiku rates vs $0.06-0.15 at sonnet rates.
+**Token profile:** Low. Verification involves reading files and running grep checks. Typically 20-40K tokens.
 
-**Current assignment:** sonnet (balanced profile) — **overqualified**. This is the highest-value optimization: switching verifier to haiku maintains quality while cutting per-verification cost by 60-75%.
+**Current assignment:** sonnet (balanced profile) — **overqualified**. Switching verifier to haiku maintains quality while significantly reducing token usage for this role.
 
 ---
 
@@ -171,7 +171,7 @@ Haiku is well-suited for structured summarization tasks with predefined template
 
 **Recommended model:** haiku
 
-**Cost profile:** Low. Reads files, outputs structured documents. Typically 15-30K tokens. $0.01-0.04 at haiku rates.
+**Token profile:** Low. Reads files, outputs structured documents. Typically 15-30K tokens.
 
 **Current assignment:** haiku (balanced profile) — **already optimal**.
 
@@ -216,52 +216,19 @@ This is the highest-value change: verification is run after every execute workfl
 
 ---
 
-## Pricing Reference (Feb 2026)
+## Estimated Token Usage Per Workflow (balanced profile)
 
-Current Claude model pricing from Anthropic official docs (verified Feb 2026):
+Estimated token ranges based on typical agent task sizes:
 
-| Alias | Model ID | Input $/MTok | Output $/MTok | Context Window |
+| Workflow Stage | Agent Role | Model | Est. Input | Est. Output |
 |---|---|---|---|---|
-| haiku | claude-haiku-4-5 | $1 | $5 | 200K |
-| sonnet | claude-sonnet-4-6 | $3 | $15 | 200K |
-| opus | claude-opus-4-6 | $5 | $25 | 200K |
+| research | gfd-researcher | sonnet | 30-60K | 5-15K |
+| plan (per plan) | gfd-planner | sonnet | 40-80K | 5-20K |
+| execute (per plan) | gfd-executor | sonnet | 60-150K | 10-30K |
+| verify | gfd-verifier | sonnet | 20-40K | 3-8K |
+| map-codebase | gfd-codebase-mapper | haiku | 15-30K | 3-8K |
 
-Note: Claude Haiku 3 (`claude-3-haiku-20240307`) is deprecated and retiring April 19, 2026. The `haiku` alias must resolve to `claude-haiku-4-5`.
-
----
-
-## Estimated Per-Workflow Cost (balanced profile, current)
-
-Rough estimates based on typical agent task sizes and token counts:
-
-| Workflow Stage | Agent Role | Model | Est. Tokens | Est. Cost |
-|---|---|---|---|---|
-| research | gfd-researcher | sonnet | 50K | $0.10-0.25 |
-| plan (per plan) | gfd-planner | sonnet | 60K | $0.12-0.25 |
-| execute (per plan) | gfd-executor | sonnet | 100K | $0.20-0.45 |
-| verify | gfd-verifier | sonnet | 30K | $0.06-0.14 |
-| map-codebase | gfd-codebase-mapper | haiku | 20K | $0.01-0.03 |
-
-**Typical full feature (1 research + 3 plans + 1 verification):**
-- Current balanced: ~$0.90-1.75 per feature
-- After verifier optimization: ~$0.84-1.64 per feature (small saving per feature)
-- At scale (many verifications per feature due to gap-closure cycles): optimization compounds
-
----
-
-## Estimated Per-Workflow Cost (balanced profile, after optimization)
-
-With `gfd-verifier` changed from `sonnet` to `haiku`:
-
-| Workflow Stage | Agent Role | Model | Est. Tokens | Est. Cost |
-|---|---|---|---|---|
-| research | gfd-researcher | sonnet | 50K | $0.10-0.25 |
-| plan (per plan) | gfd-planner | sonnet | 60K | $0.12-0.25 |
-| execute (per plan) | gfd-executor | sonnet | 100K | $0.20-0.45 |
-| verify | gfd-verifier | **haiku** | 30K | **$0.01-0.04** |
-| map-codebase | gfd-codebase-mapper | haiku | 20K | $0.01-0.03 |
-
-**Saving per verification:** ~$0.05-0.10 (75% reduction for verification stage)
+Actual token counts are recorded per-run in each feature's `## Token Usage` table in FEATURE.md (columns: Input, Output, Cache Read). Headless runs (auto-research, auto-plan) capture exact counts; interactive runs show `—`.
 
 ---
 
@@ -269,7 +236,7 @@ With `gfd-verifier` changed from `sonnet` to `haiku`:
 
 1. **Balanced profile is well-calibrated** for the high-complexity roles (planner, executor, researcher). These should remain at sonnet.
 
-2. **gfd-verifier is overqualified at sonnet**. Verification is a structured pattern-matching task with predefined protocols. Haiku handles this well at ~25% of the sonnet cost. Recommend updating the `balanced` profile to use `haiku` for `gfd-verifier`.
+2. **gfd-verifier is overqualified at sonnet**. Verification is a structured pattern-matching task with predefined protocols. Haiku handles this well. Recommend updating the `balanced` profile to use `haiku` for `gfd-verifier`.
 
 3. **gfd-codebase-mapper is correctly assigned** at haiku in balanced profile.
 

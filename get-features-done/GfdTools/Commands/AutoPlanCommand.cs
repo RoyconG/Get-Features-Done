@@ -141,7 +141,7 @@ public static class AutoPlanCommand
             // Append token usage row to FEATURE.md before committing
             var resolvedModel = ConfigService.ResolveModel(cwd, "gfd-planner");
             AppendTokenUsageToFeatureMd(featureMd, "plan", "gfd-planner",
-                resolvedModel, result.TotalCostUsd);
+                resolvedModel, result.InputTokens, result.OutputTokens, result.CacheReadTokens);
 
             // Include FEATURE.md + all plan files in commit
             CommitAutoRunMd(cwd, slug, featureInfo.Directory, autoRunMd, commitMessage,
@@ -198,17 +198,21 @@ public static class AutoPlanCommand
         string workflow,   // "research" or "plan"
         string agentRole,  // "gfd-researcher" or "gfd-planner"
         string model,      // resolved model tier (e.g. "sonnet")
-        double totalCostUsd)
+        int inputTokens,
+        int outputTokens,
+        int cacheReadTokens)
     {
         if (!File.Exists(featureMdPath)) return;
 
         var content = File.ReadAllText(featureMdPath);
         var date = DateTime.UtcNow.ToString("yyyy-MM-dd");
-        var costStr = totalCostUsd > 0 ? $"${totalCostUsd:F4}" : "est.";
-        var newRow = $"| {workflow} | {date} | {agentRole} | {model} | {costStr} |";
+        var inputStr = inputTokens > 0 ? $"{inputTokens:N0}" : "—";
+        var outputStr = outputTokens > 0 ? $"{outputTokens:N0}" : "—";
+        var cacheStr = cacheReadTokens > 0 ? $"{cacheReadTokens:N0}" : "—";
+        var newRow = $"| {workflow} | {date} | {agentRole} | {model} | {inputStr} | {outputStr} | {cacheStr} |";
 
         const string sectionHeader = "## Token Usage";
-        const string tableHeader = "| Workflow | Date | Agent Role | Model | Cost |\n|----------|------|------------|-------|------|";
+        const string tableHeader = "| Workflow | Date | Agent Role | Model | Input | Output | Cache Read |\n|----------|------|------------|-------|-------|--------|------------|";
 
         if (content.Contains(sectionHeader, StringComparison.Ordinal))
         {

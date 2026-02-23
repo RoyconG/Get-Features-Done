@@ -60,11 +60,11 @@ When downstream stages (research, planning, execution) encounter blockers they c
 
 ## Token Usage
 
-| Workflow | Date | Agent Role | Model | Cost |
-|----------|------|------------|-------|------|
-| execute | 2026-02-23 | gfd-executor | sonnet | est. |
-| execute | 2026-02-23 | gfd-executor | sonnet | est. |
-| execute | 2026-02-23 | gfd-verifier | sonnet | est. |
+| Workflow | Date | Agent Role | Model | Input | Output | Cache Read |
+|----------|------|------------|-------|-------|--------|------------|
+| execute | 2026-02-23 | gfd-executor | sonnet | — | — | — |
+| execute | 2026-02-23 | gfd-executor | sonnet | — | — | — |
+| execute | 2026-02-23 | gfd-verifier | sonnet | — | — | — |
 
 ---
 *Created: 2026-02-21*

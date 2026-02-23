@@ -200,18 +200,18 @@ After research is complete and committed, append a token usage row to FEATURE.md
 
 5. Row format:
    ```
-   | research | <YYYY-MM-DD> | gfd-researcher | <model> | est. |
+   | research | <YYYY-MM-DD> | gfd-researcher | <model> | — | — | — |
    ```
+   Note: Interactive workflow runs use `—` for token columns because exact token counts are not available from the Task tool return value. For headless auto-research runs, the C# AutoResearchCommand writes actual token counts.
 
 6. New section format (when creating for the first time):
    ```markdown
    ## Token Usage
 
-   | Workflow | Date | Agent Role | Model | Cost |
-   |----------|------|------------|-------|------|
-   | research | <YYYY-MM-DD> | gfd-researcher | <model> | est. |
+   | Workflow | Date | Agent Role | Model | Input | Output | Cache Read |
+   |----------|------|------------|-------|-------|--------|------------|
+   | research | <YYYY-MM-DD> | gfd-researcher | <model> | — | — | — |
    ```
-   Note: Interactive workflow runs mark cost as `est.` (estimated) because exact token counts are not available from the Task tool return value. For headless auto-research runs, the C# AutoResearchCommand writes exact cost data.
 
 7. Use the Edit tool (preferred) or Write tool to update FEATURE.md with the new row.
 
