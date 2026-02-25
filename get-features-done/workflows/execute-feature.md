@@ -46,7 +46,7 @@ Extract values from key=value output:
 - `feature_status` (grep "^feature_status=" | cut -d= -f2-)
 - `plan_count` (grep "^plan_count=" | cut -d= -f2-)
 - `incomplete_count` (grep "^incomplete_count=" | cut -d= -f2-)
-- Each `plans=` line is a plan entry; each `incomplete_plan=` line is an incomplete plan
+- Each `plan=` line is a plan filename (repeated, one per plan); each `incomplete_plan=` line is an incomplete plan filename
 
 Read feature file separately:
 ```bash
@@ -98,9 +98,12 @@ Load plan inventory with wave grouping:
 PLAN_INDEX=$($HOME/.claude/get-features-done/bin/gfd-tools feature-plan-index "${SLUG}")
 ```
 
-Extract from key=value output: `slug`, repeated `plan=` lines (each with id, wave, autonomous, objective, files_modified, task_count, has_summary), `incomplete=` lines, `has_checkpoints`.
+Extract from key=value output:
+- Summary keys: `slug=`, `plan_count=`, `complete_count=`
+- Per-plan keys (one group per plan): `plan_id=`, `plan_file=`, `plan_type=`, `plan_wave=`, `plan_status=` (`complete` or `pending`), `plan_autonomous=` (`true` or `false`)
+- Per-wave summary keys: `wave_id=`, `wave_plan_count=`, `wave_complete_count=`
 
-**Filtering:** Skip plans where `has_summary: true` (already complete). If all filtered: report "All plans already complete" and proceed to verification.
+**Filtering:** Skip plans where `plan_status=complete` (already complete). If all filtered: report "All plans already complete" and proceed to verification.
 
 Report the execution plan:
 
@@ -450,10 +453,10 @@ After all plans have executed (and verifier has run, if enabled), append token u
 Check remaining features by scanning `docs/features/` for FEATURE.md files with status not "done":
 
 ```bash
-REMAINING=$($HOME/.claude/get-features-done/bin/gfd-tools list-features --status not-done)
+REMAINING=$($HOME/.claude/get-features-done/bin/gfd-tools list-features)
 ```
 
-Extract from key=value output: repeated `feature=` lines with name, status, slug, priority fields.
+Extract from key=value output: each feature appears as a group of repeated keys — `feature_slug=`, `feature_name=`, `feature_status=`, `feature_owner=`, `feature_priority=` — one group per feature. Filter out any feature where `feature_status` is `done`.
 
 **Route based on remaining features:**
 

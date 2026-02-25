@@ -10,7 +10,7 @@ Display a plain table of all active features with their current lifecycle status
 FEATURES_RAW=$($HOME/.claude/get-features-done/bin/gfd-tools list-features)
 ```
 
-Extract from key=value output: each feature appears as repeated `feature=` lines. Parse each feature's name, slug, status, priority. Filter out any feature where `status` is `done`.
+Extract from key=value output: each feature appears as a group of repeated keys — `feature_slug=`, `feature_name=`, `feature_status=`, `feature_owner=`, `feature_priority=` — one group per feature. Filter out any feature where `feature_status` is `done`.
 
 ## 2. Render Status Table
 

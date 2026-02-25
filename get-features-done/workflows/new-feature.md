@@ -61,7 +61,7 @@ Exit.
 INIT=$($HOME/.claude/get-features-done/bin/gfd-tools init new-feature "${SLUG}")
 ```
 
-Extract from key=value output: `project_exists`, `feature_exists`, `feature_dir`, `planner_model` (grep "^key=" | cut -d= -f2-).
+Extract from key=value output: `project_exists`, `feature_exists`, `feature_dir` (grep "^key=" | cut -d= -f2-).
 
 **If `project_exists` is false:**
 
