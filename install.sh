@@ -50,4 +50,4 @@ done
 
 echo
 echo "GFD installed successfully."
-echo "Verify with: node ~/.claude/get-features-done/bin/gfd-tools.cjs --help"
+echo "Verify with: ~/.claude/get-features-done/bin/gfd-tools --help"
